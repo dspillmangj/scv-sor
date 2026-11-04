@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SOR & BRE Open Shift Filter & Exporter</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              navy: '#0b1329',
+              dark: '#0f172a',
+              card: '#1e293b',
+              accent: '#2563eb',
+              accentHover: '#1d4ed8'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap');
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 13px;
+      line-height: 1.4;
+      background-color: #f1f5f9;
+      color: #0f172a;
+    }
+    .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    ::-webkit-scrollbar {
+      width: 7px;
+      height: 7px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #e2e8f0;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #94a3b8;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #64748b;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased bg-slate-100 text-slate-900">
+
+  <!-- Header -->
+  <header class="bg-brand-navy border-b border-slate-800 text-white shadow-md sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center font-black text-white text-lg tracking-wider shadow-inner">
+          SOR
+        </div>
+        <div>
+          <h1 class="text-base font-bold tracking-tight text-white flex items-center gap-2">
+            Open Shift Filter & Daily Schedule Exporter
+            <span class="text-[10px] bg-blue-500/20 text-blue-300 font-medium px-2 py-0.5 rounded-full border border-blue-500/30">v1.0</span>
+          </h1>
+          <p class="text-xs text-slate-400">Filters unfilled SOR & BRE shifts, masks post IDs, sorts by Date & Start Time, and exports daily sectioned CSV</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2.5">
+        <button id="btnExportCSV" disabled class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold rounded-lg text-xs flex items-center gap-2 shadow-sm transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          Export Formatted CSV
+        </button>
+        <button id="btnClear" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-medium border border-slate-700 transition">
+          Reset
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 flex-1 w-full flex flex-col gap-6">
+
+    <!-- Upload & Controls Row -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      
+      <!-- Upload Card -->
+      <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+              <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+              Input Data (Proto.csv / Schedule CSV)
+            </h2>
+            <span id="fileBadge" class="hidden text-[11px] font-mono px-2 py-0.5 rounded bg-blue-50 text-blue-700 font-semibold border border-blue-200"></span>
+          </div>
+
+          <!-- Drag and Drop Box -->
+          <div id="dropZone" class="border-2 border-dashed border-slate-300 hover:border-blue-500 rounded-xl p-6 text-center cursor-pointer transition bg-slate-50 hover:bg-blue-50/40 group">
+            <input type="file" id="fileInput" accept=".csv" class="hidden" />
+            <div class="flex flex-col items-center gap-2">
+              <div class="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center group-hover:scale-105 transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+              </div>
+              <p class="text-sm font-semibold text-slate-700">Click to select or drag and drop schedule CSV file</p>
+              <p class="text-xs text-slate-500">Supports standard master schedule / Proto.csv files</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sample Load button for testing convenience -->
+        <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Testing locally? You can load <code class="font-mono bg-slate-100 px-1 py-0.5 rounded text-slate-700">Proto.csv</code> directly:</span>
+          <button id="btnLoadSample" class="text-xs font-semibold text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1">
+            Load Proto.csv
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Settings & Column Configuration -->
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col justify-between">
+        <div>
+          <h2 class="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
+            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+            Export Column Setup
+          </h2>
+          <div class="space-y-3 text-xs">
+            <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg">
+              <label class="block font-semibold text-slate-700 mb-1">Export Column Mode:</label>
+              <div class="space-y-1.5 mt-2">
+                <label class="flex items-center gap-2 cursor-pointer font-medium text-slate-800">
+                  <input type="radio" name="colMode" value="standard" checked class="text-blue-600 focus:ring-blue-500">
+                  <span>Standard View (Exact 4 columns)</span>
+                </label>
+                <div class="pl-5 text-[11px] text-slate-500">
+                  Date (WorkDate), Post Type, Shift Start, Shift End
+                </div>
+                
+                <label class="flex items-center gap-2 cursor-pointer font-medium text-slate-800 mt-2">
+                  <input type="radio" name="colMode" value="minimal" class="text-blue-600 focus:ring-blue-500">
+                  <span>Minimal (Date & Post Type only)</span>
+                </label>
+                <div class="pl-5 text-[11px] text-slate-500">
+                  Date, Post Type
+                </div>
+
+                <label class="flex items-center gap-2 cursor-pointer font-medium text-slate-800 mt-2">
+                  <input type="radio" name="colMode" value="all" class="text-blue-600 focus:ring-blue-500">
+                  <span>Full Original CSV Columns</span>
+                </label>
+                <div class="pl-5 text-[11px] text-slate-500">
+                  All original columns with PostDescription sanitized
+                </div>
+              </div>
+            </div>
+
+            <div class="p-3 bg-blue-50/60 border border-blue-200/70 rounded-lg text-slate-700">
+              <span class="font-semibold block text-blue-900 mb-1">Filter & Masking Rules Enforced:</span>
+              <ul class="list-disc pl-4 space-y-0.5 text-[11.5px] text-slate-600">
+                <li><span class="font-semibold text-slate-800">Unfilled only:</span> Filters out filled shifts (EmployeeNumber must be blank).</li>
+                <li><span class="font-semibold text-slate-800">No Satellite:</span> Strips all <code class="font-mono text-xs bg-white px-1 border rounded">-S</code> shifts.</li>
+                <li><span class="font-semibold text-slate-800">Excluded:</span> Any hybrid shifts (Break Relief/GSOC, etc.).</li>
+                <li><span class="font-semibold text-slate-800">Post Masking:</span> 6-digit SOR IDs masked to <code class="font-mono text-xs bg-blue-100 text-blue-800 px-1 rounded">SOR</code>; <code class="font-mono text-xs bg-blue-100 text-blue-800 px-1 rounded">-Sb01</code> preserved as <code class="font-mono text-xs bg-blue-100 text-blue-800 px-1 rounded">SOR-Sb01</code>.</li>
+                <li><span class="font-semibold text-slate-800">CSV Export:</span> Chronologically sorted by Date, then Start Time, with 2 delimiter rows (1 blank + headers) between distinct days.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Stats Cards Summary -->
+    <div id="statsRow" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+      <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm">
+        <span class="text-xs font-medium text-slate-500 uppercase tracking-wider block">Total Raw Rows</span>
+        <span id="statRawRows" class="text-xl font-bold font-mono text-slate-900 mt-1 block">-</span>
+      </div>
+      <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm">
+        <span class="text-xs font-medium text-slate-500 uppercase tracking-wider block">Filled (Ignored)</span>
+        <span id="statFilled" class="text-xl font-bold font-mono text-slate-500 mt-1 block">-</span>
+      </div>
+      <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm">
+        <span class="text-xs font-medium text-slate-500 uppercase tracking-wider block">Unfilled Open</span>
+        <span id="statUnfilled" class="text-xl font-bold font-mono text-amber-600 mt-1 block">-</span>
+      </div>
+      <div class="bg-white p-3.5 rounded-xl border border-blue-200 bg-blue-50/40 shadow-sm">
+        <span class="text-xs font-medium text-blue-700 uppercase tracking-wider block font-semibold">Accepted Shifts</span>
+        <span id="statAccepted" class="text-xl font-bold font-mono text-blue-700 mt-1 block">-</span>
+      </div>
+      <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm">
+        <span class="text-xs font-medium text-slate-500 uppercase tracking-wider block">CUP Shifts</span>
+        <span id="statCUP" class="text-xl font-bold font-mono text-indigo-600 mt-1 block">-</span>
+      </div>
+      <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm">
+        <span class="text-xs font-medium text-slate-500 uppercase tracking-wider block">SV Shifts</span>
+        <span id="statSV" class="text-xl font-bold font-mono text-emerald-600 mt-1 block">-</span>
+      </div>
+    </div>
+
+    <!-- Active Table View -->
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 flex-1 flex flex-col overflow-hidden">
+      
+      <!-- Table Action Bar -->
+      <div class="p-4 border-b border-slate-200 bg-slate-50/70 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <span class="font-bold text-slate-800 text-sm flex items-center gap-2">
+            Filtered Shift Schedule
+            <span id="rowCountBadge" class="text-xs font-mono bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full font-semibold">0 shifts</span>
+          </span>
+          <span id="dateCountBadge" class="text-xs font-mono bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-semibold">0 distinct days</span>
+        </div>
+
+        <div class="flex items-center gap-3 flex-wrap">
+          <!-- Filter by Date -->
+          <div class="flex items-center gap-1.5 text-xs">
+            <label class="text-slate-600 font-medium">Filter Date:</label>
+            <select id="filterDate" class="bg-white border border-slate-300 rounded-md px-2 py-1 text-xs text-slate-700 font-medium focus:ring-blue-500 focus:border-blue-500">
+              <option value="ALL">All Dates</option>
+            </select>
+          </div>
+
+          <!-- Filter by Type / Location -->
+          <div class="flex items-center gap-1.5 text-xs">
+            <label class="text-slate-600 font-medium">Filter Type:</label>
+            <select id="filterType" class="bg-white border border-slate-300 rounded-md px-2 py-1 text-xs text-slate-700 font-medium focus:ring-blue-500 focus:border-blue-500">
+              <option value="ALL">All Types</option>
+              <option value="CUP">Cupertino (CUP) Only</option>
+              <option value="SV">Sunnyvale (SV) Only</option>
+              <option value="SOR">SOR Only</option>
+              <option value="BRE">Break Relief Extra Only</option>
+              <option value="CUP SOR">CUP SOR</option>
+              <option value="SV SOR">SV SOR</option>
+              <option value="CUP Break Relief Extra">CUP Break Relief Extra</option>
+              <option value="SV Break Relief Extra">SV Break Relief Extra</option>
+            </select>
+          </div>
+
+          <!-- Quick Search -->
+          <input type="text" id="searchInput" placeholder="Search table..." class="bg-white border border-slate-300 rounded-md px-2.5 py-1 text-xs placeholder-slate-400 focus:ring-blue-500 focus:border-blue-500 w-44">
+        </div>
+      </div>
+
+      <!-- Table Scrollable Body -->
+      <div class="overflow-x-auto overflow-y-auto max-h-[600px] flex-1">
+        <table class="w-full text-left text-xs border-collapse">
+          <thead class="bg-slate-100 text-slate-700 uppercase tracking-wider font-semibold border-b border-slate-200 sticky top-0 z-10">
+            <tr>
+              <th class="py-2.5 px-3 border-r border-slate-200 w-12 text-center">#</th>
+              <th class="py-2.5 px-3 border-r border-slate-200">Date (WorkDate)</th>
+              <th class="py-2.5 px-3 border-r border-slate-200">Post Type</th>
+              <th class="py-2.5 px-3 border-r border-slate-200">Shift Start</th>
+              <th class="py-2.5 px-3 border-r border-slate-200">Shift End</th>
+              <th class="py-2.5 px-3 text-slate-400">Orig Post (Masked ID)</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody" class="divide-y divide-slate-200 font-normal">
+            <tr>
+              <td colspan="6" class="py-12 text-center text-slate-400 italic">
+                No schedule loaded. Upload a CSV file or load sample Proto.csv to begin.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Table Footer / Preview Bar -->
+      <div class="p-3 border-t border-slate-200 bg-slate-50 flex items-center justify-between text-xs text-slate-500">
+        <div id="tableStatus">Showing 0 rows</div>
+        <div class="text-[11px] text-slate-400">
+          Export creates CSV grouped by date, sorted by start time, with 2-row breaks: [Blank Row] &rarr; [Headers]
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Export Delimiter Structure Explainer Card -->
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+      <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+        <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        Export Format Specification Details
+      </h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-slate-600">
+        <div class="bg-slate-50 p-3 rounded-lg border border-slate-200">
+          <p class="font-semibold text-slate-800 mb-1">Inter-Day Row Breaks (2 Rows):</p>
+          <p class="text-slate-600 mb-2">When the export transitions to a new calendar date, it inserts:</p>
+          <div class="font-mono text-[11px] bg-slate-900 text-slate-100 p-2.5 rounded space-y-1">
+            <div class="text-slate-400">11/13/2026, SOR, 15:00, 23:45, ... (Last shift of Day 1)</div>
+            <div class="text-amber-400">&lt;BLANK ROW&gt;</div>
+            <div class="text-emerald-400">WorkDate, PostDescription, ShiftStartTime, ... &lt;HEADER ROW&gt;</div>
+            <div class="text-slate-300">11/14/2026, BRE, 08:30, 17:15, ... (First shift of Day 2)</div>
+          </div>
+        </div>
+        <div class="bg-slate-50 p-3 rounded-lg border border-slate-200">
+          <p class="font-semibold text-slate-800 mb-1">Masking & Criteria Check:</p>
+          <ul class="list-disc pl-4 space-y-1 text-slate-600 text-[11.5px]">
+            <li><span class="font-medium text-slate-800">JobNumber Location Mapping:</span>
+              <ul class="list-disc pl-4 mt-0.5 space-y-0.5 text-slate-500">
+                <li><code class="font-mono text-slate-700">233265</code> &rarr; <b class="text-blue-700">CUP SOR</b></li>
+                <li><code class="font-mono text-slate-700">235144</code> &rarr; <b class="text-emerald-700">CUP Break Relief Extra</b></li>
+                <li><code class="font-mono text-slate-700">266778</code> &rarr; <b class="text-blue-700">SV SOR</b></li>
+                <li><code class="font-mono text-slate-700">267588</code> &rarr; <b class="text-emerald-700">SV Break Relief Extra</b></li>
+              </ul>
+            </li>
+            <li><span class="font-medium text-slate-800">Filtered Out:</span> Shifts with EmployeeNumber filled in (assigned).</li>
+            <li><span class="font-medium text-slate-800">Filtered Out:</span> PostDescription ending with satellite tag <code class="font-mono bg-white px-1 border rounded">-S</code> (e.g. 255577-S, 261237-S, 261617-S).</li>
+            <li><span class="font-medium text-slate-800">Filtered Out:</span> Hybrids or non-SOR/BRE (e.g. Break Relief/GSOC Hybrid, Pad).</li>
+            <li><span class="font-medium text-slate-800">SOR Masking:</span> 6-digit SOR posts (e.g. 258171-Ap01, 262562) &rarr; <code class="font-mono font-bold text-blue-600">CUP SOR</code> or <code class="font-mono font-bold text-blue-600">SV SOR</code>.</li>
+            <li><span class="font-medium text-slate-800">Sb01 Exception:</span> Posts like <code class="font-mono">261190-Sb01</code> &rarr; <code class="font-mono font-bold text-blue-600">CUP SOR-Sb01</code> / <code class="font-mono font-bold text-blue-600">SV SOR-Sb01</code>.</li>
+            <li><span class="font-medium text-slate-800">BRE:</span> Exact match for <code class="font-mono">Break Relief Extra</code> &rarr; <code class="font-mono font-bold text-emerald-600">CUP Break Relief Extra</code> or <code class="font-mono font-bold text-emerald-600">SV Break Relief Extra</code>.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    // State
+    let rawData = [];
+    let processedShifts = [];
+    let currentFileName = "shifts.csv";
+
+    // DOM Elements
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const fileBadge = document.getElementById('fileBadge');
+    const btnLoadSample = document.getElementById('btnLoadSample');
+    const btnExportCSV = document.getElementById('btnExportCSV');
+    const btnClear = document.getElementById('btnClear');
+
+    const statRawRows = document.getElementById('statRawRows');
+    const statFilled = document.getElementById('statFilled');
+    const statUnfilled = document.getElementById('statUnfilled');
+    const statAccepted = document.getElementById('statAccepted');
+    const statSOR = document.getElementById('statSOR');
+    const statBRE = document.getElementById('statBRE');
+
+    const tableBody = document.getElementById('tableBody');
+    const rowCountBadge = document.getElementById('rowCountBadge');
+    const dateCountBadge = document.getElementById('dateCountBadge');
+    const tableStatus = document.getElementById('tableStatus');
+    const filterDate = document.getElementById('filterDate');
+    const filterType = document.getElementById('filterType');
+    const searchInput = document.getElementById('searchInput');
+
+    // Drag and drop event handlers
+    dropZone.addEventListener('click', () => fileInput.click());
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('border-blue-500', 'bg-blue-50/50');
+    });
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.classList.remove('border-blue-500', 'bg-blue-50/50');
+    });
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('border-blue-500', 'bg-blue-50/50');
+      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        handleFile(e.dataTransfer.files[0]);
+      }
+    });
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files.length > 0) {
+        handleFile(e.target.files[0]);
+      }
+    });
+
+    // Reset button
+    btnClear.addEventListener('click', () => {
+      resetState();
+    });
+
+    // Load sample button (fetches Proto.csv in same folder)
+    btnLoadSample.addEventListener('click', async () => {
+      try {
+        btnLoadSample.innerText = "Loading Proto.csv...";
+        const resp = await fetch('Proto.csv');
+        if (!resp.ok) throw new Error("Could not fetch Proto.csv");
+        const text = await resp.text();
+        parseCSVText(text, 'Proto.csv');
+        btnLoadSample.innerText = "Load Proto.csv";
+      } catch (err) {
+        alert("Failed to load Proto.csv automatically: " + err.message + "\nPlease use drag & drop or file selector.");
+        btnLoadSample.innerText = "Load Proto.csv";
+      }
+    });
+
+    function handleFile(file) {
+      if (!file.name.endsWith('.csv')) {
+        alert("Please select a valid CSV file.");
+        return;
+      }
+      currentFileName = file.name;
+      Papa.parse(file, {
+        header: true,
+        skipEmptyLines: 'greedy',
+        complete: function(results) {
+          processRawRows(results.data, file.name);
+        },
+        error: function(err) {
+          alert("Error parsing CSV: " + err.message);
+        }
+      });
+    }
+
+    function parseCSVText(csvText, filename) {
+      currentFileName = filename;
+      Papa.parse(csvText, {
+        header: true,
+        skipEmptyLines: 'greedy',
+        complete: function(results) {
+          processRawRows(results.data, filename);
+        },
+        error: function(err) {
+          alert("Error parsing CSV: " + err.message);
+        }
+      });
+    }
+
+    // Determine location prefix based on JobNumber / JobDescription:
+    // 233265 - Cupertino SORs -> CUP
+    // 235144 - Cupertino BREs -> CUP
+    // 266778 - Sunnyvale SORs -> SV
+    // 267588 - Sunnyvale BREs -> SV
+    function getLocationPrefix(jobNumber, jobDesc) {
+      const jn = (jobNumber || '').trim();
+      const jd = (jobDesc || '').toLowerCase();
+      if (jn === '233265' || jn === '235144') return 'CUP';
+      if (jn === '266778' || jn === '267588') return 'SV';
+      if (jd.includes('sunnyvale') || jd.includes(' sv ') || jd.endsWith(' sv')) return 'SV';
+      return 'CUP'; // Default to Cupertino
+    }
+
+    // Shift classification and filtering logic
+    function classifyAndMask(postDesc, jobNumber, jobDesc) {
+      if (!postDesc) return null;
+      const trimmed = postDesc.trim();
+      const loc = getLocationPrefix(jobNumber, jobDesc);
+
+      // Rule 1: Break Relief Extra exact match
+      if (trimmed === 'Break Relief Extra') {
+        return `${loc} Break Relief Extra`;
+      }
+
+      // Rule 2: SOR matching
+      // Must start with 6 digits, optionally followed by -suffix
+      const sorMatch = trimmed.match(/^(\d{6})(?:-([A-Za-z0-9]+))?$/);
+      if (!sorMatch) {
+        // Excludes hybrids like 'Break Relief/GSOC Hybrid', 'Break Relief/Sor Support Hybrid', 'Pad', etc.
+        return null;
+      }
+
+      const suffix = sorMatch[2]; // e.g., 'S', 'Sb01', 'Ap01', undefined
+
+      // Satellite shift check: do not show any -S shifts
+      if (suffix && suffix.toUpperCase() === 'S') {
+        return null;
+      }
+
+      // Check for Sb01 exception: keep Sb01
+      if (suffix && suffix.toLowerCase() === 'sb01') {
+        return `${loc} SOR-Sb01`;
+      }
+
+      // All other 6-digit SOR shifts (e.g. 262562, 262901-Ap01, 262817-Ao01) get masked to 'CUP SOR' or 'SV SOR'
+      return `${loc} SOR`;
+    }
+
+    // Parse date into sortable comparable key (YYYY-MM-DD)
+    function parseDateObj(dateStr) {
+      if (!dateStr) return { date: null, iso: '9999-99-99', display: '', dayName: '' };
+      const trimmed = dateStr.trim();
+      const parts = trimmed.split('/');
+      if (parts.length === 3) {
+        const m = parseInt(parts[0], 10);
+        const d = parseInt(parts[1], 10);
+        const y = parseInt(parts[2], 10);
+        const fullY = y < 100 ? 2000 + y : y;
+        const dObj = new Date(fullY, m - 1, d);
+        const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        const iso = `${fullY}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        return {
+          date: dObj,
+          iso: iso,
+          display: `${m}/${d}/${fullY}`,
+          dayName: days[dObj.getDay()] || ''
+        };
+      }
+      return { date: null, iso: trimmed, display: trimmed, dayName: '' };
+    }
+
+    // Standardize time to HH:MM for sorting
+    function normalizeTime(timeStr) {
+      if (!timeStr) return '99:99';
+      const trimmed = timeStr.trim();
+      const match = trimmed.match(/^(\d{1,2}):(\d{2})/);
+      if (match) {
+        const h = parseInt(match[1], 10);
+        const m = match[2];
+        return `${String(h).padStart(2, '0')}:${m}`;
+      }
+      return trimmed;
+    }
+
+    function processRawRows(rows, filename) {
+      rawData = rows;
+      fileBadge.innerText = filename;
+      fileBadge.classList.remove('hidden');
+
+      let filledCount = 0;
+      let unfilledCount = 0;
+      let accepted = [];
+
+      rows.forEach((row, idx) => {
+        const emp = (row['EmployeeNumber'] || '').trim();
+        if (emp !== '') {
+          filledCount++;
+          return; // Skip already filled shifts
+        }
+        unfilledCount++;
+
+        const postDesc = (row['PostDescription'] || '').trim();
+        const jobNumber = (row['JobNumber'] || '').trim();
+        const jobDesc = (row['JobDescription'] || '').trim();
+        const shiftType = classifyAndMask(postDesc, jobNumber, jobDesc);
+
+        if (!shiftType) {
+          // Satellite, hybrid, or non-matching shift
+          return;
+        }
+
+        const workDate = (row['WorkDate'] || '').trim();
+        const dateInfo = parseDateObj(workDate);
+
+        // Prefer ShiftStartTime, fallback to InTime
+        const startTime = (row['ShiftStartTime'] || row['InTime'] || '').trim();
+        const endTime = (row['ShiftEndTime'] || row['OutTime'] || '').trim();
+        const hours = (row['Hours'] || row['shifthours'] || '').trim();
+
+        const normTime = normalizeTime(startTime);
+
+        accepted.push({
+          origRow: row,
+          rawIndex: idx + 1,
+          workDate: workDate,
+          dateInfo: dateInfo,
+          startTime: startTime,
+          endTime: endTime,
+          normTime: normTime,
+          hours: hours,
+          jobDesc: jobDesc,
+          origPostDesc: postDesc,
+          shiftType: shiftType // 'SOR', 'BRE', or 'SOR-Sb01'
+        });
+      });
+
+      // Sort accepted shifts:
+      // 1. By WorkDate ascending (chronological date)
+      // 2. By Start Time ascending
+      accepted.sort((a, b) => {
+        if (a.dateInfo.iso !== b.dateInfo.iso) {
+          return a.dateInfo.iso.localeCompare(b.dateInfo.iso);
+        }
+        if (a.normTime !== b.normTime) {
+          return a.normTime.localeCompare(b.normTime);
+        }
+        return a.shiftType.localeCompare(b.shiftType);
+      });
+
+      processedShifts = accepted;
+
+      // Update counters
+      let cupCount = 0;
+      let svCount = 0;
+      const dateSet = new Set();
+
+      processedShifts.forEach(s => {
+        if (s.shiftType.startsWith('CUP')) cupCount++;
+        if (s.shiftType.startsWith('SV')) svCount++;
+        if (s.dateInfo.iso) dateSet.add(s.dateInfo.iso);
+      });
+
+      statRawRows.innerText = rows.length.toLocaleString();
+      statFilled.innerText = filledCount.toLocaleString();
+      statUnfilled.innerText = unfilledCount.toLocaleString();
+      statAccepted.innerText = accepted.length.toLocaleString();
+      statCUP.innerText = cupCount.toLocaleString();
+      statSV.innerText = svCount.toLocaleString();
+
+      rowCountBadge.innerText = `${accepted.length.toLocaleString()} shifts`;
+      dateCountBadge.innerText = `${dateSet.size} distinct days`;
+
+      btnExportCSV.disabled = (accepted.length === 0);
+
+      // Populate Date filter options
+      populateDateFilter(accepted);
+
+      // Render table
+      renderTable();
+    }
+
+    function populateDateFilter(shifts) {
+      filterDate.innerHTML = '<option value="ALL">All Dates</option>';
+      const datesMap = new Map();
+      shifts.forEach(s => {
+        if (s.dateInfo.iso && !datesMap.has(s.dateInfo.iso)) {
+          datesMap.set(s.dateInfo.iso, s);
+        }
+      });
+
+      const sortedIso = Array.from(datesMap.keys()).sort();
+      sortedIso.forEach(iso => {
+        const item = datesMap.get(iso);
+        const opt = document.createElement('option');
+        opt.value = iso;
+        opt.innerText = `${item.dateInfo.display} (${item.dateInfo.dayName})`;
+        filterDate.appendChild(opt);
+      });
+    }
+
+    function getFilteredShifts() {
+      const selectedDate = filterDate.value;
+      const selectedType = filterType.value;
+      const searchTerm = searchInput.value.toLowerCase().trim();
+
+      return processedShifts.filter(s => {
+        if (selectedDate !== 'ALL' && s.dateInfo.iso !== selectedDate) {
+          return false;
+        }
+        if (selectedType !== 'ALL') {
+          if (selectedType === 'CUP' && !s.shiftType.startsWith('CUP')) return false;
+          if (selectedType === 'SV' && !s.shiftType.startsWith('SV')) return false;
+          if (selectedType === 'SOR' && !s.shiftType.includes('SOR')) return false;
+          if (selectedType === 'BRE' && !s.shiftType.includes('Break Relief Extra')) return false;
+          if (selectedType === 'CUP SOR' && s.shiftType !== 'CUP SOR') return false;
+          if (selectedType === 'SV SOR' && s.shiftType !== 'SV SOR') return false;
+          if (selectedType === 'CUP Break Relief Extra' && s.shiftType !== 'CUP Break Relief Extra') return false;
+          if (selectedType === 'SV Break Relief Extra' && s.shiftType !== 'SV Break Relief Extra') return false;
+        }
+        if (searchTerm) {
+          const matchStr = `${s.workDate} ${s.shiftType} ${s.startTime} ${s.endTime} ${s.jobDesc} ${s.origPostDesc}`.toLowerCase();
+          if (!matchStr.includes(searchTerm)) return false;
+        }
+        return true;
+      });
+    }
+
+    function renderTable() {
+      const filtered = getFilteredShifts();
+      tableStatus.innerText = `Showing ${filtered.length.toLocaleString()} of ${processedShifts.length.toLocaleString()} open shifts`;
+
+      if (filtered.length === 0) {
+        tableBody.innerHTML = `
+          <tr>
+            <td colspan="6" class="py-12 text-center text-slate-400 italic">
+              ${processedShifts.length === 0 ? 'No schedule loaded. Upload a CSV file or load sample Proto.csv.' : 'No shifts match current filters.'}
+            </td>
+          </tr>`;
+        return;
+      }
+
+      let html = '';
+      let lastDateIso = null;
+
+      filtered.forEach((s, i) => {
+        // Date break highlight if multiple dates
+        const isNewDate = lastDateIso !== null && s.dateInfo.iso !== lastDateIso;
+        if (isNewDate) {
+          html += `
+            <tr class="bg-slate-200/90 border-t-2 border-b border-slate-300">
+              <td colspan="6" class="py-1.5 px-3 text-[11px] font-bold text-slate-700 tracking-wide">
+                &mdash;&mdash; Start of ${s.dateInfo.display} (${s.dateInfo.dayName}) &mdash;&mdash;
+              </td>
+            </tr>`;
+        }
+        lastDateIso = s.dateInfo.iso;
+
+        const isBRE = s.shiftType.includes('Break Relief Extra');
+        const isCUP = s.shiftType.startsWith('CUP');
+        
+        let badgeColor = isBRE 
+          ? (isCUP ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-teal-100 text-teal-800 border-teal-300')
+          : (isCUP ? 'bg-blue-100 text-blue-800 border-blue-300' : 'bg-indigo-100 text-indigo-800 border-indigo-300');
+
+        const typeBadge = `<span class="px-2 py-0.5 rounded text-[11px] font-bold border ${badgeColor}">${s.shiftType}</span>`;
+
+        html += `
+          <tr class="hover:bg-blue-50/40 transition-colors">
+            <td class="py-2 px-3 border-r border-slate-200 text-center font-mono text-slate-400 text-[11px]">${i + 1}</td>
+            <td class="py-2 px-3 border-r border-slate-200 font-medium font-mono text-slate-800">${s.workDate} <span class="text-slate-400 text-[11px]">(${s.dateInfo.dayName})</span></td>
+            <td class="py-2 px-3 border-r border-slate-200">${typeBadge}</td>
+            <td class="py-2 px-3 border-r border-slate-200 font-mono font-semibold text-slate-900">${s.startTime || '-'}</td>
+            <td class="py-2 px-3 border-r border-slate-200 font-mono text-slate-600">${s.endTime || '-'}</td>
+            <td class="py-2 px-3 font-mono text-slate-400 text-[11px] truncate max-w-[120px]" title="Original ID: ${s.origPostDesc}">${s.origPostDesc}</td>
+          </tr>`;
+      });
+
+      tableBody.innerHTML = html;
+    }
+
+    // Filter event listeners
+    filterDate.addEventListener('change', renderTable);
+    filterType.addEventListener('change', renderTable);
+    searchInput.addEventListener('input', renderTable);
+
+    function resetState() {
+      rawData = [];
+      processedShifts = [];
+      fileBadge.classList.add('hidden');
+      fileBadge.innerText = '';
+      fileInput.value = '';
+      statRawRows.innerText = '-';
+      statFilled.innerText = '-';
+      statUnfilled.innerText = '-';
+      statAccepted.innerText = '-';
+      statCUP.innerText = '-';
+      statSV.innerText = '-';
+      rowCountBadge.innerText = '0 shifts';
+      dateCountBadge.innerText = '0 distinct days';
+      btnExportCSV.disabled = true;
+      filterDate.innerHTML = '<option value="ALL">All Dates</option>';
+      renderTable();
+    }
+
+    // ==========================================
+    // CSV Export with 2-row breaks per day
+    // ==========================================
+    btnExportCSV.addEventListener('click', () => {
+      if (processedShifts.length === 0) return;
+
+      const colMode = document.querySelector('input[name="colMode"]:checked').value;
+      let headers = [];
+      
+      if (colMode === 'minimal') {
+        headers = ['Date', 'Post Type'];
+      } else if (colMode === 'standard') {
+        headers = ['Date', 'Post Type', 'Shift Start', 'Shift End'];
+      } else {
+        // all original headers, but we will make sure PostDescription is replaced by masked value
+        if (rawData.length > 0) {
+          headers = Object.keys(rawData[0]);
+        } else {
+          headers = ['Date', 'Post Type', 'Shift Start', 'Shift End'];
+        }
+      }
+
+      // Group processedShifts by Date (preserves sorting)
+      // Array of rows to export: string[][]
+      const outputRows = [];
+
+      // Initial header row for the first date group
+      outputRows.push([...headers]);
+
+      let currentDateIso = null;
+
+      processedShifts.forEach((shift) => {
+        const thisDateIso = shift.dateInfo.iso;
+
+        // If transitioning to a new date, insert two rows:
+        // 1. One completely blank row
+        // 2. The next row with headers
+        if (currentDateIso !== null && thisDateIso !== currentDateIso) {
+          // Blank row (empty strings for each column)
+          outputRows.push(headers.map(() => ''));
+          // Header row
+          outputRows.push([...headers]);
+        }
+
+        currentDateIso = thisDateIso;
+
+        // Build data row based on chosen colMode
+        if (colMode === 'minimal') {
+          outputRows.push([
+            shift.workDate,
+            shift.shiftType
+          ]);
+        } else if (colMode === 'standard') {
+          outputRows.push([
+            shift.workDate,
+            shift.shiftType,
+            shift.startTime,
+            shift.endTime
+          ]);
+        } else {
+          // All original columns, with PostDescription masked and EmployeeNumber guaranteed empty
+          const fullRow = headers.map(h => {
+            if (h === 'PostDescription') return shift.shiftType;
+            if (h === 'EmployeeNumber') return '';
+            return shift.origRow[h] !== undefined ? shift.origRow[h] : '';
+          });
+          outputRows.push(fullRow);
+        }
+      });
+
+      // Convert outputRows to CSV via PapaParse
+      const csvString = Papa.unparse(outputRows, {
+        quotes: true,
+        header: false // We already injected headers manually with inter-day breaks
+      });
+
+      // Create download blob
+      const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      const baseName = currentFileName.replace(/\.csv$/i, '');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `${baseName}_Filtered_SOR_BRE_Open_Shifts.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    });
+
+    // Auto-load Proto.csv if available on startup
+    window.addEventListener('DOMContentLoaded', () => {
+      fetch('Proto.csv')
+        .then(res => {
+          if (res.ok) return res.text();
+          throw new Error('Not found');
+        })
+        .then(txt => parseCSVText(txt, 'Proto.csv'))
+        .catch(err => {
+          console.log('Proto.csv auto-fetch skipped:', err.message);
+        });
+    });
+  </script>
+</body>
+</html>
+
