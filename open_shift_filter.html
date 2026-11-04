@@ -53,8 +53,44 @@
 </head>
 <body class="min-h-screen flex flex-col antialiased bg-slate-100 text-slate-900">
 
+  <!-- GLOBAL SUITE NAV BAR -->
+  <nav class="bg-slate-950 text-white border-b border-slate-800 text-xs select-none sticky top-0 z-50 shadow-md">
+    <div class="max-w-[1920px] mx-auto px-4 flex items-center justify-between h-11">
+      <div class="flex items-center gap-6">
+        <a href="index.html" class="flex items-center gap-2.5 font-bold tracking-tight text-white hover:text-blue-400 transition-colors">
+          <span class="w-6 h-6 rounded-md bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-[11px] font-black shadow-sm">
+            
+          </span>
+          <span class="text-sm font-extrabold tracking-wide">SecOps Portal</span>
+        </a>
+        <div class="hidden sm:flex items-center gap-1 text-slate-300">
+          <a href="index.html" class="px-2.5 py-1 rounded hover:bg-slate-800/70 hover:text-white transition flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+            Hub
+          </a>
+          <a href="open_shift_filter.html" class="px-2.5 py-1 rounded bg-blue-600 text-white font-semibold flex items-center gap-1.5 transition shadow-sm">
+            <span class="w-2 h-2 rounded-full bg-blue-200"></span>
+            Open Shift Filter
+          </a>
+          <a href="ppa_shift_filler.html" class="px-2.5 py-1 rounded hover:bg-slate-800/70 hover:text-white transition flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            PPA Shift Filler
+          </a>
+          <a href="proto_auditor.html" class="px-2.5 py-1 rounded hover:bg-slate-800/70 hover:text-white transition flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+            Break Relief Auditor
+          </a>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="text-[11px] font-medium text-slate-400 hidden md:inline">Operations &amp; Rostering Suite</span>
+        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">v2.4</span>
+      </div>
+    </div>
+  </nav>
+
   <!-- Header -->
-  <header class="bg-brand-navy border-b border-slate-800 text-white shadow-md sticky top-0 z-40">
+  <header class="bg-brand-navy border-b border-slate-800 text-white shadow-md sticky top-11 z-40">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-4">
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center font-black text-white text-lg tracking-wider shadow-inner">

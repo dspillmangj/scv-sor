@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Security Operations Suite — Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              navy: '#0b1329',
+              dark: '#0f172a',
+              card: '#1e293b',
+              accent: '#2563eb',
+              accentHover: '#1d4ed8'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap');
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 13px;
+      line-height: 1.45;
+      background-color: #f1f5f9;
+      color: #0f172a;
+    }
+
+    .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen flex flex-col antialiased bg-slate-100 text-slate-900">
+
+  <!-- GLOBAL SUITE NAV BAR -->
+  <nav class="bg-slate-950 text-white border-b border-slate-800 text-xs select-none sticky top-0 z-50 shadow-md">
+    <div class="max-w-[1920px] mx-auto px-4 flex items-center justify-between h-11">
+      <div class="flex items-center gap-6">
+        <a href="index.html" class="flex items-center gap-2.5 font-bold tracking-tight text-white hover:text-blue-400 transition-colors">
+          <span class="w-6 h-6 rounded-md bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-[11px] font-black shadow-sm">
+            
+          </span>
+          <span class="text-sm font-extrabold tracking-wide">SecOps Portal</span>
+        </a>
+        <div class="hidden sm:flex items-center gap-1 text-slate-300">
+          <a href="index.html" class="px-2.5 py-1 rounded bg-slate-800 text-white font-semibold flex items-center gap-1.5 transition">
+            <svg class="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+            Hub
+          </a>
+          <a href="open_shift_filter.html" class="px-2.5 py-1 rounded hover:bg-slate-800/70 hover:text-white transition flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+            Open Shift Filter
+          </a>
+          <a href="ppa_shift_filler.html" class="px-2.5 py-1 rounded hover:bg-slate-800/70 hover:text-white transition flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            PPA Shift Filler
+          </a>
+          <a href="proto_auditor.html" class="px-2.5 py-1 rounded hover:bg-slate-800/70 hover:text-white transition flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+            Break Relief Auditor
+          </a>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="text-[11px] font-medium text-slate-400 hidden md:inline">Operations & Rostering Suite</span>
+        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">v2.4</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO SECTION -->
+  <header class="bg-gradient-to-b from-slate-900 to-slate-950 text-white border-b border-slate-800 py-10 px-4 sm:px-6 shadow-inner">
+    <div class="max-w-5xl mx-auto text-center space-y-3">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 text-blue-300 text-xs font-semibold border border-blue-500/20 mb-1">
+        <span class="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span> Security Operations & Shift Management Suite
+      </div>
+      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
+        Apple Security Operations Workspace
+      </h1>
+      <p class="text-slate-400 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
+        Fast, offline-first client-side web tools for shift filtering, ground-truth availability matching, and break relief schedule auditing.
+      </p>
+    </div>
+  </header>
+
+  <!-- MAIN SUITE CARDS -->
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-10 flex-1 w-full">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+      <!-- Card 1: Open Shift Filter -->
+      <div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden group">
+        <div class="p-6 flex-1 flex flex-col">
+          <div class="w-12 h-12 rounded-xl bg-blue-600/10 border border-blue-500/20 flex items-center justify-center text-blue-600 font-black text-lg mb-4 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+            SOR
+          </div>
+          <div class="flex items-center justify-between mb-2">
+            <h2 class="text-base font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
+              Open Shift Filter
+            </h2>
+            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-100">
+              Exporter
+            </span>
+          </div>
+          <p class="text-xs text-slate-600 mb-4 leading-relaxed flex-1">
+            Filter unfilled SOR & BRE shifts, automatically mask post IDs, sort chronologically by date and start time, and export daily sectioned CSVs.
+          </p>
+
+          <div class="bg-slate-50 rounded-xl p-3 border border-slate-100 text-[11px] text-slate-500 space-y-1 mb-5 font-mono">
+            <div>&bull; Post ID masking</div>
+            <div>&bull; Daily schedule grouping</div>
+            <div>&bull; One-click clean CSV export</div>
+          </div>
+
+          <a href="open_shift_filter.html" class="inline-flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs transition shadow-sm hover:shadow">
+            <span>Launch Filter Tool</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Card 2: PPA Shift Filler -->
+      <div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden group">
+        <div class="p-6 flex-1 flex flex-col">
+          <div class="w-12 h-12 rounded-xl bg-emerald-600/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 font-black text-lg mb-4 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+            WW
+          </div>
+          <div class="flex items-center justify-between mb-2">
+            <h2 class="text-base font-bold text-slate-900 group-hover:text-emerald-600 transition-colors">
+              PPA Shift Filler
+            </h2>
+            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-100">
+              Optimizer
+            </span>
+          </div>
+          <p class="text-xs text-slate-600 mb-4 leading-relaxed flex-1">
+            Link unfilled shifts against verified Permanent Preferred Availability (PPA) ground-truth. Enforces &lt;45 hr weekly limits and 8h daily non-billable OT caps.
+          </p>
+
+          <div class="bg-slate-50 rounded-xl p-3 border border-slate-100 text-[11px] text-slate-500 space-y-1 mb-5 font-mono">
+            <div>&bull; Ground-truth PPA verification</div>
+            <div>&bull; Overtime & fatigue protection</div>
+            <div>&bull; Smart auto-filler & manual linker</div>
+          </div>
+
+          <a href="ppa_shift_filler.html" class="inline-flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs transition shadow-sm hover:shadow">
+            <span>Launch Shift Linker</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Card 3: Break Relief Auditor -->
+      <div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden group">
+        <div class="p-6 flex-1 flex flex-col">
+          <div class="w-12 h-12 rounded-xl bg-amber-600/10 border border-amber-500/20 flex items-center justify-center text-amber-600 font-black text-lg mb-4 group-hover:bg-amber-600 group-hover:text-white transition-colors">
+            BA
+          </div>
+          <div class="flex items-center justify-between mb-2">
+            <h2 class="text-base font-bold text-slate-900 group-hover:text-amber-600 transition-colors">
+              Break Relief Auditor
+            </h2>
+            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-100">
+              Audit
+            </span>
+          </div>
+          <p class="text-xs text-slate-600 mb-4 leading-relaxed flex-1">
+            Audit break relief coverage, pinpoint overlapping or unassigned relief slots, inspect timeline visualizers, and generate clean targeted post exports.
+          </p>
+
+          <div class="bg-slate-50 rounded-xl p-3 border border-slate-100 text-[11px] text-slate-500 space-y-1 mb-5 font-mono">
+            <div>&bull; Real-time schedule timeline</div>
+            <div>&bull; Gap & clash detection</div>
+            <div>&bull; Targeted CSV post exports</div>
+          </div>
+
+          <a href="proto_auditor.html" class="inline-flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs transition shadow-sm hover:shadow">
+            <span>Launch Auditor Tool</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- System Info Bar -->
+    <div class="mt-10 p-4 rounded-xl bg-slate-200/60 border border-slate-300/60 text-xs text-slate-600 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+        <span class="font-medium">Client-Side Secure Architecture:</span> All data processing occurs locally in your browser. No files or employee rosters are uploaded to external servers.
+      </div>
+      <div class="flex items-center gap-3 font-mono text-[11px] text-slate-500">
+        <span>CSV Compatible</span>
+        <span>&bull;</span>
+        <span>HTML5 / Web</span>
+      </div>
+    </div>
+  </main>
+
+  <footer class="mt-auto border-t border-slate-200 py-4 text-center text-xs text-slate-500">
+    Apple Security Operations Suite &bull; Internal Operations
+  </footer>
+
+</body>
+
+</html>
+
