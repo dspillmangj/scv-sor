@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,58 +22,80 @@
   </script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
+
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       font-size: 13px;
       line-height: 1.4;
-      background-color: #e2e8f0; /* High contrast background */
+      background-color: #e2e8f0;
+      /* High contrast background */
     }
+
     .font-mono {
       font-family: 'JetBrains Mono', monospace;
     }
+
     /* Compact desktop scrollbars */
     ::-webkit-scrollbar {
       width: 6px;
       height: 6px;
     }
+
     ::-webkit-scrollbar-track {
       background: #e2e8f0;
     }
+
     ::-webkit-scrollbar-thumb {
       background: #94a3b8;
       border-radius: 4px;
     }
+
     ::-webkit-scrollbar-thumb:hover {
       background: #64748b;
     }
+
+    html {
+      scroll-behavior: smooth;
+    }
   </style>
 </head>
+
 <body class="text-slate-950 min-h-screen flex flex-col antialiased">
 
   <!-- GLOBAL SUITE NAV BAR -->
   <nav class="bg-slate-950 text-white border-b border-slate-800 text-xs select-none sticky top-0 z-50 shadow-md">
     <div class="max-w-[1920px] mx-auto px-4 flex items-center justify-between h-11">
       <div class="flex items-center gap-6">
-        <a href="index.html" class="flex items-center gap-2.5 font-bold tracking-tight text-white hover:text-blue-400 transition-colors">
-          <span class="w-6 h-6 rounded-md bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-[11px] font-black shadow-sm">
+        <a href="index.html"
+          class="flex items-center gap-2.5 font-bold tracking-tight text-white hover:text-blue-400 transition-colors">
+          <span
+            class="w-6 h-6 rounded-md bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-[11px] font-black shadow-sm">
             
           </span>
           <span class="text-sm font-extrabold tracking-wide">SecOps Portal</span>
         </a>
         <div class="hidden sm:flex items-center gap-1 text-slate-300">
-          <a href="index.html" class="px-2.5 py-1 rounded hover:bg-slate-800/70 hover:text-white transition flex items-center gap-1.5">
-            <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+          <a href="index.html"
+            class="px-2.5 py-1 rounded hover:bg-slate-800/70 hover:text-white transition flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2"
+              viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
             Hub
           </a>
-          <a href="open_shift_filter.html" class="px-2.5 py-1 rounded hover:bg-slate-800/70 hover:text-white transition flex items-center gap-1.5">
+          <a href="open_shift_filter.html"
+            class="px-2.5 py-1 rounded hover:bg-slate-800/70 hover:text-white transition flex items-center gap-1.5">
             <span class="w-2 h-2 rounded-full bg-blue-500"></span>
             Open Shift Filter
           </a>
-          <a href="ppa_shift_filler.html" class="px-2.5 py-1 rounded hover:bg-slate-800/70 hover:text-white transition flex items-center gap-1.5">
+          <a href="ppa_shift_filler.html"
+            class="px-2.5 py-1 rounded hover:bg-slate-800/70 hover:text-white transition flex items-center gap-1.5">
             <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
             PPA Shift Filler
           </a>
-          <a href="proto_auditor.html" class="px-2.5 py-1 rounded bg-amber-600 text-white font-semibold flex items-center gap-1.5 transition shadow-sm">
+          <a href="proto_auditor.html"
+            class="px-2.5 py-1 rounded bg-amber-600 text-white font-semibold flex items-center gap-1.5 transition shadow-sm">
             <span class="w-2 h-2 rounded-full bg-amber-200"></span>
             Break Relief Auditor
           </a>
@@ -80,7 +103,8 @@
       </div>
       <div class="flex items-center gap-3">
         <span class="text-[11px] font-medium text-slate-400 hidden md:inline">Operations &amp; Rostering Suite</span>
-        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">v2.4</span>
+        <span
+          class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">v2.4</span>
       </div>
     </div>
   </nav>
@@ -88,16 +112,18 @@
   <!-- Desktop App Top Bar -->
   <header class="bg-slate-900 text-white border-b-2 border-slate-950 px-4 py-2.5 sticky top-11 z-30 shadow-md">
     <div class="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-      
+
       <!-- Brand & Title -->
       <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-extrabold text-xs shadow-sm">
+        <div
+          class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-extrabold text-xs shadow-sm">
           BA
         </div>
         <div class="flex items-center gap-2.5">
           <span class="font-extrabold text-sm tracking-tight text-white uppercase">Break Relief Auditor</span>
           <span class="text-slate-500">|</span>
-          <span id="activeFileBadge" class="text-[11px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
+          <span id="activeFileBadge"
+            class="text-[11px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
             No File Loaded
           </span>
         </div>
@@ -105,30 +131,58 @@
 
       <!-- Action & Export Buttons -->
       <div class="flex items-center gap-2 flex-wrap">
-        <label class="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold shadow-sm transition-all">
-          <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
+        <label
+          class="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold shadow-sm transition-all">
+          <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+          </svg>
           <span>Load CSV</span>
           <input type="file" id="fileInput" accept=".csv" class="hidden">
         </label>
 
         <!-- Four Targeted Export Buttons -->
-        <button id="btnExport233265" class="hidden inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white text-xs font-bold shadow-sm transition-all" title="Export 233265 (SCV SOR)">
-          <svg class="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+        <button id="btnExport233265"
+          class="hidden inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white text-xs font-bold shadow-sm transition-all"
+          title="Export 233265 (SCV SOR)">
+          <svg class="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" stroke-width="2.5"
+            viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
           <span>Export 233265 (SCV SOR)</span>
         </button>
 
-        <button id="btnExport235144" class="hidden inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white text-xs font-bold shadow-sm transition-all" title="Export 235144 (SCV Break Relief)">
-          <svg class="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+        <button id="btnExport235144"
+          class="hidden inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white text-xs font-bold shadow-sm transition-all"
+          title="Export 235144 (SCV Break Relief)">
+          <svg class="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" stroke-width="2.5"
+            viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
           <span>Export 235144 (SCV BRE)</span>
         </button>
 
-        <button id="btnExport266778" class="hidden inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white text-xs font-bold shadow-sm transition-all" title="Export 266778 (Sunnyvale SOR)">
-          <svg class="w-3.5 h-3.5 text-purple-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+        <button id="btnExport266778"
+          class="hidden inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white text-xs font-bold shadow-sm transition-all"
+          title="Export 266778 (Sunnyvale SOR)">
+          <svg class="w-3.5 h-3.5 text-purple-400" fill="none" stroke="currentColor" stroke-width="2.5"
+            viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
           <span>Export 266778 (SV SOR)</span>
         </button>
 
-        <button id="btnExport267588" class="hidden inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white text-xs font-bold shadow-sm transition-all" title="Export 267588 (Sunnyvale Break Relief)">
-          <svg class="w-3.5 h-3.5 text-pink-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+        <button id="btnExport267588"
+          class="hidden inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white text-xs font-bold shadow-sm transition-all"
+          title="Export 267588 (Sunnyvale Break Relief)">
+          <svg class="w-3.5 h-3.5 text-pink-400" fill="none" stroke="currentColor" stroke-width="2.5"
+            viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
           <span>Export 267588 (SV BRE)</span>
         </button>
       </div>
@@ -140,19 +194,25 @@
   <main class="max-w-7xl mx-auto px-4 py-4 flex-1 w-full space-y-4">
 
     <!-- Empty State / File Drop Screen -->
-    <div id="emptyDropZone" class="bg-white rounded-2xl border-2 border-dashed border-slate-400 hover:border-slate-900 p-12 text-center transition-all cursor-pointer shadow-sm my-6">
+    <div id="emptyDropZone"
+      class="bg-white rounded-2xl border-2 border-dashed border-slate-400 hover:border-slate-900 p-12 text-center transition-all cursor-pointer shadow-sm my-6">
       <div class="max-w-sm mx-auto space-y-3">
-        <div class="w-14 h-14 rounded-2xl bg-slate-100 text-slate-800 flex items-center justify-center mx-auto border border-slate-300">
+        <div
+          class="w-14 h-14 rounded-2xl bg-slate-100 text-slate-800 flex items-center justify-center mx-auto border border-slate-300">
           <svg class="w-7 h-7 text-slate-800" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
         </div>
         <div>
           <h2 class="text-base font-bold text-slate-900">Drop shift CSV file here to audit</h2>
-          <p class="text-xs text-slate-600 mt-1">Understaffs and overages are rendered directly in the exact hour they occur.</p>
+          <p class="text-xs text-slate-600 mt-1">Understaffs and overages are rendered directly in the exact hour they
+            occur.</p>
         </div>
         <div>
-          <button type="button" class="px-5 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 shadow-sm" onclick="document.getElementById('fileInput').click()">
+          <button type="button"
+            class="px-5 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 shadow-sm"
+            onclick="document.getElementById('fileInput').click()">
             Browse Files
           </button>
         </div>
@@ -163,41 +223,49 @@
     <div id="activeWorkspace" class="space-y-4 hidden">
 
       <!-- High-Contrast Tool Ribbon -->
-      <div class="bg-white rounded-xl p-3 border-2 border-slate-300 shadow-sm flex flex-wrap items-center justify-between gap-3 text-xs">
-        
+      <div
+        class="bg-white rounded-xl p-3 border-2 border-slate-300 shadow-sm flex flex-wrap items-center justify-between gap-3 text-xs">
+
         <!-- Left: Date Selector & Scope -->
         <div class="flex items-center gap-2.5 flex-wrap">
           <div class="flex items-center gap-1.5 font-bold text-slate-900">
             <span>Date:</span>
-            <select id="dateDropdown" class="rounded-lg border-2 border-slate-400 bg-white px-3 py-1.5 text-xs font-bold text-slate-950 shadow-2xs focus:border-slate-900 focus:ring-1 focus:ring-slate-900">
+            <select id="dateDropdown"
+              class="rounded-lg border-2 border-slate-400 bg-white px-3 py-1.5 text-xs font-bold text-slate-950 shadow-2xs focus:border-slate-900 focus:ring-1 focus:ring-slate-900">
               <!-- Populated by JS -->
             </select>
           </div>
 
-          <span id="statusBarText" class="text-[11px] font-mono px-2.5 py-1 rounded-md bg-slate-100 text-slate-800 border border-slate-300 font-bold">
+          <span id="statusBarText"
+            class="text-[11px] font-mono px-2.5 py-1 rounded-md bg-slate-100 text-slate-800 border border-slate-300 font-bold">
             0 shifts
           </span>
 
-          <span id="ignoredStatusPill" class="hidden text-[11px] font-mono px-2.5 py-1 rounded-md bg-slate-200 text-slate-800 border border-slate-300 font-bold flex items-center gap-1.5">
+          <span id="ignoredStatusPill"
+            class="hidden text-[11px] font-mono px-2.5 py-1 rounded-md bg-slate-200 text-slate-800 border border-slate-300 font-bold flex items-center gap-1.5">
           </span>
         </div>
 
         <!-- Center: Facility Selector -->
         <div class="flex items-center gap-1 p-1 bg-slate-100 rounded-lg border-2 border-slate-300 text-xs font-bold">
-          <button class="facility-tab px-3 py-1 rounded-md transition-all bg-slate-900 text-white shadow-xs font-bold" data-facility="233265">
+          <button class="facility-tab px-3 py-1 rounded-md transition-all bg-slate-900 text-white shadow-xs font-bold"
+            data-facility="233265">
             SCV Main (233265 / 235144)
           </button>
-          <button class="facility-tab px-3 py-1 rounded-md transition-all text-slate-700 hover:text-slate-950" data-facility="266778">
+          <button class="facility-tab px-3 py-1 rounded-md transition-all text-slate-700 hover:text-slate-950"
+            data-facility="266778">
             Sunnyvale (266778 / 267588)
           </button>
-          <button class="facility-tab px-3 py-1 rounded-md transition-all text-slate-700 hover:text-slate-950" data-facility="BOTH">
+          <button class="facility-tab px-3 py-1 rounded-md transition-all text-slate-700 hover:text-slate-950"
+            data-facility="BOTH">
             Both Areas
           </button>
         </div>
 
         <!-- Right: Filter Issues & Stats -->
         <div class="flex items-center gap-3">
-          <label class="inline-flex items-center gap-1.5 cursor-pointer text-xs font-bold text-slate-900 select-none bg-slate-100 px-3 py-1 rounded-lg border border-slate-300">
+          <label
+            class="inline-flex items-center gap-1.5 cursor-pointer text-xs font-bold text-slate-900 select-none bg-slate-100 px-3 py-1 rounded-lg border border-slate-300">
             <input type="checkbox" id="chkOnlyIssues" class="rounded border-slate-400 text-slate-900 focus:ring-0">
             <span>Show Issues Only (Deficit &amp; Overstaff)</span>
           </label>
@@ -206,26 +274,44 @@
       </div>
 
       <!-- Color Legend Ribbon -->
-      <div class="bg-white rounded-xl px-3.5 py-2 border-2 border-slate-300 shadow-sm flex flex-wrap items-center justify-between gap-2 text-xs">
+      <div
+        class="bg-white rounded-xl px-3.5 py-2 border-2 border-slate-300 shadow-sm flex flex-wrap items-center justify-between gap-2 text-xs">
         <span class="font-extrabold text-slate-800 tracking-tight text-[11px] uppercase">Color Legend:</span>
         <div class="flex items-center gap-2 flex-wrap text-[11px] font-bold">
-          <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-rose-100 text-rose-950 border border-rose-300">
+          <span
+            class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-rose-100 text-rose-950 border border-rose-300">
             <span class="w-2.5 h-2.5 rounded-full bg-rose-600"></span> Understaffs (Red)
           </span>
-          <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-amber-100 text-amber-950 border border-amber-300">
+          <span
+            class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-amber-100 text-amber-950 border border-amber-300">
             <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Overstaffs (Yellow)
           </span>
-          <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-teal-100 text-teal-950 border border-teal-300">
+          <span
+            class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-teal-100 text-teal-950 border border-teal-300">
             <span class="w-2.5 h-2.5 rounded-full bg-teal-500"></span> Second Lunches (Teal)
           </span>
-          <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-blue-100 text-blue-950 border border-blue-300">
+          <span
+            class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-blue-100 text-blue-950 border border-blue-300">
             <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span> 5 AM +1s &amp; 12 PM Breakers (Blue)
           </span>
-          <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-emerald-100 text-emerald-950 border border-emerald-300">
+          <span
+            class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-emerald-100 text-emerald-950 border border-emerald-300">
             <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Covered / Assigned (Green)
           </span>
         </div>
       </div>
+
+      <!-- Quick Date Jump Bar (Visible when multiple dates exist) -->
+      <div id="dateQuickJumpBar"
+        class="hidden bg-white rounded-xl p-2.5 border-2 border-slate-300 shadow-sm flex items-center gap-2 flex-wrap text-xs">
+        <!-- Rendered by JS -->
+      </div>
+
+      <!-- Floating Side Date Rail for wide monitors -->
+      <aside id="sideDateRail"
+        class="hidden min-[1580px]:flex fixed right-4 top-28 z-40 flex-col gap-1.5 bg-white/95 backdrop-blur-md p-2.5 rounded-xl border-2 border-slate-400 shadow-xl max-h-[calc(100vh-140px)] overflow-y-auto w-44 text-[11px] font-mono select-none">
+        <!-- Rendered by JS -->
+      </aside>
 
       <!-- Content Container -->
       <div id="auditContentContainer" class="space-y-5">
@@ -236,8 +322,10 @@
 
   </main>
 
-  <footer class="bg-slate-900 border-t-2 border-slate-950 px-4 py-2 text-[11px] text-slate-400 text-center font-mono mt-auto">
-    Break Relief Auditor &bull; 1:3 Ratio &bull; 5 AM Extra &bull; 5 AM/6 AM 2-Lunch (12:00) &bull; Excludes -S Supervisor Shifts
+  <footer
+    class="bg-slate-900 border-t-2 border-slate-950 px-4 py-2 text-[11px] text-slate-400 text-center font-mono mt-auto">
+    Break Relief Auditor &bull; 1:3 Ratio &bull; 5 AM Extra &bull; 5 AM/6 AM 2-Lunch (12:00) &bull; Excludes -S
+    Supervisor Shifts
   </footer>
 
   <script>
@@ -492,6 +580,56 @@
       return h + m;
     }
 
+    function normalizeTime(tStr) {
+      if (!tStr) return '';
+      const clean = String(tStr).trim();
+      if (clean.includes(':')) {
+        const parts = clean.split(':').map(Number);
+        const h = isNaN(parts[0]) ? 0 : parts[0];
+        const m = isNaN(parts[1]) ? 0 : parts[1];
+        return String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
+      }
+      if (clean.length === 4 && !isNaN(clean)) {
+        return clean.slice(0, 2) + ':' + clean.slice(2, 4);
+      }
+      const num = parseInt(clean, 10);
+      if (!isNaN(num)) {
+        return String(num).padStart(2, '0') + ':00';
+      }
+      return clean;
+    }
+
+    function computeShiftEndTime(startTimeStr, hours, lunch) {
+      if (!startTimeStr) return '';
+      const cleanStart = normalizeTime(startTimeStr);
+      const [sh, sm] = cleanStart.split(':').map(Number);
+      const startMins = (isNaN(sh) ? 0 : sh) * 60 + (isNaN(sm) ? 0 : sm);
+      let durMins = 0;
+      if (hours !== undefined && hours !== null && !isNaN(hours) && hours > 0) {
+        durMins = Math.round((parseFloat(hours) + (parseFloat(lunch) || 0)) * 60);
+      } else {
+        // Standard breaker shift: 8h work + 45m lunch = 8.75h = 525 mins
+        durMins = 8 * 60 + 45;
+      }
+      const endMins = (startMins + durMins) % (24 * 60);
+      const eh = Math.floor(endMins / 60);
+      const em = endMins % 60;
+      return String(eh).padStart(2, '0') + ':' + String(em).padStart(2, '0');
+    }
+
+    function getShiftEndTime(record, defaultHours = 8, defaultLunch = 0.75) {
+      if (!record) return '';
+      const rawEnd = String(record.ShiftEndTime || record.OutTime || '').trim();
+      if (rawEnd) {
+        return normalizeTime(rawEnd);
+      }
+      const rawStart = String(record.ShiftStartTime || record.InTime || '').trim();
+      if (!rawStart) return '';
+      const hrs = getShiftHours(record) || defaultHours;
+      const lunch = parseFloat(record.SHIFTLUNCH !== undefined && record.SHIFTLUNCH !== '' ? record.SHIFTLUNCH : (record.Lunch || defaultLunch)) || 0;
+      return computeShiftEndTime(rawStart, hrs, lunch);
+    }
+
     function getShiftSpan(startTimeStr) {
       if (!startTimeStr) return '';
       const parts = String(startTimeStr).trim().split(':');
@@ -511,501 +649,982 @@
       const name = String(record.EmpName || '').trim();
       const num = String(record.EmployeeNumber || '').trim();
       if (!name || name.toLowerCase() === 'open shift' || name.toLowerCase() === 'unassigned') {
-        return null;
-      }
-      return {
-        name: name,
-        num: num,
-        label: num ? `${name} ${num}` : name
-      };
-    }
-
-    function escapeQuotes(str) {
-      if (!str) return '';
-      return String(str)
-        .replace(/\\/g, '\\\\')
-        .replace(/'/g, "\\'")
-        .replace(/"/g, '&quot;');
-    }
-
-    // Dedication Likely (DL): person has same shift times & postdescription 4+ times in the same week
-    function computeDedicationLikely(records) {
-      const dlSet = new Set();
-      if (!records || records.length === 0) return dlSet;
-
-      const groups = new Map();
-      records.forEach((r, idx) => {
-        const empId = String(r.EmployeeNumber || r.EmpName || '').trim();
-        if (!empId || empId.toLowerCase() === 'open shift' || empId.toLowerCase() === 'unassigned') return;
-
-        const start = String(r.ShiftStartTime || r.InTime || '').trim();
-        const end = String(r.ShiftEndTime || r.OutTime || '').trim();
-        const post = String(r.PostDescription || '').trim().toLowerCase();
-        if (!start) return;
-
-        const key = `${empId}|${start}|${end}|${post}`;
-        if (!groups.has(key)) groups.set(key, []);
-
-        const dt = new Date(r.WorkDate);
-        groups.get(key).push({
-          uid: r._uid !== undefined ? r._uid : idx,
-          date: isNaN(dt.getTime()) ? null : dt,
-          workDate: r.WorkDate,
-          r: r
-        });
-      });
-
-      function getThuWeek(d) {
-        if (!d) return 'unknown';
-        const day = d.getDay();
-        const diff = (day >= 4) ? (day - 4) : (day + 3);
-        const thu = new Date(d);
-        thu.setDate(d.getDate() - diff);
-        return `${thu.getFullYear()}-${thu.getMonth() + 1}-${thu.getDate()}`;
-      }
-      function getMonWeek(d) {
-        if (!d) return 'unknown';
-        const day = d.getDay();
-        const diff = (day === 0 ? 6 : day - 1);
-        const mon = new Date(d);
-        mon.setDate(d.getDate() - diff);
-        return `${mon.getFullYear()}-${mon.getMonth() + 1}-${mon.getDate()}`;
-      }
-      function getSunWeek(d) {
-        if (!d) return 'unknown';
-        const sun = new Date(d);
-        sun.setDate(d.getDate() - d.getDay());
-        return `${sun.getFullYear()}-${sun.getMonth() + 1}-${sun.getDate()}`;
+        const lower = name.toLowerCase();
+        if (!name || lower === 'open shift' || lower === 'unassigned' || lower.startsWith('open ') || lower === 'open') {
+          return null;
+        }
+        return {
+          name: name,
+          num: num,
+          label: num ? `${name} ${num}` : name
+        };
       }
 
-      groups.forEach((shifts) => {
-        if (shifts.length < 4) return;
+      function hasAssignedEmployee(record) {
+        return getAssignedSpecialist(record) !== null;
+      }
 
-        const countsThu = {};
-        const countsMon = {};
-        const countsSun = {};
-        shifts.forEach(s => {
-          if (s.date) {
-            const kThu = getThuWeek(s.date);
-            const kMon = getMonWeek(s.date);
-            const kSun = getSunWeek(s.date);
-            countsThu[kThu] = (countsThu[kThu] || 0) + 1;
-            countsMon[kMon] = (countsMon[kMon] || 0) + 1;
-            countsSun[kSun] = (countsSun[kSun] || 0) + 1;
-          }
+      function escapeQuotes(str) {
+        if (!str) return '';
+        return String(str)
+          .replace(/\\/g, '\\\\')
+          .replace(/'/g, "\\'")
+          .replace(/"/g, '&quot;');
+      }
+
+      // Dedication Likely (DL): person has same shift times & postdescription 4+ times in the same week
+      function computeDedicationLikely(records) {
+        const dlSet = new Set();
+        if (!records || records.length === 0) return dlSet;
+
+        const groups = new Map();
+        records.forEach((r, idx) => {
+          const empId = String(r.EmployeeNumber || r.EmpName || '').trim();
+          if (!empId || empId.toLowerCase() === 'open shift' || empId.toLowerCase() === 'unassigned') return;
+
+          const start = String(r.ShiftStartTime || r.InTime || '').trim();
+          const end = String(r.ShiftEndTime || r.OutTime || '').trim();
+          const post = String(r.PostDescription || '').trim().toLowerCase();
+          if (!start) return;
+
+          const key = `${empId}|${start}|${end}|${post}`;
+          if (!groups.has(key)) groups.set(key, []);
+
+          const dt = new Date(r.WorkDate);
+          groups.get(key).push({
+            uid: r._uid !== undefined ? r._uid : idx,
+            date: isNaN(dt.getTime()) ? null : dt,
+            workDate: r.WorkDate,
+            r: r
+          });
         });
 
-        shifts.forEach(s => {
-          if (s.date) {
-            const kThu = getThuWeek(s.date);
-            const kMon = getMonWeek(s.date);
-            const kSun = getSunWeek(s.date);
-            if (countsThu[kThu] >= 4 || countsMon[kMon] >= 4 || countsSun[kSun] >= 4) {
-              dlSet.add(s.uid);
+        function getThuWeek(d) {
+          if (!d) return 'unknown';
+          const day = d.getDay();
+          const diff = (day >= 4) ? (day - 4) : (day + 3);
+          const thu = new Date(d);
+          thu.setDate(d.getDate() - diff);
+          return `${thu.getFullYear()}-${thu.getMonth() + 1}-${thu.getDate()}`;
+        }
+        function getMonWeek(d) {
+          if (!d) return 'unknown';
+          const day = d.getDay();
+          const diff = (day === 0 ? 6 : day - 1);
+          const mon = new Date(d);
+          mon.setDate(d.getDate() - diff);
+          return `${mon.getFullYear()}-${mon.getMonth() + 1}-${mon.getDate()}`;
+        }
+        function getSunWeek(d) {
+          if (!d) return 'unknown';
+          const sun = new Date(d);
+          sun.setDate(d.getDate() - d.getDay());
+          return `${sun.getFullYear()}-${sun.getMonth() + 1}-${sun.getDate()}`;
+        }
+
+        groups.forEach((shifts) => {
+          if (shifts.length < 4) return;
+
+          const countsThu = {};
+          const countsMon = {};
+          const countsSun = {};
+          shifts.forEach(s => {
+            if (s.date) {
+              const kThu = getThuWeek(s.date);
+              const kMon = getMonWeek(s.date);
+              const kSun = getSunWeek(s.date);
+              countsThu[kThu] = (countsThu[kThu] || 0) + 1;
+              countsMon[kMon] = (countsMon[kMon] || 0) + 1;
+              countsSun[kSun] = (countsSun[kSun] || 0) + 1;
+            }
+          });
+
+          shifts.forEach(s => {
+            if (s.date) {
+              const kThu = getThuWeek(s.date);
+              const kMon = getMonWeek(s.date);
+              const kSun = getSunWeek(s.date);
+              if (countsThu[kThu] >= 4 || countsMon[kMon] >= 4 || countsSun[kSun] >= 4) {
+                dlSet.add(s.uid);
+              }
+            }
+          });
+
+          const validDateShifts = shifts.filter(s => s.date).sort((a, b) => a.date - b.date);
+          for (let i = 0; i < validDateShifts.length; i++) {
+            const t0 = validDateShifts[i].date.getTime();
+            const inWindow = validDateShifts.filter(s => {
+              const diffDays = (s.date.getTime() - t0) / (1000 * 60 * 60 * 24);
+              return diffDays >= 0 && diffDays <= 6;
+            });
+            if (inWindow.length >= 4) {
+              inWindow.forEach(s => dlSet.add(s.uid));
             }
           }
         });
 
-        const validDateShifts = shifts.filter(s => s.date).sort((a, b) => a.date - b.date);
-        for (let i = 0; i < validDateShifts.length; i++) {
-          const t0 = validDateShifts[i].date.getTime();
-          const inWindow = validDateShifts.filter(s => {
-            const diffDays = (s.date.getTime() - t0) / (1000 * 60 * 60 * 24);
-            return diffDays >= 0 && diffDays <= 6;
-          });
-          if (inWindow.length >= 4) {
-            inWindow.forEach(s => dlSet.add(s.uid));
-          }
+        return dlSet;
+      }
+
+      const DOW_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const MONTH_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+      function formatLiteralDate(dateStr) {
+        if (!dateStr) return '';
+        const p = parseDateComponents(dateStr);
+        if (!p) return dateStr;
+        const dt = new Date(p.year, p.month - 1, p.day);
+        const dow = DOW_SHORT[dt.getDay()] || '';
+        const mon = MONTH_SHORT[p.month - 1] || '';
+        return `${dow}, ${mon} ${p.day}`;
+      }
+
+      function parseTimeComponents(tStr) {
+        if (!tStr) return { hour: 0, minute: 0, str: '00:00' };
+        const clean = String(tStr).trim();
+        if (clean.includes(':')) {
+          const parts = clean.split(':').map(Number);
+          const h = isNaN(parts[0]) ? 0 : parts[0];
+          const m = isNaN(parts[1]) ? 0 : parts[1];
+          return { hour: h, minute: m, str: String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') };
         }
-      });
-
-      return dlSet;
-    }
-
-    const DOW_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    const MONTH_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-    function formatLiteralDate(dateStr) {
-      if (!dateStr) return '';
-      const p = parseDateComponents(dateStr);
-      if (!p) return dateStr;
-      const dt = new Date(p.year, p.month - 1, p.day);
-      const dow = DOW_SHORT[dt.getDay()] || '';
-      const mon = MONTH_SHORT[p.month - 1] || '';
-      return `${dow}, ${mon} ${p.day}`;
-    }
-
-    function parseTimeComponents(tStr) {
-      if (!tStr) return { hour: 0, minute: 0, str: '00:00' };
-      const clean = String(tStr).trim();
-      if (clean.includes(':')) {
-        const parts = clean.split(':').map(Number);
-        const h = isNaN(parts[0]) ? 0 : parts[0];
-        const m = isNaN(parts[1]) ? 0 : parts[1];
-        return { hour: h, minute: m, str: String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') };
+        if (clean.length === 4) {
+          const h = parseInt(clean.slice(0, 2), 10) || 0;
+          const m = parseInt(clean.slice(2, 4), 10) || 0;
+          return { hour: h, minute: m, str: String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') };
+        }
+        const h = parseInt(clean, 10) || 0;
+        return { hour: h, minute: 0, str: String(h).padStart(2, '0') + ':00' };
       }
-      if (clean.length === 4) {
-        const h = parseInt(clean.slice(0, 2), 10) || 0;
-        const m = parseInt(clean.slice(2, 4), 10) || 0;
-        return { hour: h, minute: m, str: String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') };
-      }
-      const h = parseInt(clean, 10) || 0;
-      return { hour: h, minute: 0, str: String(h).padStart(2, '0') + ':00' };
-    }
 
-    function initData(records, filename = 'Uploaded CSV') {
-      const parsedRecords = records.map((r, idx) => ({ ...r, _uid: idx }));
-      const dlSet = computeDedicationLikely(parsedRecords);
-      rawRecords = parsedRecords.map(r => ({ ...r, _isDL: dlSet.has(r._uid) }));
-      handledIssues.clear();
-      ignoredIssues.clear();
-      const datesSet = new Set();
-      records.forEach(r => {
-        const d = String(r.WorkDate || '').trim();
-        if (d) datesSet.add(d);
-      });
-      datesList = Array.from(datesSet).sort((a, b) => parseDateToKey(a) - parseDateToKey(b));
+      function initData(records, filename = 'Uploaded CSV') {
+        const parsedRecords = records.map((r, idx) => ({ ...r, _uid: idx }));
+        const dlSet = computeDedicationLikely(parsedRecords);
+        rawRecords = parsedRecords.map(r => ({ ...r, _isDL: dlSet.has(r._uid) }));
+        handledIssues.clear();
+        ignoredIssues.clear();
+        const datesSet = new Set();
+        records.forEach(r => {
+          const d = String(r.WorkDate || '').trim();
+          if (d) datesSet.add(d);
+        });
+        datesList = Array.from(datesSet).sort((a, b) => parseDateToKey(a) - parseDateToKey(b));
 
-      document.getElementById('activeFileBadge').innerText = filename;
-      document.getElementById('activeFileBadge').className = 'text-[11px] font-mono px-2 py-0.5 rounded bg-emerald-900 text-emerald-100 border border-emerald-700 font-bold';
-      document.getElementById('emptyDropZone').classList.add('hidden');
-      document.getElementById('activeWorkspace').classList.remove('hidden');
-      document.getElementById('btnExport233265').classList.remove('hidden');
-      document.getElementById('btnExport235144').classList.remove('hidden');
-      document.getElementById('btnExport266778').classList.remove('hidden');
-      document.getElementById('btnExport267588').classList.remove('hidden');
+        document.getElementById('activeFileBadge').innerText = filename;
+        document.getElementById('activeFileBadge').className = 'text-[11px] font-mono px-2 py-0.5 rounded bg-emerald-900 text-emerald-100 border border-emerald-700 font-bold';
+        document.getElementById('emptyDropZone').classList.add('hidden');
+        document.getElementById('activeWorkspace').classList.remove('hidden');
+        document.getElementById('btnExport233265').classList.remove('hidden');
+        document.getElementById('btnExport235144').classList.remove('hidden');
+        document.getElementById('btnExport266778').classList.remove('hidden');
+        document.getElementById('btnExport267588').classList.remove('hidden');
 
-      populateDateDropdown();
-      renderAudit();
-    }
-
-    function populateDateDropdown() {
-      const select = document.getElementById('dateDropdown');
-      select.innerHTML = '';
-
-      const optAll = document.createElement('option');
-      optAll.value = 'ALL';
-      optAll.innerText = `All Dates (Full Audit • ${datesList.length} Days)`;
-      select.appendChild(optAll);
-
-      datesList.forEach(d => {
-        const opt = document.createElement('option');
-        opt.value = d;
-        opt.innerText = d;
-        select.appendChild(opt);
-      });
-
-      select.value = selectedDate;
-      select.onchange = (e) => {
-        selectedDate = e.target.value;
+        populateDateDropdown();
         renderAudit();
-      };
-    }
+      }
+
+      function populateDateDropdown() {
+        const select = document.getElementById('dateDropdown');
+        select.innerHTML = '';
+
+        const optAll = document.createElement('option');
+        optAll.value = 'ALL';
+        optAll.innerText = `All Dates (Full Audit • ${datesList.length} Days)`;
+        select.appendChild(optAll);
+
+        datesList.forEach(d => {
+          const opt = document.createElement('option');
+          opt.value = d;
+          opt.innerText = d;
+          select.appendChild(opt);
+        });
+
+        select.value = selectedDate;
+        select.onchange = (e) => {
+          selectedDate = e.target.value;
+          renderAudit();
+        };
+      }
 
 
 
-    // Quickcopy helper: "Opened/Closed M/D SSSS-EEEE" (start time + 8h 45m)
-    function formatShiftText(action, workDate, startTimeStr) {
-      if (!startTimeStr || !workDate) return '';
-      const shortDate = formatShortDate(workDate);
-      const tc = parseTimeComponents(startTimeStr);
-      const sh = tc.hour;
-      const sm = tc.minute;
-      const startTotalMin = sh * 60 + sm;
-      const endTotalMin = (startTotalMin + 8 * 60 + 45) % (24 * 60);
-      const eh = Math.floor(endTotalMin / 60);
-      const em = endTotalMin % 60;
-      const sFormatted = String(sh).padStart(2, '0') + String(sm).padStart(2, '0');
-      const eFormatted = String(eh).padStart(2, '0') + String(em).padStart(2, '0');
-      return `${action} ${shortDate} ${sFormatted}-${eFormatted}`;
-    }
+      // Quickcopy helper: "Opened/Closed M/D SSSS-EEEE" (start time + 8h 45m)
+      function formatShiftText(action, workDate, startTimeStr) {
+        if (!startTimeStr || !workDate) return '';
+        const shortDate = formatShortDate(workDate);
+        const tc = parseTimeComponents(startTimeStr);
+        const sh = tc.hour;
+        const sm = tc.minute;
+        const startTotalMin = sh * 60 + sm;
+        const endTotalMin = (startTotalMin + 8 * 60 + 45) % (24 * 60);
+        const eh = Math.floor(endTotalMin / 60);
+        const em = endTotalMin % 60;
+        const sFormatted = String(sh).padStart(2, '0') + String(sm).padStart(2, '0');
+        const eFormatted = String(eh).padStart(2, '0') + String(em).padStart(2, '0');
+        return `${action} ${shortDate} ${sFormatted}-${eFormatted}`;
+      }
 
-    function copyToClipboard(text, btn) {
-      if (!text) return;
-      const originalHtml = btn ? btn.innerHTML : '';
-      const showSuccess = () => {
-        if (btn) {
-          btn.innerHTML = `&check; Copied!`;
-          btn.classList.add('bg-emerald-600', 'text-white', 'border-emerald-700');
-          setTimeout(() => {
-            btn.innerHTML = originalHtml;
-            btn.classList.remove('bg-emerald-600', 'text-white', 'border-emerald-700');
-          }, 1500);
-        }
-      };
+      function copyToClipboard(text, btn) {
+        if (!text) return;
+        const originalHtml = btn ? btn.innerHTML : '';
+        const showSuccess = () => {
+          if (btn) {
+            btn.innerHTML = `&check; Copied!`;
+            btn.classList.add('bg-emerald-600', 'text-white', 'border-emerald-700');
+            setTimeout(() => {
+              btn.innerHTML = originalHtml;
+              btn.classList.remove('bg-emerald-600', 'text-white', 'border-emerald-700');
+            }, 1500);
+          }
+        };
 
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).then(showSuccess).catch(() => {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(showSuccess).catch(() => {
+            fallbackCopy(text);
+            showSuccess();
+          });
+        } else {
           fallbackCopy(text);
           showSuccess();
-        });
-      } else {
-        fallbackCopy(text);
-        showSuccess();
-      }
-    }
-
-    function fallbackCopy(text) {
-      const ta = document.createElement('textarea');
-      ta.value = text;
-      ta.style.position = 'fixed';
-      ta.style.left = '-9999px';
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand('copy');
-      document.body.removeChild(ta);
-    }
-
-    // Comprehensive Chronological Audit showing overages right in the hour they appear
-    function analyzeFacilityDate(facKey, date) {
-      const conf = FACILITY_CONFIG[facKey];
-      const dateKey = parseDateToKey(date);
-      const nextDateStr = getFollowingDateStr(date);
-      const nextDateKey = parseDateToKey(nextDateStr);
-      const prevDateStr = getPreviousDateStr(date);
-      const prevDateKey = parseDateToKey(prevDateStr);
-
-      const dayRows = rawRecords.filter(r => parseDateToKey(r.WorkDate) === dateKey);
-      const nextDayRows = rawRecords.filter(r => parseDateToKey(r.WorkDate) === nextDateKey);
-      const prevDayRows = rawRecords.filter(r => parseDateToKey(r.WorkDate) === prevDateKey);
-
-      // Exclude supervisor shifts ending with -S and -S alone.
-      // Shifts shorter than 4 hours do not get BREs; shifts AT 4 hours (>= 4.0) do.
-      const isSor = (r) => {
-        const jn = String(r.JobNumber || '').trim();
-        const desc = String(r.PostDescription || '').trim();
-        const hrs = getShiftHours(r);
-        return (jn === conf.sorJob) && (!desc.endsWith('-S')) && (hrs >= 4.0);
-      };
-
-      const isBre = (r) => {
-        const jn = String(r.JobNumber || '').trim();
-        const desc = String(r.PostDescription || '').trim().toLowerCase();
-        return (jn === conf.breJob) && (desc === 'break relief extra');
-      };
-
-      const sors = dayRows.filter(isSor);
-      // Sort SORs strictly chronologically so within every hour block,
-      // earlier shifts (e.g. 6:15) always appear before later shifts (e.g. 6:30)
-      sors.sort((a, b) => {
-        const tA = String(a.ShiftStartTime || a.InTime || '').trim();
-        const tB = String(b.ShiftStartTime || b.InTime || '').trim();
-        if (tA !== tB) return tA.localeCompare(tB);
-        return String(a.EmpName || '').localeCompare(String(b.EmpName || ''));
-      });
-
-      const sameDayBres = dayRows.filter(isBre).map(r => {
-        const t = String(r.ShiftStartTime || r.InTime || '').trim();
-        return { ...r, _startTime: t };
-      });
-      sameDayBres.sort((a, b) => a._startTime.localeCompare(b._startTime));
-
-      const nextDayBres = nextDayRows.filter(isBre).map(r => {
-        const t = String(r.ShiftStartTime || r.InTime || '').trim();
-        return { ...r, _startTime: t };
-      });
-      nextDayBres.sort((a, b) => a._startTime.localeCompare(b._startTime));
-
-      // Determine if previous day had 23:00 or later SORs that claimed 00:xx BREs on this date.
-      // If previous day exists in data, its 23:xx SORs required 00:xx BREs on this date.
-      // If previous day is NOT in data (first day of schedule), any 00:xx BRE belongs to the prior night
-      // and should not be flagged as a surplus overage on this date.
-      const prevSors = prevDayRows.filter(isSor);
-      const prev23Sors = prevSors.filter(s => {
-        const t = String(s.ShiftStartTime || s.InTime || '').trim();
-        return (parseInt(t.split(':')[0], 10) || 0) >= 23;
-      });
-      const prevReqBres = prev23Sors.length > 0 ? Math.max(1, Math.round(prev23Sors.length / 3)) : 0;
-      const hasPrevDayData = (prevDayRows.length > 0);
-
-      // Breakers scheduled from 00:00-00:59 on this date belong to the PREVIOUS day's 23:xx shifts.
-      // We mark all sameDay 00:xx BREs accounted here so they do not show up as rogue/duplicate
-      // overages on this date, because they show up on their respective previous day!
-      const sameDay00Bres = sameDayBres.filter(b => (parseInt(b._startTime.split(':')[0], 10) || 0) === 0);
-      const claimed00Count = hasPrevDayData ? prevReqBres : sameDay00Bres.length;
-
-      const accountedBreUids = new Set();
-      // Pre-mark 00:xx BREs on this date that cover previous day's 23:xx shifts
-      sameDay00Bres.slice(0, claimed00Count).forEach(b => accountedBreUids.add(b._uid));
-      sameDay00Bres.forEach(b => accountedBreUids.add(b._uid));
-
-      const sorsByHour = {};
-      const twoLunches = [];
-      sors.forEach(r => {
-        const t = String(r.ShiftStartTime || r.InTime || '').trim();
-        const h = parseInt(t.split(':')[0], 10) || 0;
-        const lunch = parseFloat(r.SHIFTLUNCH || r.Lunch || 0) || 0;
-        if (!sorsByHour[h]) sorsByHour[h] = [];
-        const hrs = getShiftHours(r);
-        sorsByHour[h].push({ ...r, _startTime: t, _hour: h, _lunch: lunch, _hours: hrs });
-        // Second lunch rule: 5 AM & 6 AM SORs only
-        if ((h === 5 || h === 6) && lunch >= 1.5) {
-          twoLunches.push({ ...r, _startTime: t, _hour: h, _lunch: lunch, _hours: hrs });
         }
-      });
-
-      // 5 AM & 6 AM Two-Lunch 12:00 breaker requirement
-      const tlTotal = twoLunches.length;
-      let noonNeeded = 0;
-      if (tlTotal >= 4 && tlTotal <= 9) noonNeeded = 1;
-      else if (tlTotal >= 10 && tlTotal <= 14) noonNeeded = 2;
-      else if (tlTotal >= 15 && tlTotal <= 19) noonNeeded = 3;
-      else if (tlTotal >= 20) noonNeeded = 4;
-
-      const hoursData = [];
-
-      let totalBreRequired = 0;
-      let totalBreUnderstaff = 0;
-      let totalBreOverstaff = 0;
-      let totalScheduledBres = 0;
-      let totalTimeDiscrepancies = 0;
-
-      // 1. Process all SOR hours (Include hour 11 whenever regular 11am SORs, 2nd lunch shifts, or 12pm BREs exist)
-      // 1. Process all SOR hours (Include hour 11 for 2nd lunch / 12pm BREs, and hour 23 for midnight BREs)
-      const sorHoursSet = new Set(Object.keys(sorsByHour).map(Number));
-      const has12pmBres = sameDayBres.some(b => {
-        const t = String(b._startTime || '').trim();
-        return t && parseInt(t.split(':')[0], 10) === 12;
-      });
-      if ((sorsByHour[11] && sorsByHour[11].length > 0) || noonNeeded > 0 || has12pmBres) {
-        sorHoursSet.add(11);
       }
 
-      // Check if following day has midnight breakers (00:00 - 00:59) so they show up on this day (hour 23)
-      const hasNextDay00Bres = nextDayBres.some(b => {
-        const t = String(b._startTime || '').trim();
-        return t && parseInt(t.split(':')[0], 10) === 0;
-      });
-      if ((sorsByHour[23] && sorsByHour[23].length > 0) || hasNextDay00Bres) {
-        sorHoursSet.add(23);
+      function fallbackCopy(text) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
       }
 
-      const sorHours = Array.from(sorHoursSet).sort((a,b)=>a-b);
-      sorHours.forEach(h => {
-        if (h === 11) {
-          const h11Sors = sorsByHour[11] || [];
-          h11Sors.sort((a, b) => {
+      // Comprehensive Chronological Audit showing overages right in the hour they appear
+      function analyzeFacilityDate(facKey, date) {
+        const conf = FACILITY_CONFIG[facKey];
+        const dateKey = parseDateToKey(date);
+        const nextDateStr = getFollowingDateStr(date);
+        const nextDateKey = parseDateToKey(nextDateStr);
+        const prevDateStr = getPreviousDateStr(date);
+        const prevDateKey = parseDateToKey(prevDateStr);
+
+        const dayRows = rawRecords.filter(r => parseDateToKey(r.WorkDate) === dateKey);
+        const nextDayRows = rawRecords.filter(r => parseDateToKey(r.WorkDate) === nextDateKey);
+        const prevDayRows = rawRecords.filter(r => parseDateToKey(r.WorkDate) === prevDateKey);
+
+        // Exclude supervisor shifts ending with -S and -S alone.
+        // Shifts shorter than 4 hours do not get BREs; shifts AT 4 hours (>= 4.0) do.
+        const isSor = (r) => {
+          const jn = String(r.JobNumber || '').trim();
+          const desc = String(r.PostDescription || '').trim();
+          const hrs = getShiftHours(r);
+          return (jn === conf.sorJob) && (!desc.endsWith('-S')) && (hrs >= 4.0);
+        };
+
+        const isBre = (r) => {
+          const jn = String(r.JobNumber || '').trim();
+          const desc = String(r.PostDescription || '').trim().toLowerCase();
+          return (jn === conf.breJob) && (desc === 'break relief extra');
+        };
+
+        const sors = dayRows.filter(isSor);
+        // Sort SORs strictly chronologically so within every hour block,
+        // earlier shifts (e.g. 6:15) always appear before later shifts (e.g. 6:30)
+        sors.sort((a, b) => {
+          const tA = normalizeTime(String(a.ShiftStartTime || a.InTime || '').trim());
+          const tB = normalizeTime(String(b.ShiftStartTime || b.InTime || '').trim());
+          if (tA !== tB) return tA.localeCompare(tB);
+          return String(a.EmpName || '').localeCompare(String(b.EmpName || ''));
+        });
+
+        const mapBreaker = (r) => {
+          const t = normalizeTime(String(r.ShiftStartTime || r.InTime || '').trim());
+          const hrs = getShiftHours(r) || 8.0;
+          const lunch = parseFloat(r.SHIFTLUNCH !== undefined && r.SHIFTLUNCH !== '' ? r.SHIFTLUNCH : (r.Lunch || 0.75)) || 0.75;
+          const endT = getShiftEndTime(r, hrs, lunch);
+          return { ...r, _startTime: t, _endTime: endT };
+        };
+
+        const sameDayBres = dayRows.filter(isBre).map(mapBreaker);
+        sameDayBres.sort((a, b) => a._startTime.localeCompare(b._startTime));
+
+        const nextDayBres = nextDayRows.filter(isBre).map(mapBreaker);
+        nextDayBres.sort((a, b) => a._startTime.localeCompare(b._startTime));
+
+        // Determine if previous day had 23:00 or later SORs that claimed 00:xx BREs on this date.
+        // If previous day exists in data, its 23:xx SORs required 00:xx BREs on this date.
+        // If previous day is NOT in data (first day of schedule), any 00:xx BRE belongs to the prior night
+        // and should not be flagged as a surplus overage on this date.
+        const prevSors = prevDayRows.filter(isSor);
+        const prev23Sors = prevSors.filter(s => {
+          const t = String(s.ShiftStartTime || s.InTime || '').trim();
+          return (parseInt(t.split(':')[0], 10) || 0) >= 23;
+        });
+        const prevReqBres = prev23Sors.length > 0 ? Math.max(1, Math.round(prev23Sors.length / 3)) : 0;
+        const hasPrevDayData = (prevDayRows.length > 0);
+
+        // Breakers scheduled from 00:00-00:59 on this date belong to the PREVIOUS day's 23:xx shifts.
+        // We mark all sameDay 00:xx BREs accounted here so they do not show up as rogue/duplicate
+        // overages on this date, because they show up on their respective previous day!
+        const sameDay00Bres = sameDayBres.filter(b => (parseInt(b._startTime.split(':')[0], 10) || 0) === 0);
+        const claimed00Count = hasPrevDayData ? prevReqBres : sameDay00Bres.length;
+
+        const accountedBreUids = new Set();
+        // Pre-mark 00:xx BREs on this date that cover previous day's 23:xx shifts
+        sameDay00Bres.slice(0, claimed00Count).forEach(b => accountedBreUids.add(b._uid));
+        sameDay00Bres.forEach(b => accountedBreUids.add(b._uid));
+
+        const sorsByHour = {};
+        const twoLunches = [];
+        sors.forEach(r => {
+          const t = normalizeTime(String(r.ShiftStartTime || r.InTime || '').trim());
+          const lunch = parseFloat(r.SHIFTLUNCH !== undefined && r.SHIFTLUNCH !== '' ? r.SHIFTLUNCH : (r.Lunch || 0)) || 0;
+          const hrs = getShiftHours(r);
+          const endT = getShiftEndTime(r, hrs, lunch);
+          const h = parseInt(t.split(':')[0], 10) || 0;
+          if (!sorsByHour[h]) sorsByHour[h] = [];
+          const item = { ...r, _startTime: t, _endTime: endT, _hour: h, _lunch: lunch, _hours: hrs };
+          sorsByHour[h].push(item);
+          // Second lunch rule: 5 AM & 6 AM SORs only
+          if ((h === 5 || h === 6) && lunch >= 1.5) {
+            twoLunches.push(item);
+          }
+        });
+
+        // 5 AM & 6 AM Two-Lunch 12:00 breaker requirement
+        const tlTotal = twoLunches.length;
+        let noonNeeded = 0;
+        if (tlTotal >= 4 && tlTotal <= 9) noonNeeded = 1;
+        else if (tlTotal >= 10 && tlTotal <= 14) noonNeeded = 2;
+        else if (tlTotal >= 15 && tlTotal <= 19) noonNeeded = 3;
+        else if (tlTotal >= 20) noonNeeded = 4;
+
+        const hoursData = [];
+
+        let totalBreRequired = 0;
+        let totalBreUnderstaff = 0;
+        let totalBreOverstaff = 0;
+        let totalScheduledBres = 0;
+        let totalTimeDiscrepancies = 0;
+
+        // 1. Process all SOR hours (Include hour 11 whenever regular 11am SORs, 2nd lunch shifts, or 12pm BREs exist)
+        // 1. Process all SOR hours (Include hour 11 for 2nd lunch / 12pm BREs, and hour 23 for midnight BREs)
+        const sorHoursSet = new Set(Object.keys(sorsByHour).map(Number));
+        const has12pmBres = sameDayBres.some(b => {
+          const t = String(b._startTime || '').trim();
+          return t && parseInt(t.split(':')[0], 10) === 12;
+        });
+        if ((sorsByHour[11] && sorsByHour[11].length > 0) || noonNeeded > 0 || has12pmBres) {
+          sorHoursSet.add(11);
+        }
+
+        // Check if following day has midnight breakers (00:00 - 00:59) so they show up on this day (hour 23)
+        const hasNextDay00Bres = nextDayBres.some(b => {
+          const t = String(b._startTime || '').trim();
+          return t && parseInt(t.split(':')[0], 10) === 0;
+        });
+        if ((sorsByHour[23] && sorsByHour[23].length > 0) || hasNextDay00Bres) {
+          sorHoursSet.add(23);
+        }
+
+        const sorHours = Array.from(sorHoursSet).sort((a, b) => a - b);
+        sorHours.forEach(h => {
+          if (h === 11) {
+            const h11Sors = sorsByHour[11] || [];
+            h11Sors.sort((a, b) => {
+              const tA = a._startTime || '';
+              const tB = b._startTime || '';
+              if (tA !== tB) return tA.localeCompare(tB);
+              return String(a.EmpName || '').localeCompare(String(b.EmpName || ''));
+            });
+
+            // 1. Normal 11am SOR pod timing: Earliest SOR determines target breaker time (timed normally like all other pods)
+            const regSorCount = h11Sors.length;
+            let minT11 = (regSorCount > 0) ? h11Sors[0]._startTime : '11:00';
+            for (let s of h11Sors) {
+              if (s._startTime < minT11) minT11 = s._startTime;
+            }
+            const [mh11, mm11] = minT11.split(':').map(Number);
+            const targetBreHour11 = (mh11 + 1) % 24;
+            const normalTargetTime = String(targetBreHour11).padStart(2, '0') + ':' + String(mm11).padStart(2, '0');
+            const reqReg11Bres = (regSorCount > 0) ? Math.max(1, Math.round(regSorCount / 3)) : 0;
+
+            // 2. Second Lunch Breakers (always come in at 12:00)
+            const reqNoonBres = noonNeeded;
+            const secondLunchTargetTime = '12:00';
+
+            // Candidate 12pm breakers
+            const candidate12Bres = sameDayBres.filter(b => {
+              const t = String(b._startTime || b.ShiftStartTime || b.InTime || '').trim();
+              if (!t) return false;
+              return parseInt(t.split(':')[0], 10) === 12;
+            });
+            candidate12Bres.sort((a, b) => a._startTime.localeCompare(b._startTime));
+            candidate12Bres.forEach(b => accountedBreUids.add(b._uid));
+
+            // Match candidate 12pm breakers to Second Lunch (target 12:00) and Normal 11 (target normalTargetTime)
+            // using minimum time distance matching
+            const slots = [];
+            for (let i = 0; i < reqNoonBres; i++) {
+              slots.push({ type: 'noon', target: secondLunchTargetTime, idx: i });
+            }
+            for (let i = 0; i < reqReg11Bres; i++) {
+              slots.push({ type: 'normal', target: normalTargetTime, idx: i });
+            }
+
+            function getMins(t) {
+              const [hh, mm] = t.split(':').map(Number);
+              return hh * 60 + mm;
+            }
+
+            const pairs = [];
+            candidate12Bres.forEach((bre, bIdx) => {
+              const bt = bre._startTime || '12:00';
+              slots.forEach((slot, sIdx) => {
+                let diff = Math.abs(getMins(bt) - getMins(slot.target));
+                if (diff > 720) diff = Math.abs(diff - 1440);
+                pairs.push({ diff, bIdx, sIdx });
+              });
+            });
+            pairs.sort((a, b) => a.diff - b.diff);
+            pairs.sort((a, b) => {
+              const breA = candidate12Bres[a.bIdx];
+              const breB = candidate12Bres[b.bIdx];
+              const aAssigned = hasAssignedEmployee(breA) ? 1 : 0;
+              const bAssigned = hasAssignedEmployee(breB) ? 1 : 0;
+              // 1. Favor assigning breakers with an assigned employee to required slots first
+              if (aAssigned !== bAssigned) return bAssigned - aAssigned;
+              // 2. Favor dedication likely
+              const aDL = breA._isDL ? 1 : 0;
+              const bDL = breB._isDL ? 1 : 0;
+              if (aDL !== bDL) return bDL - aDL;
+              // 3. Closeness to slot target time
+              if (a.diff !== b.diff) return a.diff - b.diff;
+              return (breA._startTime || '').localeCompare(breB._startTime || '');
+            });
+
+            const usedBre = new Set();
+            const usedSlot = new Set();
+            const slotAssignments = {};
+            pairs.forEach(p => {
+              if (!usedBre.has(p.bIdx) && !usedSlot.has(p.sIdx)) {
+                usedBre.add(p.bIdx);
+                usedSlot.add(p.sIdx);
+                slotAssignments[p.sIdx] = candidate12Bres[p.bIdx];
+              }
+            });
+
+            const assignedNoonBres = [];
+            for (let i = 0; i < reqNoonBres; i++) {
+              assignedNoonBres.push(slotAssignments[i] || null);
+            }
+            const assignedRegBres = [];
+            for (let i = 0; i < reqReg11Bres; i++) {
+              assignedRegBres.push(slotAssignments[reqNoonBres + i] || null);
+            }
+            const unassignedBres = candidate12Bres.filter((_, idx) => !usedBre.has(idx));
+
+            // Distribute surplus breakers: 12:00 breakers to Second Lunch (if it exists), others to Normal 11
+            const surplusNoonBres = [];
+            const surplusRegBres = [];
+            unassignedBres.forEach(b => {
+              if (b._startTime === '12:00' && (reqNoonBres > 0 || twoLunches.length > 0)) {
+                surplusNoonBres.push(b);
+              } else if (regSorCount > 0) {
+                surplusRegBres.push(b);
+              } else if (reqNoonBres > 0 || twoLunches.length > 0) {
+                surplusNoonBres.push(b);
+              } else {
+                surplusRegBres.push(b);
+              }
+            });
+
+            // Favor closing unassigned shifts: sort surplus so unassigned shifts appear first to be closed
+            const sortSurplus = (a, b) => {
+              const aAssigned = hasAssignedEmployee(a) ? 1 : 0;
+              const bAssigned = hasAssignedEmployee(b) ? 1 : 0;
+              if (aAssigned !== bAssigned) return aAssigned - bAssigned; // unassigned (0) first
+              return (a._startTime || '').localeCompare(b._startTime || '');
+            };
+            surplusNoonBres.sort(sortSurplus);
+            surplusRegBres.sort(sortSurplus);
+
+            // -------------------------------------------------------------
+            // POD 1: Normal 11:00 Hour Pod (timed normally like all other pods)
+            // -------------------------------------------------------------
+            if (regSorCount > 0 || surplusRegBres.length > 0 || (reqNoonBres === 0 && candidate12Bres.length > 0 && surplusNoonBres.length === 0)) {
+              const regPods = [];
+              if (regSorCount > 0 && reqReg11Bres > 0) {
+                const baseSize = Math.floor(regSorCount / reqReg11Bres);
+                const remainder = regSorCount % reqReg11Bres;
+                let sIdx = 0;
+                for (let i = 0; i < reqReg11Bres; i++) {
+                  const podSize = baseSize + (i < remainder ? 1 : 0);
+                  regPods.push(h11Sors.slice(sIdx, sIdx + podSize));
+                  sIdx += podSize;
+                }
+              }
+
+              const regLines = [];
+              let regTimeDiscrepancies = 0;
+              const maxRegRows = Math.max(regPods.length, assignedRegBres.length);
+
+              for (let i = 0; i < maxRegRows; i++) {
+                const pod = regPods[i] || [];
+                const bre = assignedRegBres[i] || null;
+
+                let isTimeMismatch = false;
+                let offsetStr = '';
+                const expTime = normalTargetTime;
+                const expEndTime = computeShiftEndTime(expTime, 8, 0.75);
+
+                if (bre && bre._startTime && bre._startTime !== expTime) {
+                  isTimeMismatch = true;
+                  const [bh, bm] = bre._startTime.split(':').map(Number);
+                  const [eh, em] = expTime.split(':').map(Number);
+                  let diffMins = (bh * 60 + bm) - (eh * 60 + em);
+                  if (diffMins > 720) diffMins -= 1440;
+                  if (diffMins < -720) diffMins += 1440;
+                  offsetStr = diffMins < 0 ? `${Math.abs(diffMins)}m early` : `${diffMins}m late`;
+                }
+
+                const isMissing = (pod.length > 0 && !bre);
+                let lineKey = null;
+                let issueType = null;
+                if (isMissing) {
+                  lineKey = `missing_${facKey}_${date}_11_reg_${i}`;
+                  issueType = 'missing';
+                } else if (isTimeMismatch) {
+                  lineKey = `timechange_${facKey}_${bre._uid !== undefined ? bre._uid : ('tc_' + date + '_11_reg_' + i)}`;
+                  issueType = 'timechange';
+                }
+                const isIgnored = lineKey ? ignoredIssues.has(lineKey) : false;
+                if (isTimeMismatch && !isIgnored) {
+                  regTimeDiscrepancies++;
+                }
+
+                regLines.push({
+                  podSors: pod,
+                  bre: bre,
+                  is5amExtra: false,
+                  isSecondLunch: false,
+                  status: bre ? 'OK' : 'MISSING_BREAKER',
+                  expTime: expTime,
+                  expEndTime: expEndTime,
+                  isTimeMismatch: isTimeMismatch,
+                  offsetStr: offsetStr,
+                  targetBreDate: date,
+                  isNextDayBre: false,
+                  isMidnightBreaker: false,
+                  issueKey: lineKey,
+                  isIgnored: isIgnored,
+                  issueType: issueType
+                });
+              }
+
+              // Surplus breakers for Normal 11
+              surplusRegBres.forEach((bre, sIdx) => {
+                const lineKey = `overstaff_${facKey}_${bre._uid !== undefined ? bre._uid : ('11_surplus_' + sIdx)}`;
+                const isIgnored = ignoredIssues.has(lineKey);
+                regLines.push({
+                  podSors: [],
+                  bre: bre,
+                  is5amExtra: false,
+                  isSecondLunch: false,
+                  status: 'SURPLUS_BREAKER',
+                  expTime: normalTargetTime,
+                  expEndTime: computeShiftEndTime(normalTargetTime, 8, 0.75),
+                  isTimeMismatch: false,
+                  offsetStr: '',
+                  targetBreDate: date,
+                  isNextDayBre: false,
+                  isMidnightBreaker: false,
+                  issueKey: lineKey,
+                  isIgnored: isIgnored,
+                  issueType: 'overstaff'
+                });
+              });
+
+              const activeMissing = regLines.filter(l => l.status === 'MISSING_BREAKER' && !l.isIgnored).length;
+              const ignoredMissing = regLines.filter(l => l.status === 'MISSING_BREAKER' && l.isIgnored).length;
+              const activeSurplus = regLines.filter(l => l.status === 'SURPLUS_BREAKER' && !l.isIgnored).length;
+              const ignoredSurplus = regLines.filter(l => l.status === 'SURPLUS_BREAKER' && l.isIgnored).length;
+              const activeMismatch = regLines.filter(l => l.isTimeMismatch && !l.isIgnored).length;
+              const ignoredMismatch = regLines.filter(l => l.isTimeMismatch && l.isIgnored).length;
+
+              totalBreRequired += reqReg11Bres;
+              totalBreUnderstaff += activeMissing;
+              totalBreOverstaff += activeSurplus;
+              totalScheduledBres += (assignedRegBres.filter(Boolean).length + surplusRegBres.length);
+              totalTimeDiscrepancies += activeMismatch;
+
+              const effectiveDiff = activeSurplus - activeMissing;
+              const ignoredCount = ignoredMissing + ignoredSurplus + ignoredMismatch;
+
+              hoursData.push({
+                date: date,
+                hour: 11,
+                sortOrder: 11.0,
+                isSecondLunchCard: false,
+                sors: h11Sors,
+                sorCount: regSorCount,
+                regSorCount: regSorCount,
+                secondLunchCount: 0,
+                regReqBres: reqReg11Bres,
+                secondLunchReq: 0,
+                minStartTime: minT11,
+                targetBreTime: normalTargetTime,
+                targetBreDate: date,
+                isNextDayBre: false,
+                isMidnightBreaker: false,
+                reqSorBres: reqReg11Bres,
+                totalReqBres: reqReg11Bres,
+                actualBresCount: assignedRegBres.filter(Boolean).length + surplusRegBres.length,
+                diff: effectiveDiff,
+                effectiveDiff: effectiveDiff,
+                activeUnderstaff: activeMissing,
+                activeOverstaff: activeSurplus,
+                ignoredCount: ignoredCount,
+                lines: regLines,
+                hasIssue: (activeMissing > 0 || activeSurplus > 0 || regTimeDiscrepancies > 0),
+                timeDiscrepancies: regTimeDiscrepancies,
+                isStandaloneOverageHour: false,
+                is11Hour: false
+              });
+            }
+
+            // -------------------------------------------------------------
+            // POD 2: Second Lunch Pod (Who always come in at 12) right by the normal one
+            // -------------------------------------------------------------
+            if (reqNoonBres > 0 || surplusNoonBres.length > 0) {
+              const noonPods = [];
+              if (reqNoonBres > 0) {
+                if (tlTotal <= 9) noonPods.push(twoLunches.slice(0, tlTotal));
+                else if (tlTotal <= 14) {
+                  noonPods.push(twoLunches.slice(0, 9));
+                  noonPods.push(twoLunches.slice(9, tlTotal));
+                } else if (tlTotal <= 19) {
+                  noonPods.push(twoLunches.slice(0, 9));
+                  noonPods.push(twoLunches.slice(9, 14));
+                  noonPods.push(twoLunches.slice(14, tlTotal));
+                } else {
+                  noonPods.push(twoLunches.slice(0, 9));
+                  noonPods.push(twoLunches.slice(9, 14));
+                  noonPods.push(twoLunches.slice(14, 19));
+                  noonPods.push(twoLunches.slice(19, tlTotal));
+                }
+              }
+
+              const noonLines = [];
+              let noonTimeDiscrepancies = 0;
+              const maxNoonRows = Math.max(noonPods.length, assignedNoonBres.length);
+
+              for (let i = 0; i < maxNoonRows; i++) {
+                const pod = noonPods[i] || [];
+                const bre = assignedNoonBres[i] || null;
+
+                let isTimeMismatch = false;
+                let offsetStr = '';
+                const expTime = '12:00';
+                const expEndTime = '20:45';
+
+                if (bre && bre._startTime && bre._startTime !== expTime) {
+                  isTimeMismatch = true;
+                  const [bh, bm] = bre._startTime.split(':').map(Number);
+                  const [eh, em] = expTime.split(':').map(Number);
+                  let diffMins = (bh * 60 + bm) - (eh * 60 + em);
+                  if (diffMins > 720) diffMins -= 1440;
+                  if (diffMins < -720) diffMins += 1440;
+                  offsetStr = diffMins < 0 ? `${Math.abs(diffMins)}m early` : `${diffMins}m late`;
+                }
+
+                const isMissing = (pod.length > 0 && !bre);
+                let lineKey = null;
+                let issueType = null;
+                if (isMissing) {
+                  lineKey = `missing_${facKey}_${date}_11_noon_${i}`;
+                  issueType = 'missing';
+                } else if (isTimeMismatch) {
+                  lineKey = `timechange_${facKey}_${bre._uid !== undefined ? bre._uid : ('tc_' + date + '_noon_' + i)}`;
+                  issueType = 'timechange';
+                }
+                const isIgnored = lineKey ? ignoredIssues.has(lineKey) : false;
+                if (isTimeMismatch && !isIgnored) {
+                  noonTimeDiscrepancies++;
+                }
+
+                noonLines.push({
+                  podSors: pod,
+                  bre: bre,
+                  is5amExtra: false,
+                  isSecondLunch: true,
+                  status: bre ? 'OK' : 'MISSING_BREAKER',
+                  expTime: expTime,
+                  expEndTime: expEndTime,
+                  isTimeMismatch: isTimeMismatch,
+                  offsetStr: offsetStr,
+                  targetBreDate: date,
+                  isNextDayBre: false,
+                  isMidnightBreaker: false,
+                  issueKey: lineKey,
+                  isIgnored: isIgnored,
+                  issueType: issueType
+                });
+              }
+
+              // Surplus breakers for Second Lunch
+              surplusNoonBres.forEach((bre, sIdx) => {
+                const lineKey = `overstaff_${facKey}_${bre._uid !== undefined ? bre._uid : ('noon_surplus_' + sIdx)}`;
+                const isIgnored = ignoredIssues.has(lineKey);
+                noonLines.push({
+                  podSors: [],
+                  bre: bre,
+                  is5amExtra: false,
+                  isSecondLunch: true,
+                  status: 'SURPLUS_BREAKER',
+                  expTime: '12:00',
+                  expEndTime: '20:45',
+                  isTimeMismatch: false,
+                  offsetStr: '',
+                  targetBreDate: date,
+                  isNextDayBre: false,
+                  isMidnightBreaker: false,
+                  issueKey: lineKey,
+                  isIgnored: isIgnored,
+                  issueType: 'overstaff'
+                });
+              });
+
+              const activeMissing = noonLines.filter(l => l.status === 'MISSING_BREAKER' && !l.isIgnored).length;
+              const ignoredMissing = noonLines.filter(l => l.status === 'MISSING_BREAKER' && l.isIgnored).length;
+              const activeSurplus = noonLines.filter(l => l.status === 'SURPLUS_BREAKER' && !l.isIgnored).length;
+              const ignoredSurplus = noonLines.filter(l => l.status === 'SURPLUS_BREAKER' && l.isIgnored).length;
+              const activeMismatch = noonLines.filter(l => l.isTimeMismatch && !l.isIgnored).length;
+              const ignoredMismatch = noonLines.filter(l => l.isTimeMismatch && l.isIgnored).length;
+
+              totalBreRequired += reqNoonBres;
+              totalBreUnderstaff += activeMissing;
+              totalBreOverstaff += activeSurplus;
+              totalScheduledBres += (assignedNoonBres.filter(Boolean).length + surplusNoonBres.length);
+              totalTimeDiscrepancies += activeMismatch;
+
+              const effectiveDiff = activeSurplus - activeMissing;
+              const ignoredCount = ignoredMissing + ignoredSurplus + ignoredMismatch;
+
+              hoursData.push({
+                date: date,
+                hour: 11,
+                sortOrder: 11.5,
+                isSecondLunchCard: true,
+                sors: twoLunches,
+                sorCount: twoLunches.length,
+                secondLunchCount: twoLunches.length,
+                minStartTime: '12:00',
+                targetBreTime: '12:00',
+                targetBreDate: date,
+                isNextDayBre: false,
+                isMidnightBreaker: false,
+                reqSorBres: reqNoonBres,
+                totalReqBres: reqNoonBres,
+                actualBresCount: assignedNoonBres.filter(Boolean).length + surplusNoonBres.length,
+                diff: effectiveDiff,
+                effectiveDiff: effectiveDiff,
+                activeUnderstaff: activeMissing,
+                activeOverstaff: activeSurplus,
+                ignoredCount: ignoredCount,
+                lines: noonLines,
+                hasIssue: (activeMissing > 0 || activeSurplus > 0 || noonTimeDiscrepancies > 0),
+                timeDiscrepancies: noonTimeDiscrepancies,
+                isStandaloneOverageHour: false,
+                is11Hour: false
+              });
+            }
+
+            return;
+          }
+
+          const hSors = sorsByHour[h] || [];
+          // Ensure SORs within the hour are sorted strictly chronologically (e.g. all 6:15s before 6:30s)
+          hSors.sort((a, b) => {
             const tA = a._startTime || '';
             const tB = b._startTime || '';
             if (tA !== tB) return tA.localeCompare(tB);
             return String(a.EmpName || '').localeCompare(String(b.EmpName || ''));
           });
 
-          // 1. Normal 11am SOR pod timing: Earliest SOR determines target breaker time (timed normally like all other pods)
-          const regSorCount = h11Sors.length;
-          let minT11 = (regSorCount > 0) ? h11Sors[0]._startTime : '11:00';
-          for (let s of h11Sors) {
-            if (s._startTime < minT11) minT11 = s._startTime;
+          const sorCount = hSors.length;
+          const is5am = (h === 5);
+          const isNextDayBre = (h >= 23);
+          const isMidnightBreaker = isNextDayBre;
+
+          // The first SOR for the hour determines target start for ALL BREs that hour
+          let minT = (hSors.length > 0) ? hSors[0]._startTime : String(h).padStart(2, '0') + ':00';
+          for (let s of hSors) {
+            if (s._startTime < minT) minT = s._startTime;
           }
-          const [mh11, mm11] = minT11.split(':').map(Number);
-          const targetBreHour11 = (mh11 + 1) % 24;
-          const normalTargetTime = String(targetBreHour11).padStart(2, '0') + ':' + String(mm11).padStart(2, '0');
-          const reqReg11Bres = (regSorCount > 0) ? Math.max(1, Math.round(regSorCount / 3)) : 0;
+          const [mh, mm] = minT.split(':').map(Number);
+          const targetBreHour = (mh + 1) % 24;
+          const hourTargetTime = String(targetBreHour).padStart(2, '0') + ':' + String(mm).padStart(2, '0');
+          const targetBreDate = isNextDayBre ? nextDateStr : date;
 
-          // 2. Second Lunch Breakers (always come in at 12:00)
-          const reqNoonBres = noonNeeded;
-          const secondLunchTargetTime = '12:00';
+          const reqSorBres = (sorCount > 0) ? Math.max(1, Math.round(sorCount / 3)) : 0;
+          const totalReqBres = reqSorBres + (is5am ? 1 : 0);
+          totalBreRequired += totalReqBres;
 
-          // Candidate 12pm breakers
-          const candidate12Bres = sameDayBres.filter(b => {
-            const t = String(b._startTime || b.ShiftStartTime || b.InTime || '').trim();
-            if (!t) return false;
-            return parseInt(t.split(':')[0], 10) === 12;
-          });
-          candidate12Bres.sort((a, b) => a._startTime.localeCompare(b._startTime));
-          candidate12Bres.forEach(b => accountedBreUids.add(b._uid));
-
-          // Match candidate 12pm breakers to Second Lunch (target 12:00) and Normal 11 (target normalTargetTime)
-          // using minimum time distance matching
-          const slots = [];
-          for (let i = 0; i < reqNoonBres; i++) {
-            slots.push({ type: 'noon', target: secondLunchTargetTime, idx: i });
-          }
-          for (let i = 0; i < reqReg11Bres; i++) {
-            slots.push({ type: 'normal', target: normalTargetTime, idx: i });
-          }
-
-          function getMins(t) {
-            const [hh, mm] = t.split(':').map(Number);
-            return hh * 60 + mm;
-          }
-
-          const pairs = [];
-          candidate12Bres.forEach((bre, bIdx) => {
-            const bt = bre._startTime || '12:00';
-            slots.forEach((slot, sIdx) => {
-              let diff = Math.abs(getMins(bt) - getMins(slot.target));
-              if (diff > 720) diff = Math.abs(diff - 1440);
-              pairs.push({ diff, bIdx, sIdx });
+          // Breakers are always scheduled 1 hour later than the SORs they cover.
+          // For shifts 23:00 and later, breakers start at midnight or later on the FOLLOWING DAY.
+          const sourceBres = isNextDayBre ? nextDayBres : sameDayBres;
+          const candidateBres = sourceBres.filter(b => {
+            let candidateBres = sourceBres.filter(b => {
+              const t = String(b._startTime || b.ShiftStartTime || b.InTime || '').trim();
+              if (!t) return false;
+              const bh = parseInt(t.split(':')[0], 10);
+              return bh === targetBreHour;
             });
-          });
-          pairs.sort((a, b) => a.diff - b.diff);
+            candidateBres.sort((a, b) => a._startTime.localeCompare(b._startTime));
+            candidateBres.forEach(b => accountedBreUids.add(b._uid));
 
-          const usedBre = new Set();
-          const usedSlot = new Set();
-          const slotAssignments = {};
-          pairs.forEach(p => {
-            if (!usedBre.has(p.bIdx) && !usedSlot.has(p.sIdx)) {
-              usedBre.add(p.bIdx);
-              usedSlot.add(p.sIdx);
-              slotAssignments[p.sIdx] = candidate12Bres[p.bIdx];
+            // Favor closing shifts with no current employee assigned over ones with an employee assigned:
+            // Rank breakers for required slots (keepers): assigned employees first, then dedication likely, then closest to target time.
+            const rankForKeeping = (a, b) => {
+              const aAssigned = hasAssignedEmployee(a) ? 1 : 0;
+              const bAssigned = hasAssignedEmployee(b) ? 1 : 0;
+              if (aAssigned !== bAssigned) return bAssigned - aAssigned;
+              const aDL = a._isDL ? 1 : 0;
+              const bDL = b._isDL ? 1 : 0;
+              if (aDL !== bDL) return bDL - aDL;
+
+              const [ah, am] = (a._startTime || '00:00').split(':').map(Number);
+              const [bh, bm] = (b._startTime || '00:00').split(':').map(Number);
+              const [th, tm] = (hourTargetTime || '00:00').split(':').map(Number);
+              let diffA = Math.abs((ah * 60 + am) - (th * 60 + tm));
+              if (diffA > 720) diffA = Math.abs(diffA - 1440);
+              let diffB = Math.abs((bh * 60 + bm) - (th * 60 + tm));
+              if (diffB > 720) diffB = Math.abs(diffB - 1440);
+              if (diffA !== diffB) return diffA - diffB;
+
+              return (a._startTime || '').localeCompare(b._startTime || '');
+            };
+
+            const sortedCandidates = [...candidateBres].sort(rankForKeeping);
+            const keepers = sortedCandidates.slice(0, totalReqBres);
+            const surplus = sortedCandidates.slice(totalReqBres);
+
+            // Within keepers, sort chronologically so earlier shifts go to earlier pods / 5am extra
+            keepers.sort((a, b) => (a._startTime || '').localeCompare(b._startTime || ''));
+
+            // Within surplus, sort so unassigned shifts are listed first to close
+            surplus.sort((a, b) => {
+              const aAssigned = hasAssignedEmployee(a) ? 1 : 0;
+              const bAssigned = hasAssignedEmployee(b) ? 1 : 0;
+              if (aAssigned !== bAssigned) return aAssigned - bAssigned; // unassigned (0) first
+              return (a._startTime || '').localeCompare(b._startTime || '');
+            });
+
+            candidateBres = [...keepers, ...surplus];
+
+            const targetLabel = hourTargetTime;
+            const actualBresCount = candidateBres.length;
+            totalScheduledBres += actualBresCount;
+
+            const lines = [];
+            let breCursor = 0;
+            let timeDiscrepancies = 0;
+
+            // Standard hours (including 5am and 2300+)
+            if (is5am) {
+              const extraBre = candidateBres[breCursor] || null;
+              if (extraBre) breCursor++;
+
+              let isTimeMismatch = false;
+              let offsetStr = '';
+              const expTime = hourTargetTime;
+              const expEndTime = computeShiftEndTime(hourTargetTime, 8, 0.75);
+              if (extraBre && extraBre._startTime && extraBre._startTime !== expTime) {
+                isTimeMismatch = true;
+                const [bh, bm] = extraBre._startTime.split(':').map(Number);
+                const [eh, em] = expTime.split(':').map(Number);
+                let diffMins = (bh * 60 + bm) - (eh * 60 + em);
+                if (diffMins > 720) diffMins -= 1440;
+                if (diffMins < -720) diffMins += 1440;
+                offsetStr = diffMins < 0 ? `${Math.abs(diffMins)}m early` : `${diffMins}m late`;
+              }
+
+              const isMissing = !extraBre;
+              let lineKey = null;
+              let issueType = null;
+              if (isMissing) {
+                lineKey = `missing_${facKey}_${date}_5_extra`;
+                issueType = 'missing';
+              } else if (isTimeMismatch) {
+                lineKey = `timechange_${facKey}_${extraBre._uid !== undefined ? extraBre._uid : ('tc_' + date + '_5_extra')}`;
+                issueType = 'timechange';
+              }
+              const isIgnored = lineKey ? ignoredIssues.has(lineKey) : false;
+              if (isTimeMismatch && !isIgnored) {
+                timeDiscrepancies++;
+              }
+
+              lines.push({
+                podSors: [],
+                bre: extraBre,
+                is5amExtra: true,
+                isSecondLunch: false,
+                status: extraBre ? 'OK' : 'MISSING_EXTRA',
+                expTime: expTime,
+                expEndTime: expEndTime,
+                isTimeMismatch: isTimeMismatch,
+                offsetStr: offsetStr,
+                targetBreDate: targetBreDate,
+                isNextDayBre: isNextDayBre,
+                isMidnightBreaker: false,
+                issueKey: lineKey,
+                isIgnored: isIgnored,
+                issueType: issueType
+              });
             }
-          });
 
-          const assignedNoonBres = [];
-          for (let i = 0; i < reqNoonBres; i++) {
-            assignedNoonBres.push(slotAssignments[i] || null);
-          }
-          const assignedRegBres = [];
-          for (let i = 0; i < reqReg11Bres; i++) {
-            assignedRegBres.push(slotAssignments[reqNoonBres + i] || null);
-          }
-          const unassignedBres = candidate12Bres.filter((_, idx) => !usedBre.has(idx));
-
-          // Distribute surplus breakers: 12:00 breakers to Second Lunch (if it exists), others to Normal 11
-          const surplusNoonBres = [];
-          const surplusRegBres = [];
-          unassignedBres.forEach(b => {
-            if (b._startTime === '12:00' && (reqNoonBres > 0 || twoLunches.length > 0)) {
-              surplusNoonBres.push(b);
-            } else if (regSorCount > 0) {
-              surplusRegBres.push(b);
-            } else if (reqNoonBres > 0 || twoLunches.length > 0) {
-              surplusNoonBres.push(b);
-            } else {
-              surplusRegBres.push(b);
-            }
-          });
-
-          // -------------------------------------------------------------
-          // POD 1: Normal 11:00 Hour Pod (timed normally like all other pods)
-          // -------------------------------------------------------------
-          if (regSorCount > 0 || surplusRegBres.length > 0 || (reqNoonBres === 0 && candidate12Bres.length > 0 && surplusNoonBres.length === 0)) {
-            const regPods = [];
-            if (regSorCount > 0 && reqReg11Bres > 0) {
-              const baseSize = Math.floor(regSorCount / reqReg11Bres);
-              const remainder = regSorCount % reqReg11Bres;
+            // Evenly distribute SORs across required breakers
+            const sorPods = [];
+            if (sorCount > 0 && reqSorBres > 0) {
+              const baseSize = Math.floor(sorCount / reqSorBres);
+              const remainder = sorCount % reqSorBres;
               let sIdx = 0;
-              for (let i = 0; i < reqReg11Bres; i++) {
+              for (let i = 0; i < reqSorBres; i++) {
                 const podSize = baseSize + (i < remainder ? 1 : 0);
-                regPods.push(h11Sors.slice(sIdx, sIdx + podSize));
+                sorPods.push(hSors.slice(sIdx, sIdx + podSize));
                 sIdx += podSize;
               }
             }
 
-            const regLines = [];
-            let regTimeDiscrepancies = 0;
-            const maxRegRows = Math.max(regPods.length, assignedRegBres.length);
+            const remainingBres = candidateBres.slice(breCursor);
+            const maxRows = Math.max(sorPods.length, remainingBres.length);
 
-            for (let i = 0; i < maxRegRows; i++) {
-              const pod = regPods[i] || [];
-              const bre = assignedRegBres[i] || null;
+            for (let i = 0; i < maxRows; i++) {
+              const pod = sorPods[i] || [];
+              const bre = remainingBres[i] || null;
+
+              let status = 'OK';
+              let lineKey = null;
+              let issueType = null;
+
+              if (pod.length > 0 && !bre) {
+                status = 'MISSING_BREAKER';
+                issueType = 'missing';
+                lineKey = `missing_${facKey}_${date}_${h}_${i}`;
+              } else if (pod.length === 0 && bre) {
+                status = 'SURPLUS_BREAKER';
+                issueType = 'overstaff';
+                lineKey = `overstaff_${facKey}_${bre._uid !== undefined ? bre._uid : (h + '_' + i)}`;
+              }
 
               let isTimeMismatch = false;
               let offsetStr = '';
-              const expTime = normalTargetTime;
+              const expTime = hourTargetTime;
+              const expEndTime = computeShiftEndTime(hourTargetTime, 8, 0.75);
 
-              if (bre && bre._startTime && bre._startTime !== expTime) {
+              if (pod.length > 0 && bre && bre._startTime && bre._startTime !== expTime) {
                 isTimeMismatch = true;
                 const [bh, bm] = bre._startTime.split(':').map(Number);
                 const [eh, em] = expTime.split(':').map(Number);
@@ -1013,74 +1632,45 @@
                 if (diffMins > 720) diffMins -= 1440;
                 if (diffMins < -720) diffMins += 1440;
                 offsetStr = diffMins < 0 ? `${Math.abs(diffMins)}m early` : `${diffMins}m late`;
+                if (!lineKey) {
+                  issueType = 'timechange';
+                  lineKey = `timechange_${facKey}_${bre._uid !== undefined ? bre._uid : ('tc_' + date + '_' + h + '_' + i)}`;
+                }
               }
 
-              const isMissing = (pod.length > 0 && !bre);
-              let lineKey = null;
-              let issueType = null;
-              if (isMissing) {
-                lineKey = `missing_${facKey}_${date}_11_reg_${i}`;
-                issueType = 'missing';
-              } else if (isTimeMismatch) {
-                lineKey = `timechange_${facKey}_${bre._uid !== undefined ? bre._uid : ('tc_' + date + '_11_reg_' + i)}`;
-                issueType = 'timechange';
-              }
               const isIgnored = lineKey ? ignoredIssues.has(lineKey) : false;
               if (isTimeMismatch && !isIgnored) {
-                regTimeDiscrepancies++;
+                timeDiscrepancies++;
               }
 
-              regLines.push({
+              lines.push({
                 podSors: pod,
                 bre: bre,
                 is5amExtra: false,
                 isSecondLunch: false,
-                status: bre ? 'OK' : 'MISSING_BREAKER',
+                status: status,
                 expTime: expTime,
+                expEndTime: expEndTime,
                 isTimeMismatch: isTimeMismatch,
                 offsetStr: offsetStr,
-                targetBreDate: date,
-                isNextDayBre: false,
-                isMidnightBreaker: false,
+                targetBreDate: targetBreDate,
+                isNextDayBre: isNextDayBre,
+                isMidnightBreaker: isMidnightBreaker,
                 issueKey: lineKey,
                 isIgnored: isIgnored,
                 issueType: issueType
               });
             }
 
-            // Surplus breakers for Normal 11
-            surplusRegBres.forEach((bre, sIdx) => {
-              const lineKey = `overstaff_${facKey}_${bre._uid !== undefined ? bre._uid : ('11_surplus_' + sIdx)}`;
-              const isIgnored = ignoredIssues.has(lineKey);
-              regLines.push({
-                podSors: [],
-                bre: bre,
-                is5amExtra: false,
-                isSecondLunch: false,
-                status: 'SURPLUS_BREAKER',
-                expTime: normalTargetTime,
-                isTimeMismatch: false,
-                offsetStr: '',
-                targetBreDate: date,
-                isNextDayBre: false,
-                isMidnightBreaker: false,
-                issueKey: lineKey,
-                isIgnored: isIgnored,
-                issueType: 'overstaff'
-              });
-            });
+            const activeMissing = lines.filter(l => (l.status === 'MISSING_BREAKER' || l.status === 'MISSING_EXTRA') && !l.isIgnored).length;
+            const ignoredMissing = lines.filter(l => (l.status === 'MISSING_BREAKER' || l.status === 'MISSING_EXTRA') && l.isIgnored).length;
+            const activeSurplus = lines.filter(l => l.status === 'SURPLUS_BREAKER' && !l.isIgnored).length;
+            const ignoredSurplus = lines.filter(l => l.status === 'SURPLUS_BREAKER' && l.isIgnored).length;
+            const activeMismatch = lines.filter(l => l.isTimeMismatch && !l.isIgnored).length;
+            const ignoredMismatch = lines.filter(l => l.isTimeMismatch && l.isIgnored).length;
 
-            const activeMissing = regLines.filter(l => l.status === 'MISSING_BREAKER' && !l.isIgnored).length;
-            const ignoredMissing = regLines.filter(l => l.status === 'MISSING_BREAKER' && l.isIgnored).length;
-            const activeSurplus = regLines.filter(l => l.status === 'SURPLUS_BREAKER' && !l.isIgnored).length;
-            const ignoredSurplus = regLines.filter(l => l.status === 'SURPLUS_BREAKER' && l.isIgnored).length;
-            const activeMismatch = regLines.filter(l => l.isTimeMismatch && !l.isIgnored).length;
-            const ignoredMismatch = regLines.filter(l => l.isTimeMismatch && l.isIgnored).length;
-
-            totalBreRequired += reqReg11Bres;
             totalBreUnderstaff += activeMissing;
             totalBreOverstaff += activeSurplus;
-            totalScheduledBres += (assignedRegBres.filter(Boolean).length + surplusRegBres.length);
             totalTimeDiscrepancies += activeMismatch;
 
             const effectiveDiff = activeSurplus - activeMissing;
@@ -1088,621 +1678,359 @@
 
             hoursData.push({
               date: date,
-              hour: 11,
-              sortOrder: 11.0,
+              hour: h,
+              sortOrder: h,
               isSecondLunchCard: false,
-              sors: h11Sors,
-              sorCount: regSorCount,
-              regSorCount: regSorCount,
+              sors: hSors,
+              sorCount: sorCount,
+              regSorCount: sorCount,
               secondLunchCount: 0,
-              regReqBres: reqReg11Bres,
+              regReqBres: reqSorBres,
               secondLunchReq: 0,
-              minStartTime: minT11,
-              targetBreTime: normalTargetTime,
-              targetBreDate: date,
-              isNextDayBre: false,
-              isMidnightBreaker: false,
-              reqSorBres: reqReg11Bres,
-              totalReqBres: reqReg11Bres,
-              actualBresCount: assignedRegBres.filter(Boolean).length + surplusRegBres.length,
+              minStartTime: minT,
+              targetBreTime: targetLabel,
+              targetBreDate: targetBreDate,
+              isNextDayBre: isNextDayBre,
+              isMidnightBreaker: isMidnightBreaker,
+              reqSorBres: reqSorBres,
+              totalReqBres: totalReqBres,
+              actualBresCount: actualBresCount,
               diff: effectiveDiff,
               effectiveDiff: effectiveDiff,
               activeUnderstaff: activeMissing,
               activeOverstaff: activeSurplus,
               ignoredCount: ignoredCount,
-              lines: regLines,
-              hasIssue: (activeMissing > 0 || activeSurplus > 0 || regTimeDiscrepancies > 0),
-              timeDiscrepancies: regTimeDiscrepancies,
+              lines: lines,
+              hasIssue: (activeMissing > 0 || activeSurplus > 0 || timeDiscrepancies > 0),
+              timeDiscrepancies: timeDiscrepancies,
               isStandaloneOverageHour: false,
               is11Hour: false
             });
-          }
+          });
 
-          // -------------------------------------------------------------
-          // POD 2: Second Lunch Pod (Who always come in at 12) right by the normal one
-          // -------------------------------------------------------------
-          if (reqNoonBres > 0 || surplusNoonBres.length > 0) {
-            const noonPods = [];
-            if (reqNoonBres > 0) {
-              if (tlTotal <= 9) noonPods.push(twoLunches.slice(0, tlTotal));
-              else if (tlTotal <= 14) {
-                noonPods.push(twoLunches.slice(0, 9));
-                noonPods.push(twoLunches.slice(9, tlTotal));
-              } else if (tlTotal <= 19) {
-                noonPods.push(twoLunches.slice(0, 9));
-                noonPods.push(twoLunches.slice(9, 14));
-                noonPods.push(twoLunches.slice(14, tlTotal));
-              } else {
-                noonPods.push(twoLunches.slice(0, 9));
-                noonPods.push(twoLunches.slice(9, 14));
-                noonPods.push(twoLunches.slice(14, 19));
-                noonPods.push(twoLunches.slice(19, tlTotal));
+
+
+          // 3. SHOW OVERAGES DIRECTLY IN THE SOR HOUR THEY BELONG TO:
+          // Since BREs are always 1 hour later than the SORs they cover, any surplus BRE scheduled
+          // at hour H_bre belongs to SOR hour (H_bre - 1 + 24) % 24!
+          // NOTE ON MIDNIGHT (00:xx) BREs:
+          // A 00:xx BRE scheduled on `date` covers 23:xx SORs starting on the PREVIOUS evening (`prevDateStr`).
+          // If there are unneeded 00:xx BREs on `date`, they are extra midnight breakers scheduled on `date` in WinTeam.
+          const standaloneBySorHour = {};
+
+          sameDayBres.forEach(b => {
+            if (b._startTime === '12:00') return; // Handled by 2nd lunch check
+            if (!accountedBreUids.has(b._uid)) {
+              const breHour = parseInt(b._startTime.split(':')[0], 10) || 0;
+              const sorHour = (breHour - 1 + 24) % 24;
+
+              if (!standaloneBySorHour[sorHour]) {
+                standaloneBySorHour[sorHour] = [];
               }
+              standaloneBySorHour[sorHour].push(b);
             }
+          });
 
-            const noonLines = [];
-            let noonTimeDiscrepancies = 0;
-            const maxNoonRows = Math.max(noonPods.length, assignedNoonBres.length);
+          Object.keys(standaloneBySorHour).map(Number).sort((a, b) => a - b).forEach(sorHour => {
+            const surplusList = standaloneBySorHour[sorHour];
+            surplusList.sort((a, b) => a._startTime.localeCompare(b._startTime));
+            surplusList.sort((a, b) => {
+              const aAssigned = hasAssignedEmployee(a) ? 1 : 0;
+              const bAssigned = hasAssignedEmployee(b) ? 1 : 0;
+              if (aAssigned !== bAssigned) return aAssigned - bAssigned; // unassigned (0) first
+              return a._startTime.localeCompare(b._startTime);
+            });
+            const isMidnightSurplus = (sorHour === 23);
 
-            for (let i = 0; i < maxNoonRows; i++) {
-              const pod = noonPods[i] || [];
-              const bre = assignedNoonBres[i] || null;
-
-              let isTimeMismatch = false;
-              let offsetStr = '';
-              const expTime = '12:00';
-
-              if (bre && bre._startTime && bre._startTime !== expTime) {
-                isTimeMismatch = true;
-                const [bh, bm] = bre._startTime.split(':').map(Number);
-                const [eh, em] = expTime.split(':').map(Number);
-                let diffMins = (bh * 60 + bm) - (eh * 60 + em);
-                if (diffMins > 720) diffMins -= 1440;
-                if (diffMins < -720) diffMins += 1440;
-                offsetStr = diffMins < 0 ? `${Math.abs(diffMins)}m early` : `${diffMins}m late`;
-              }
-
-              const isMissing = (pod.length > 0 && !bre);
-              let lineKey = null;
-              let issueType = null;
-              if (isMissing) {
-                lineKey = `missing_${facKey}_${date}_11_noon_${i}`;
-                issueType = 'missing';
-              } else if (isTimeMismatch) {
-                lineKey = `timechange_${facKey}_${bre._uid !== undefined ? bre._uid : ('tc_' + date + '_noon_' + i)}`;
-                issueType = 'timechange';
-              }
-              const isIgnored = lineKey ? ignoredIssues.has(lineKey) : false;
-              if (isTimeMismatch && !isIgnored) {
-                noonTimeDiscrepancies++;
-              }
-
-              noonLines.push({
-                podSors: pod,
-                bre: bre,
-                is5amExtra: false,
-                isSecondLunch: true,
-                status: bre ? 'OK' : 'MISSING_BREAKER',
-                expTime: expTime,
-                isTimeMismatch: isTimeMismatch,
-                offsetStr: offsetStr,
-                targetBreDate: date,
-                isNextDayBre: false,
-                isMidnightBreaker: false,
-                issueKey: lineKey,
-                isIgnored: isIgnored,
-                issueType: issueType
-              });
-            }
-
-            // Surplus breakers for Second Lunch
-            surplusNoonBres.forEach((bre, sIdx) => {
-              const lineKey = `overstaff_${facKey}_${bre._uid !== undefined ? bre._uid : ('noon_surplus_' + sIdx)}`;
+            const lines = surplusList.map((b, sIdx) => {
+              const lineKey = `overstaff_${facKey}_${b._uid !== undefined ? b._uid : (sorHour + '_' + sIdx)}`;
               const isIgnored = ignoredIssues.has(lineKey);
-              noonLines.push({
+              return {
                 podSors: [],
-                bre: bre,
+                bre: b,
                 is5amExtra: false,
-                isSecondLunch: true,
+                isSecondLunch: false,
                 status: 'SURPLUS_BREAKER',
-                expTime: '12:00',
-                isTimeMismatch: false,
-                offsetStr: '',
-                targetBreDate: date,
+                targetBreDate: b.WorkDate || date,
                 isNextDayBre: false,
-                isMidnightBreaker: false,
+                isMidnightBreaker: isMidnightSurplus || (parseInt((b._startTime || '').split(':')[0], 10) === 0),
                 issueKey: lineKey,
                 isIgnored: isIgnored,
                 issueType: 'overstaff'
-              });
+              };
             });
 
-            const activeMissing = noonLines.filter(l => l.status === 'MISSING_BREAKER' && !l.isIgnored).length;
-            const ignoredMissing = noonLines.filter(l => l.status === 'MISSING_BREAKER' && l.isIgnored).length;
-            const activeSurplus = noonLines.filter(l => l.status === 'SURPLUS_BREAKER' && !l.isIgnored).length;
-            const ignoredSurplus = noonLines.filter(l => l.status === 'SURPLUS_BREAKER' && l.isIgnored).length;
-            const activeMismatch = noonLines.filter(l => l.isTimeMismatch && !l.isIgnored).length;
-            const ignoredMismatch = noonLines.filter(l => l.isTimeMismatch && l.isIgnored).length;
+            const activeSurplus = lines.filter(l => !l.isIgnored).length;
+            const ignoredSurplus = lines.filter(l => l.isIgnored).length;
 
-            totalBreRequired += reqNoonBres;
-            totalBreUnderstaff += activeMissing;
             totalBreOverstaff += activeSurplus;
-            totalScheduledBres += (assignedNoonBres.filter(Boolean).length + surplusNoonBres.length);
-            totalTimeDiscrepancies += activeMismatch;
+            totalScheduledBres += surplusList.length;
 
-            const effectiveDiff = activeSurplus - activeMissing;
-            const ignoredCount = ignoredMissing + ignoredSurplus + ignoredMismatch;
+            const breTimes = Array.from(new Set(surplusList.map(b => (b._startTime && b._endTime) ? `${b._startTime}–${b._endTime}` : b._startTime))).sort().join(' / ');
 
             hoursData.push({
               date: date,
-              hour: 11,
-              sortOrder: 11.5,
-              isSecondLunchCard: true,
-              sors: twoLunches,
-              sorCount: twoLunches.length,
-              secondLunchCount: twoLunches.length,
-              minStartTime: '12:00',
-              targetBreTime: '12:00',
+              hour: sorHour,
+              sortOrder: sorHour + 0.1,
+              isSecondLunchCard: false,
+              sors: [],
+              sorCount: 0,
+              minStartTime: 'None',
+              targetBreTime: breTimes,
               targetBreDate: date,
               isNextDayBre: false,
-              isMidnightBreaker: false,
-              reqSorBres: reqNoonBres,
-              totalReqBres: reqNoonBres,
-              actualBresCount: assignedNoonBres.filter(Boolean).length + surplusNoonBres.length,
-              diff: effectiveDiff,
-              effectiveDiff: effectiveDiff,
-              activeUnderstaff: activeMissing,
+              isMidnightBreaker: isMidnightSurplus,
+              reqSorBres: 0,
+              totalReqBres: 0,
+              actualBresCount: surplusList.length,
+              diff: activeSurplus,
+              effectiveDiff: activeSurplus,
+              activeUnderstaff: 0,
               activeOverstaff: activeSurplus,
-              ignoredCount: ignoredCount,
-              lines: noonLines,
-              hasIssue: (activeMissing > 0 || activeSurplus > 0 || noonTimeDiscrepancies > 0),
-              timeDiscrepancies: noonTimeDiscrepancies,
-              isStandaloneOverageHour: false,
-              is11Hour: false
+              ignoredCount: ignoredSurplus,
+              lines: lines,
+              hasIssue: (activeSurplus > 0),
+              isStandaloneOverageHour: true,
+              overageTime: breTimes
             });
-          }
-
-          return;
-        }
-
-        const hSors = sorsByHour[h] || [];
-        // Ensure SORs within the hour are sorted strictly chronologically (e.g. all 6:15s before 6:30s)
-        hSors.sort((a, b) => {
-          const tA = a._startTime || '';
-          const tB = b._startTime || '';
-          if (tA !== tB) return tA.localeCompare(tB);
-          return String(a.EmpName || '').localeCompare(String(b.EmpName || ''));
-        });
-
-        const sorCount = hSors.length;
-        const is5am = (h === 5);
-        const isNextDayBre = (h >= 23);
-        const isMidnightBreaker = isNextDayBre;
-
-        // The first SOR for the hour determines target start for ALL BREs that hour
-        let minT = (hSors.length > 0) ? hSors[0]._startTime : String(h).padStart(2, '0') + ':00';
-        for (let s of hSors) {
-          if (s._startTime < minT) minT = s._startTime;
-        }
-        const [mh, mm] = minT.split(':').map(Number);
-        const targetBreHour = (mh + 1) % 24;
-        const hourTargetTime = String(targetBreHour).padStart(2, '0') + ':' + String(mm).padStart(2, '0');
-        const targetBreDate = isNextDayBre ? nextDateStr : date;
-
-        const reqSorBres = (sorCount > 0) ? Math.max(1, Math.round(sorCount / 3)) : 0;
-        const totalReqBres = reqSorBres + (is5am ? 1 : 0);
-        totalBreRequired += totalReqBres;
-
-        // Breakers are always scheduled 1 hour later than the SORs they cover.
-        // For shifts 23:00 and later, breakers start at midnight or later on the FOLLOWING DAY.
-        const sourceBres = isNextDayBre ? nextDayBres : sameDayBres;
-        const candidateBres = sourceBres.filter(b => {
-          const t = String(b._startTime || b.ShiftStartTime || b.InTime || '').trim();
-          if (!t) return false;
-          const bh = parseInt(t.split(':')[0], 10);
-          return bh === targetBreHour;
-        });
-        candidateBres.sort((a, b) => a._startTime.localeCompare(b._startTime));
-        candidateBres.forEach(b => accountedBreUids.add(b._uid));
-
-        const targetLabel = hourTargetTime;
-        const actualBresCount = candidateBres.length;
-        totalScheduledBres += actualBresCount;
-
-        const lines = [];
-        let breCursor = 0;
-        let timeDiscrepancies = 0;
-
-        // Standard hours (including 5am and 2300+)
-        if (is5am) {
-          const extraBre = candidateBres[breCursor] || null;
-          if (extraBre) breCursor++;
-
-          let isTimeMismatch = false;
-          let offsetStr = '';
-          const expTime = hourTargetTime;
-          if (extraBre && extraBre._startTime && extraBre._startTime !== expTime) {
-            isTimeMismatch = true;
-            const [bh, bm] = extraBre._startTime.split(':').map(Number);
-            const [eh, em] = expTime.split(':').map(Number);
-            let diffMins = (bh * 60 + bm) - (eh * 60 + em);
-            if (diffMins > 720) diffMins -= 1440;
-            if (diffMins < -720) diffMins += 1440;
-            offsetStr = diffMins < 0 ? `${Math.abs(diffMins)}m early` : `${diffMins}m late`;
-          }
-
-          const isMissing = !extraBre;
-          let lineKey = null;
-          let issueType = null;
-          if (isMissing) {
-            lineKey = `missing_${facKey}_${date}_5_extra`;
-            issueType = 'missing';
-          } else if (isTimeMismatch) {
-            lineKey = `timechange_${facKey}_${extraBre._uid !== undefined ? extraBre._uid : ('tc_' + date + '_5_extra')}`;
-            issueType = 'timechange';
-          }
-          const isIgnored = lineKey ? ignoredIssues.has(lineKey) : false;
-          if (isTimeMismatch && !isIgnored) {
-            timeDiscrepancies++;
-          }
-
-          lines.push({
-            podSors: [],
-            bre: extraBre,
-            is5amExtra: true,
-            isSecondLunch: false,
-            status: extraBre ? 'OK' : 'MISSING_EXTRA',
-            expTime: expTime,
-            isTimeMismatch: isTimeMismatch,
-            offsetStr: offsetStr,
-            targetBreDate: targetBreDate,
-            isNextDayBre: isNextDayBre,
-            isMidnightBreaker: false,
-            issueKey: lineKey,
-            isIgnored: isIgnored,
-            issueType: issueType
           });
-        }
 
-        // Evenly distribute SORs across required breakers
-        const sorPods = [];
-        if (sorCount > 0 && reqSorBres > 0) {
-          const baseSize = Math.floor(sorCount / reqSorBres);
-          const remainder = sorCount % reqSorBres;
-          let sIdx = 0;
-          for (let i = 0; i < reqSorBres; i++) {
-            const podSize = baseSize + (i < remainder ? 1 : 0);
-            sorPods.push(hSors.slice(sIdx, sIdx + podSize));
-            sIdx += podSize;
-          }
-        }
-
-        const remainingBres = candidateBres.slice(breCursor);
-        const maxRows = Math.max(sorPods.length, remainingBres.length);
-
-        for (let i = 0; i < maxRows; i++) {
-          const pod = sorPods[i] || [];
-          const bre = remainingBres[i] || null;
-
-          let status = 'OK';
-          let lineKey = null;
-          let issueType = null;
-
-          if (pod.length > 0 && !bre) {
-            status = 'MISSING_BREAKER';
-            issueType = 'missing';
-            lineKey = `missing_${facKey}_${date}_${h}_${i}`;
-          } else if (pod.length === 0 && bre) {
-            status = 'SURPLUS_BREAKER';
-            issueType = 'overstaff';
-            lineKey = `overstaff_${facKey}_${bre._uid !== undefined ? bre._uid : (h + '_' + i)}`;
-          }
-
-          let isTimeMismatch = false;
-          let offsetStr = '';
-          const expTime = hourTargetTime;
-
-          if (pod.length > 0 && bre && bre._startTime && bre._startTime !== expTime) {
-            isTimeMismatch = true;
-            const [bh, bm] = bre._startTime.split(':').map(Number);
-            const [eh, em] = expTime.split(':').map(Number);
-            let diffMins = (bh * 60 + bm) - (eh * 60 + em);
-            if (diffMins > 720) diffMins -= 1440;
-            if (diffMins < -720) diffMins += 1440;
-            offsetStr = diffMins < 0 ? `${Math.abs(diffMins)}m early` : `${diffMins}m late`;
-            if (!lineKey) {
-              issueType = 'timechange';
-              lineKey = `timechange_${facKey}_${bre._uid !== undefined ? bre._uid : ('tc_' + date + '_' + h + '_' + i)}`;
-            }
-          }
-
-          const isIgnored = lineKey ? ignoredIssues.has(lineKey) : false;
-          if (isTimeMismatch && !isIgnored) {
-            timeDiscrepancies++;
-          }
-
-          lines.push({
-            podSors: pod,
-            bre: bre,
-            is5amExtra: false,
-            isSecondLunch: false,
-            status: status,
-            expTime: expTime,
-            isTimeMismatch: isTimeMismatch,
-            offsetStr: offsetStr,
-            targetBreDate: targetBreDate,
-            isNextDayBre: isNextDayBre,
-            isMidnightBreaker: isMidnightBreaker,
-            issueKey: lineKey,
-            isIgnored: isIgnored,
-            issueType: issueType
+          // Sort all hour blocks chronologically by hour and time
+          hoursData.sort((a, b) => {
+            const orderA = (a.sortOrder !== undefined) ? a.sortOrder : a.hour;
+            const orderB = (b.sortOrder !== undefined) ? b.sortOrder : b.hour;
+            if (orderA !== orderB) return orderA - orderB;
+            return a.targetBreTime.localeCompare(b.targetBreTime);
           });
-        }
 
-        const activeMissing = lines.filter(l => (l.status === 'MISSING_BREAKER' || l.status === 'MISSING_EXTRA') && !l.isIgnored).length;
-        const ignoredMissing = lines.filter(l => (l.status === 'MISSING_BREAKER' || l.status === 'MISSING_EXTRA') && l.isIgnored).length;
-        const activeSurplus = lines.filter(l => l.status === 'SURPLUS_BREAKER' && !l.isIgnored).length;
-        const ignoredSurplus = lines.filter(l => l.status === 'SURPLUS_BREAKER' && l.isIgnored).length;
-        const activeMismatch = lines.filter(l => l.isTimeMismatch && !l.isIgnored).length;
-        const ignoredMismatch = lines.filter(l => l.isTimeMismatch && l.isIgnored).length;
+          const totalFlags = totalBreUnderstaff + totalBreOverstaff + totalTimeDiscrepancies;
 
-        totalBreUnderstaff += activeMissing;
-        totalBreOverstaff += activeSurplus;
-        totalTimeDiscrepancies += activeMismatch;
-
-        const effectiveDiff = activeSurplus - activeMissing;
-        const ignoredCount = ignoredMissing + ignoredSurplus + ignoredMismatch;
-
-        hoursData.push({
-          date: date,
-          hour: h,
-          sortOrder: h,
-          isSecondLunchCard: false,
-          sors: hSors,
-          sorCount: sorCount,
-          regSorCount: sorCount,
-          secondLunchCount: 0,
-          regReqBres: reqSorBres,
-          secondLunchReq: 0,
-          minStartTime: minT,
-          targetBreTime: targetLabel,
-          targetBreDate: targetBreDate,
-          isNextDayBre: isNextDayBre,
-          isMidnightBreaker: isMidnightBreaker,
-          reqSorBres: reqSorBres,
-          totalReqBres: totalReqBres,
-          actualBresCount: actualBresCount,
-          diff: effectiveDiff,
-          effectiveDiff: effectiveDiff,
-          activeUnderstaff: activeMissing,
-          activeOverstaff: activeSurplus,
-          ignoredCount: ignoredCount,
-          lines: lines,
-          hasIssue: (activeMissing > 0 || activeSurplus > 0 || timeDiscrepancies > 0),
-          timeDiscrepancies: timeDiscrepancies,
-          isStandaloneOverageHour: false,
-          is11Hour: false
-        });
-      });
-
-
-
-      // 3. SHOW OVERAGES DIRECTLY IN THE SOR HOUR THEY BELONG TO:
-      // Since BREs are always 1 hour later than the SORs they cover, any surplus BRE scheduled
-      // at hour H_bre belongs to SOR hour (H_bre - 1 + 24) % 24!
-      // NOTE ON MIDNIGHT (00:xx) BREs:
-      // A 00:xx BRE scheduled on `date` covers 23:xx SORs starting on the PREVIOUS evening (`prevDateStr`).
-      // If there are unneeded 00:xx BREs on `date`, they are extra midnight breakers scheduled on `date` in WinTeam.
-      const standaloneBySorHour = {};
-
-      sameDayBres.forEach(b => {
-        if (b._startTime === '12:00') return; // Handled by 2nd lunch check
-        if (!accountedBreUids.has(b._uid)) {
-          const breHour = parseInt(b._startTime.split(':')[0], 10) || 0;
-          const sorHour = (breHour - 1 + 24) % 24;
-
-          if (!standaloneBySorHour[sorHour]) {
-            standaloneBySorHour[sorHour] = [];
-          }
-          standaloneBySorHour[sorHour].push(b);
-        }
-      });
-
-      Object.keys(standaloneBySorHour).map(Number).sort((a, b) => a - b).forEach(sorHour => {
-        const surplusList = standaloneBySorHour[sorHour];
-        surplusList.sort((a, b) => a._startTime.localeCompare(b._startTime));
-        const isMidnightSurplus = (sorHour === 23);
-
-        const lines = surplusList.map((b, sIdx) => {
-          const lineKey = `overstaff_${facKey}_${b._uid !== undefined ? b._uid : (sorHour + '_' + sIdx)}`;
-          const isIgnored = ignoredIssues.has(lineKey);
           return {
-            podSors: [],
-            bre: b,
-            is5amExtra: false,
-            isSecondLunch: false,
-            status: 'SURPLUS_BREAKER',
-            targetBreDate: b.WorkDate || date,
-            isNextDayBre: false,
-            isMidnightBreaker: isMidnightSurplus || (parseInt((b._startTime||'').split(':')[0], 10) === 0),
-            issueKey: lineKey,
-            isIgnored: isIgnored,
-            issueType: 'overstaff'
+            date: date,
+            conf: conf,
+            totalSors: sors.length,
+            totalBres: totalScheduledBres,
+            totalBreRequired: totalBreRequired,
+            totalBreUnderstaff: totalBreUnderstaff,
+            totalBreOverstaff: totalBreOverstaff,
+            totalTimeDiscrepancies: totalTimeDiscrepancies,
+            tlTotal: tlTotal,
+            noonNeeded: noonNeeded,
+            hoursData: hoursData,
+
+            totalFlags: totalFlags
           };
-        });
-
-        const activeSurplus = lines.filter(l => !l.isIgnored).length;
-        const ignoredSurplus = lines.filter(l => l.isIgnored).length;
-
-        totalBreOverstaff += activeSurplus;
-        totalScheduledBres += surplusList.length;
-
-        const breTimes = Array.from(new Set(surplusList.map(b => b._startTime))).sort().join(' / ');
-
-        hoursData.push({
-          date: date,
-          hour: sorHour,
-          sortOrder: sorHour + 0.1,
-          isSecondLunchCard: false,
-          sors: [],
-          sorCount: 0,
-          minStartTime: 'None',
-          targetBreTime: breTimes,
-          targetBreDate: date,
-          isNextDayBre: false,
-          isMidnightBreaker: isMidnightSurplus,
-          reqSorBres: 0,
-          totalReqBres: 0,
-          actualBresCount: surplusList.length,
-          diff: activeSurplus,
-          effectiveDiff: activeSurplus,
-          activeUnderstaff: 0,
-          activeOverstaff: activeSurplus,
-          ignoredCount: ignoredSurplus,
-          lines: lines,
-          hasIssue: (activeSurplus > 0),
-          isStandaloneOverageHour: true,
-          overageTime: breTimes
-        });
-      });
-
-      // Sort all hour blocks chronologically by hour and time
-      hoursData.sort((a, b) => {
-        const orderA = (a.sortOrder !== undefined) ? a.sortOrder : a.hour;
-        const orderB = (b.sortOrder !== undefined) ? b.sortOrder : b.hour;
-        if (orderA !== orderB) return orderA - orderB;
-        return a.targetBreTime.localeCompare(b.targetBreTime);
-      });
-
-      const totalFlags = totalBreUnderstaff + totalBreOverstaff + totalTimeDiscrepancies;
-
-      return {
-        date: date,
-        conf: conf,
-        totalSors: sors.length,
-        totalBres: totalScheduledBres,
-        totalBreRequired: totalBreRequired,
-        totalBreUnderstaff: totalBreUnderstaff,
-        totalBreOverstaff: totalBreOverstaff,
-        totalTimeDiscrepancies: totalTimeDiscrepancies,
-        tlTotal: tlTotal,
-        noonNeeded: noonNeeded,
-        hoursData: hoursData,
-
-        totalFlags: totalFlags
-      };
-    }
+        }
 
     // Main Render Routine
     function renderAudit() {
-      const container = document.getElementById('auditContentContainer');
-      container.innerHTML = '';
+            const container = document.getElementById('auditContentContainer');
+            container.innerHTML = '';
 
-      const targetDates = (selectedDate === 'ALL') ? datesList : [selectedDate];
-      const facKeys = (selectedFacility === 'BOTH') ? ['233265', '266778'] : [selectedFacility];
+            const targetDates = (selectedDate === 'ALL') ? datesList : [selectedDate];
+            const facKeys = (selectedFacility === 'BOTH') ? ['233265', '266778'] : [selectedFacility];
 
-      let grandTotalShifts = 0;
-      let grandTotalUnder = 0;
-      let grandTotalOver = 0;
-      let grandTotalOffsets = 0;
-      let datesWithIssues = 0;
+            let grandTotalShifts = 0;
+            let grandTotalUnder = 0;
+            let grandTotalOver = 0;
+            let grandTotalOffsets = 0;
+            let datesWithIssues = 0;
 
-      targetDates.forEach(d => {
-        let dateShifts = 0;
-        let dateUnder = 0;
-        let dateOver = 0;
-        let dateOffsets = 0;
+            const dateSummaries = [];
 
-        const dateSection = document.createElement('div');
-        dateSection.className = 'space-y-4';
+            targetDates.forEach(d => {
+              let dateShifts = 0;
+              let dateUnder = 0;
+              let dateOver = 0;
+              let dateOffsets = 0;
 
-        const dateHeader = document.createElement('div');
-        dateHeader.className = 'flex items-center justify-between pb-1.5 border-b-2 border-slate-300 text-xs text-slate-700 font-bold';
-        
-        let facilityBlocks = [];
-        facKeys.forEach(k => {
-          const res = analyzeFacilityDate(k, d);
-          dateUnder += res.totalBreUnderstaff;
-          dateOver += res.totalBreOverstaff;
-          dateOffsets += res.totalTimeDiscrepancies;
-          dateShifts += res.totalSors + res.totalBres;
-          
-          if (!onlyIssues || res.totalFlags > 0) {
-            facilityBlocks.push(renderFacilityBlock(res));
-          }
-        });
+              const dateKey = parseDateToKey(d);
+              const dateSection = document.createElement('div');
+              dateSection.id = `date-sec-${dateKey}`;
+              dateSection.className = 'space-y-4 scroll-mt-28';
 
-        grandTotalShifts += dateShifts;
-        grandTotalUnder += dateUnder;
-        grandTotalOver += dateOver;
-        grandTotalOffsets += dateOffsets;
-        if ((dateUnder + dateOver + dateOffsets) > 0) datesWithIssues++;
+              const dateHeader = document.createElement('div');
+              dateHeader.className = 'sticky top-[92px] z-20 bg-slate-100/95 backdrop-blur-md py-2.5 px-3.5 rounded-xl border-2 border-slate-400 shadow-sm flex items-center justify-between text-xs text-slate-800 font-bold flex-wrap gap-2';
 
-        if (facilityBlocks.length > 0) {
-          const totalDateFlags = dateUnder + dateOver;
-          dateHeader.innerHTML = `
-            <div class="flex items-center gap-2">
-              <span class="font-extrabold text-slate-950 text-sm tracking-tight">${d}</span>
+              let facilityBlocks = [];
+              facKeys.forEach(k => {
+                const res = analyzeFacilityDate(k, d);
+                dateUnder += res.totalBreUnderstaff;
+                dateOver += res.totalBreOverstaff;
+                dateOffsets += res.totalTimeDiscrepancies;
+                dateShifts += res.totalSors + res.totalBres;
+
+                if (!onlyIssues || res.totalFlags > 0) {
+                  facilityBlocks.push(renderFacilityBlock(res));
+                }
+              });
+
+              grandTotalShifts += dateShifts;
+              grandTotalUnder += dateUnder;
+              grandTotalOver += dateOver;
+              grandTotalOffsets += dateOffsets;
+              if ((dateUnder + dateOver + dateOffsets) > 0) datesWithIssues++;
+
+              dateSummaries.push({
+                date: d,
+                literal: formatLiteralDate(d),
+                key: dateKey,
+                under: dateUnder,
+                over: dateOver,
+                offsets: dateOffsets,
+                shifts: dateShifts,
+                hasBlocks: facilityBlocks.length > 0
+              });
+
+              if (facilityBlocks.length > 0) {
+                const totalDateFlags = dateUnder + dateOver;
+                dateHeader.innerHTML = `
+            <div class="flex items-center gap-2.5 flex-wrap">
+              <span class="px-2.5 py-1 rounded-lg bg-slate-950 text-white font-mono text-xs font-black shadow-xs tracking-wide">
+                ${formatLiteralDate(d)}
+              </span>
+              <span class="font-extrabold text-slate-950 text-sm tracking-tight font-mono">${d}</span>
               <span class="text-slate-400">&bull;</span>
-              <span class="text-slate-600">${dateShifts} total shifts</span>
+              <span class="text-slate-600 font-medium">${dateShifts} total shifts</span>
             </div>
-            <div class="flex items-center gap-2 font-mono">
-              ${dateUnder > 0 ? `<span class="px-2.5 py-0.5 rounded-md text-xs font-bold bg-rose-200 text-rose-950 border border-rose-400">SHORT -${dateUnder} BRE</span>` : ''}
-              ${dateOver > 0 ? `<span class="px-2.5 py-0.5 rounded-md text-xs font-bold bg-amber-200 text-amber-950 border border-amber-400">OVERSTAFF +${dateOver} BRE</span>` : ''}
-              ${dateOffsets > 0 ? `<span class="px-2.5 py-0.5 rounded-md text-xs font-bold bg-amber-100 text-amber-950 border border-amber-300">&#9888; ${dateOffsets} OFFSET${dateOffsets > 1 ? 'S' : ''}</span>` : ''}
-              ${dateOffsets > 0 ? `<span class="px-2.5 py-0.5 rounded-md text-xs font-bold bg-amber-100 text-amber-950 border border-amber-300">${dateOffsets} OFFSET${dateOffsets > 1 ? 'S' : ''}</span>` : ''}
-              ${(totalDateFlags === 0 && dateOffsets === 0) ? `<span class="px-2.5 py-0.5 rounded-md text-xs font-bold bg-emerald-200 text-emerald-950 border border-emerald-400">100% COVERED</span>` : ''}
+            <div class="flex items-center gap-2 font-mono flex-wrap">
+              ${dateUnder > 0 ? `<span class="px-2.5 py-0.5 rounded-md text-xs font-bold bg-rose-200 text-rose-950 border border-rose-400 shadow-2xs">SHORT -${dateUnder} BRE</span>` : ''}
+              ${dateOver > 0 ? `<span class="px-2.5 py-0.5 rounded-md text-xs font-bold bg-amber-200 text-amber-950 border border-amber-400 shadow-2xs">OVERSTAFF +${dateOver} BRE</span>` : ''}
+              ${dateOffsets > 0 ? `<span class="px-2.5 py-0.5 rounded-md text-xs font-bold bg-amber-100 text-amber-950 border border-amber-300 shadow-2xs">&#9888; ${dateOffsets} OFFSET${dateOffsets > 1 ? 'S' : ''}</span>` : ''}
+              ${(totalDateFlags === 0 && dateOffsets === 0) ? `<span class="px-2.5 py-0.5 rounded-md text-xs font-bold bg-emerald-200 text-emerald-950 border border-emerald-400 shadow-2xs">100% COVERED</span>` : ''}
             </div>
           `;
-          dateSection.appendChild(dateHeader);
-          facilityBlocks.forEach(fb => dateSection.appendChild(fb));
-          container.appendChild(dateSection);
-        }
-      });
+                dateSection.appendChild(dateHeader);
+                facilityBlocks.forEach(fb => dateSection.appendChild(fb));
+                container.appendChild(dateSection);
+              }
+            });
 
-      // Update Top Status Bar
-      const statusBar = document.getElementById('statusBarText');
-      const totalIssues = grandTotalUnder + grandTotalOver;
-      const offsetSnippet = grandTotalOffsets > 0 ? ` &bull; <span class="text-amber-800 font-bold">${grandTotalOffsets} Time Offsets</span>` : '';
-      if (selectedDate === 'ALL') {
-        statusBar.innerHTML = `<strong>${datesList.length} dates</strong> &bull; ${grandTotalShifts} shifts &bull; <span class="text-rose-700 font-bold">-${grandTotalUnder} Understaffed</span> &bull; <span class="text-amber-800 font-bold">+${grandTotalOver} Overstaffed</span>${offsetSnippet}`;
-        statusBar.className = (totalIssues > 0 || grandTotalOffsets > 0) ? 'text-[11px] font-mono px-2.5 py-1 rounded-md bg-white text-slate-900 border-2 border-slate-300 font-bold' : 'text-[11px] font-mono px-2.5 py-1 rounded-md bg-emerald-100 text-emerald-900 border border-emerald-300 font-bold';
-      } else {
-        statusBar.innerHTML = `<strong>${selectedDate}</strong>: ${grandTotalShifts} shifts &bull; <span class="text-rose-700 font-bold">-${grandTotalUnder} Under</span> &bull; <span class="text-amber-800 font-bold">+${grandTotalOver} Over</span>${offsetSnippet}`;
-        statusBar.className = (totalIssues > 0 || grandTotalOffsets > 0) ? 'text-[11px] font-mono px-2.5 py-1 rounded-md bg-white text-slate-900 border-2 border-slate-300 font-bold' : 'text-[11px] font-mono px-2.5 py-1 rounded-md bg-emerald-100 text-emerald-900 border border-emerald-300 font-bold';
-      }
+            renderDateNavRails(dateSummaries);
 
-      const ignoredPill = document.getElementById('ignoredStatusPill');
-      if (ignoredPill) {
-        if (ignoredIssues.size > 0) {
-          ignoredPill.classList.remove('hidden');
-          ignoredPill.innerHTML = `
+            // Update Top Status Bar
+            const statusBar = document.getElementById('statusBarText');
+            const totalIssues = grandTotalUnder + grandTotalOver;
+            const offsetSnippet = grandTotalOffsets > 0 ? ` &bull; <span class="text-amber-800 font-bold">${grandTotalOffsets} Time Offsets</span>` : '';
+            if (selectedDate === 'ALL') {
+              statusBar.innerHTML = `<strong>${datesList.length} dates</strong> &bull; ${grandTotalShifts} shifts &bull; <span class="text-rose-700 font-bold">-${grandTotalUnder} Understaffed</span> &bull; <span class="text-amber-800 font-bold">+${grandTotalOver} Overstaffed</span>${offsetSnippet}`;
+              statusBar.className = (totalIssues > 0 || grandTotalOffsets > 0) ? 'text-[11px] font-mono px-2.5 py-1 rounded-md bg-white text-slate-900 border-2 border-slate-300 font-bold' : 'text-[11px] font-mono px-2.5 py-1 rounded-md bg-emerald-100 text-emerald-900 border border-emerald-300 font-bold';
+            } else {
+              statusBar.innerHTML = `<strong>${selectedDate}</strong>: ${grandTotalShifts} shifts &bull; <span class="text-rose-700 font-bold">-${grandTotalUnder} Under</span> &bull; <span class="text-amber-800 font-bold">+${grandTotalOver} Over</span>${offsetSnippet}`;
+              statusBar.className = (totalIssues > 0 || grandTotalOffsets > 0) ? 'text-[11px] font-mono px-2.5 py-1 rounded-md bg-white text-slate-900 border-2 border-slate-300 font-bold' : 'text-[11px] font-mono px-2.5 py-1 rounded-md bg-emerald-100 text-emerald-900 border border-emerald-300 font-bold';
+            }
+
+            const ignoredPill = document.getElementById('ignoredStatusPill');
+            if (ignoredPill) {
+              if (ignoredIssues.size > 0) {
+                ignoredPill.classList.remove('hidden');
+                ignoredPill.innerHTML = `
             <span>${ignoredIssues.size} Ignored</span>
             <button type="button" onclick="clearAllIgnored()" class="text-blue-700 hover:text-blue-900 underline text-[10px] font-bold" title="Reset all ignored issues for this session">
               Reset All
             </button>
           `;
-        } else {
-          ignoredPill.classList.add('hidden');
-        }
-      }
+              } else {
+                ignoredPill.classList.add('hidden');
+              }
+            }
 
-      if (container.children.length === 0) {
-        container.innerHTML = `
+            if (container.children.length === 0) {
+              container.innerHTML = `
           <div class="bg-white rounded-xl p-8 border-2 border-slate-300 text-center text-xs text-slate-500 font-semibold">
             ${onlyIssues ? 'No staffing issues found for the selected view.' : 'No shift records found.'}
           </div>
         `;
-      }
-    }
+            }
+          }
 
-    function renderFacilityBlock(data) {
-      const card = document.createElement('div');
-      card.className = 'bg-white rounded-xl border-2 border-slate-300 shadow-sm overflow-hidden';
+    function jumpToDate(dateKey) {
+            const el = document.getElementById(`date-sec-${dateKey}`);
+            if (el) {
+              el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+          }
+    window.jumpToDate = jumpToDate;
 
-      const fHead = document.createElement('div');
-      fHead.className = 'px-4 py-2.5 bg-slate-100 border-b-2 border-slate-300 flex items-center justify-between text-xs font-bold flex-wrap gap-2';
-      fHead.innerHTML = `
+        function renderDateNavRails(dateSummaries) {
+          const jumpBar = document.getElementById('dateQuickJumpBar');
+          const sideRail = document.getElementById('sideDateRail');
+          if (!jumpBar && !sideRail) return;
+
+          if (!dateSummaries || dateSummaries.length <= 1) {
+            if (jumpBar) jumpBar.classList.add('hidden');
+            if (sideRail) sideRail.classList.add('hidden');
+            return;
+          }
+
+          if (jumpBar) {
+            jumpBar.classList.remove('hidden');
+            let barHtml = `
+          <div class="flex items-center gap-1.5 text-slate-800 font-extrabold text-[11px] uppercase tracking-wider shrink-0 mr-1">
+            <svg class="w-3.5 h-3.5 text-slate-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            <span>Jump to Date:</span>
+          </div>
+          <div class="flex items-center gap-1.5 flex-wrap">
+        `;
+            dateSummaries.forEach(ds => {
+              let pillBg = 'bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-300';
+              let badge = '<span class="text-emerald-700 font-bold">&check;</span>';
+              if (ds.under > 0) {
+                pillBg = 'bg-rose-50 hover:bg-rose-100 text-rose-950 border-rose-300';
+                badge = `<span class="px-1 py-0.2 rounded bg-rose-200 text-rose-950 text-[10px] font-extrabold">-${ds.under}</span>`;
+              } else if (ds.over > 0) {
+                pillBg = 'bg-amber-50 hover:bg-amber-100 text-amber-950 border-amber-300';
+                badge = `<span class="px-1 py-0.2 rounded bg-amber-200 text-amber-950 text-[10px] font-extrabold">+${ds.over}</span>`;
+              }
+              barHtml += `
+            <button type="button" onclick="jumpToDate('${ds.key}')" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border-2 text-xs font-bold transition-all shadow-2xs ${pillBg}">
+              <span>${ds.literal || ds.date}</span>
+              ${badge}
+            </button>
+          `;
+            });
+            barHtml += `</div>`;
+            jumpBar.innerHTML = barHtml;
+          }
+
+          if (sideRail) {
+            sideRail.classList.remove('hidden');
+            let sideHtml = `
+          <div class="flex items-center justify-between pb-1.5 mb-1 border-b border-slate-200 text-slate-800 font-bold text-[10px] uppercase tracking-wider">
+            <span>Dates (${dateSummaries.length})</span>
+            <span class="text-[9px] text-slate-500 font-normal">Side Jump</span>
+          </div>
+          <div class="flex flex-col gap-1">
+        `;
+            dateSummaries.forEach(ds => {
+              let btnBg = 'bg-slate-50 hover:bg-slate-100 text-slate-800 border-slate-300';
+              let badge = '<span class="text-emerald-600 font-bold text-[10px]">&check;</span>';
+              if (ds.under > 0) {
+                btnBg = 'bg-rose-50 hover:bg-rose-100 text-rose-950 border-rose-300';
+                badge = `<span class="px-1.5 py-0.2 rounded bg-rose-200 text-rose-950 text-[10px] font-extrabold">-${ds.under}</span>`;
+              } else if (ds.over > 0) {
+                btnBg = 'bg-amber-50 hover:bg-amber-100 text-amber-950 border-amber-300';
+                badge = `<span class="px-1.5 py-0.2 rounded bg-amber-200 text-amber-950 text-[10px] font-extrabold">+${ds.over}</span>`;
+              }
+              sideHtml += `
+            <button type="button" onclick="jumpToDate('${ds.key}')" class="flex items-center justify-between px-2 py-1 rounded-lg border text-left transition-all ${btnBg}">
+              <span class="font-bold truncate text-[10px]">${ds.literal || ds.date}</span>
+              ${badge}
+            </button>
+          `;
+            });
+            sideHtml += `</div>`;
+            sideRail.innerHTML = sideHtml;
+          }
+        }
+
+        function renderFacilityBlock(data) {
+          const card = document.createElement('div');
+          card.className = 'bg-white rounded-xl border-2 border-slate-300 shadow-sm overflow-hidden';
+
+          const fHead = document.createElement('div');
+          fHead.className = 'px-4 py-2.5 bg-slate-100 border-b-2 border-slate-300 flex items-center justify-between text-xs font-bold flex-wrap gap-2';
+          fHead.innerHTML = `
         <div class="flex items-center gap-2.5">
           <span class="font-extrabold text-sm text-slate-950">${data.conf.name}</span>
           <span class="text-slate-500 font-mono text-[11px]">(${data.conf.sorJob} / ${data.conf.breJob})</span>
@@ -1730,71 +2058,74 @@
           ` : ''}
         </div>
       `;
-      card.appendChild(fHead);
+          card.appendChild(fHead);
 
-      const body = document.createElement('div');
-      body.className = 'p-3.5 space-y-3.5 bg-slate-50/50';
+          const body = document.createElement('div');
+          body.className = 'p-3.5 space-y-3.5 bg-slate-50/50';
 
-      // Hourly Blocks in Chronological Order (including standalone overages)
-      const visibleHours = onlyIssues ? data.hoursData.filter(h => h.hasIssue) : data.hoursData;
-      visibleHours.forEach(h => {
-        body.appendChild(renderHourCard(h));
-      });
+          // Hourly Blocks in Chronological Order (including standalone overages)
+          const visibleHours = onlyIssues ? data.hoursData.filter(h => h.hasIssue) : data.hoursData;
+          visibleHours.forEach(h => {
+            body.appendChild(renderHourCard(h));
+          });
 
 
 
-      card.appendChild(body);
-      return card;
-    }
+          card.appendChild(body);
+          return card;
+        }
 
-    function renderHourCard(h) {
-      const box = document.createElement('div');
-      const isOver = h.effectiveDiff > 0;
-      const isUnder = h.effectiveDiff < 0;
+        function renderHourCard(h) {
+          const box = document.createElement('div');
+          const isOver = h.effectiveDiff > 0;
+          const isUnder = h.effectiveDiff < 0;
 
-      // High-contrast border and background for hour blocks
-      let borderColor = 'border-slate-300';
-      if (isUnder) borderColor = 'border-2 border-rose-500 shadow-xs';
-      else if (isOver) borderColor = 'border-2 border-amber-500 shadow-xs';
-      else if (h.isSecondLunchCard) borderColor = 'border-2 border-teal-500 shadow-xs';
+          // High-contrast border and background for hour blocks
+          let borderColor = 'border-slate-300';
+          if (isUnder) borderColor = 'border-2 border-rose-500 shadow-xs';
+          else if (isOver) borderColor = 'border-2 border-amber-500 shadow-xs';
+          else if (h.isSecondLunchCard) borderColor = 'border-2 border-teal-500 shadow-xs';
 
-      box.className = `rounded-xl ${borderColor} bg-white overflow-hidden shadow-2xs`;
+          box.className = `rounded-xl ${borderColor} bg-white overflow-hidden shadow-2xs`;
 
-      const ratioText = (h.sorCount / 3).toFixed(2);
-      const is5am = (h.hour === 5);
+          const ratioText = (h.sorCount / 3).toFixed(2);
+          const is5am = (h.hour === 5);
 
-      // High-contrast Header Strip
-      let headerBg = 'bg-slate-100 border-b-2 border-slate-300 text-slate-900';
-      if (isUnder) headerBg = 'bg-rose-100 border-b-2 border-rose-300 text-rose-950';
-      else if (isOver) headerBg = 'bg-amber-100 border-b-2 border-amber-300 text-amber-950';
-      else if (h.isSecondLunchCard) headerBg = 'bg-teal-100 border-b-2 border-teal-300 text-teal-950';
+          // High-contrast Header Strip
+          let headerBg = 'bg-slate-100 border-b-2 border-slate-300 text-slate-900';
+          if (isUnder) headerBg = 'bg-rose-100 border-b-2 border-rose-300 text-rose-950';
+          else if (isOver) headerBg = 'bg-amber-100 border-b-2 border-amber-300 text-amber-950';
+          else if (h.isSecondLunchCard) headerBg = 'bg-teal-100 border-b-2 border-teal-300 text-teal-950';
 
-      const top = document.createElement('div');
-      top.className = `px-3.5 py-2 ${headerBg} flex items-center justify-between flex-wrap gap-2 text-xs font-bold`;
+          const top = document.createElement('div');
+          top.className = `px-3.5 py-2 ${headerBg} flex items-center justify-between flex-wrap gap-2 text-xs font-bold`;
 
-      let badgeHtml = `<span class="px-2 py-0.5 rounded font-extrabold text-[10px] bg-emerald-200 text-emerald-950 border border-emerald-400">COVERED</span>`;
-      if (isUnder) {
-        badgeHtml = `<span class="px-2.5 py-0.5 rounded font-extrabold text-[10px] bg-rose-600 text-white shadow-2xs">UNDERSTAFFED (-${Math.abs(h.effectiveDiff)} BRE)</span>`;
-      } else if (isOver) {
-        badgeHtml = `<span class="px-2.5 py-0.5 rounded font-extrabold text-[10px] bg-amber-500 text-amber-950 border border-amber-600 shadow-2xs">OVERSTAFFED (+${h.effectiveDiff} SURPLUS)</span>`;
-      }
-      if (h.ignoredCount > 0) {
-        badgeHtml += ` <span class="px-2 py-0.5 rounded font-extrabold text-[10px] bg-slate-200 text-slate-700 border border-slate-300 shadow-2xs">${h.ignoredCount} Ignored</span>`;
-      }
+          let badgeHtml = `<span class="px-2 py-0.5 rounded font-extrabold text-[10px] bg-emerald-200 text-emerald-950 border border-emerald-400">COVERED</span>`;
+          if (isUnder) {
+            badgeHtml = `<span class="px-2.5 py-0.5 rounded font-extrabold text-[10px] bg-rose-600 text-white shadow-2xs">UNDERSTAFFED (-${Math.abs(h.effectiveDiff)} BRE)</span>`;
+          } else if (isOver) {
+            badgeHtml = `<span class="px-2.5 py-0.5 rounded font-extrabold text-[10px] bg-amber-500 text-amber-950 border border-amber-600 shadow-2xs">OVERSTAFFED (+${h.effectiveDiff} SURPLUS)</span>`;
+          }
+          if (h.ignoredCount > 0) {
+            badgeHtml += ` <span class="px-2 py-0.5 rounded font-extrabold text-[10px] bg-slate-200 text-slate-700 border border-slate-300 shadow-2xs">${h.ignoredCount} Ignored</span>`;
+          }
 
-      if (h.isStandaloneOverageHour) {
-        const isMidnightSurplus = Boolean(h.isMidnightBreaker);
-        const dateNote = isMidnightSurplus
-          ? `<span class="px-1.5 py-0.5 rounded bg-purple-100 text-purple-900 border border-purple-300 font-mono text-[10px]">(WD in WT: ${formatShortDate(h.date)} &bull; Rolled back from 00:xx)</span>`
-          : `<span class="px-1.5 py-0.5 rounded bg-slate-200 text-slate-800 border border-slate-300 font-mono text-[10px]">(WD in WT: ${formatShortDate(h.date)})</span>`;
+          if (h.isStandaloneOverageHour) {
+            const isMidnightSurplus = Boolean(h.isMidnightBreaker);
+            const dateNote = isMidnightSurplus
+              ? `<span class="px-1.5 py-0.5 rounded bg-purple-100 text-purple-900 border border-purple-300 font-mono text-[10px]">(WD in WT: ${formatShortDate(h.date)} &bull; Rolled back from 00:xx)</span>`
+              : `<span class="px-1.5 py-0.5 rounded bg-slate-200 text-slate-800 border border-slate-300 font-mono text-[10px]">(WD in WT: ${formatShortDate(h.date)})</span>`;
 
-        top.innerHTML = `
+            top.innerHTML = `
           <div class="flex items-center gap-2 flex-wrap">
-            <span class="font-extrabold font-mono text-sm">${String(h.hour).padStart(2,'0')}:00 Hour</span>
+            <span class="px-2.5 py-1 rounded-md bg-slate-950 text-white font-mono text-xs font-black shadow-xs tracking-wide shrink-0">
+              ${formatLiteralDate(h.date)}
+            </span>
+            <span class="font-extrabold font-mono text-sm">${String(h.hour).padStart(2, '0')}:00 Hour</span>
             <span class="${isOver ? 'text-amber-800 font-bold bg-amber-200 border-amber-300' : 'text-slate-600 font-bold bg-slate-200 border-slate-300'} px-2 py-0.5 rounded border text-[11px]">
               0 SORs &bull; Extra Breaker Slot
             </span>
-            <span class="font-mono text-slate-800 text-[11px]">Start: <strong>${h.overageTime}</strong></span>
+            <span class="font-mono text-slate-800 text-[11px]">Shift: <strong>${h.overageTime}</strong></span>
             ${dateNote}
           </div>
 
@@ -1803,15 +2134,18 @@
             ${badgeHtml}
           </div>
         `;
-      } else if (h.isSecondLunchCard) {
-        top.innerHTML = `
+          } else if (h.isSecondLunchCard) {
+            top.innerHTML = `
           <div class="flex items-center gap-2 flex-wrap">
+            <span class="px-2.5 py-1 rounded-md bg-teal-950 text-white font-mono text-xs font-black shadow-xs tracking-wide shrink-0">
+              ${formatLiteralDate(h.date)}
+            </span>
             <span class="font-extrabold font-mono text-sm text-teal-950 bg-teal-200/90 px-2 py-0.5 rounded border border-teal-400">12:00 PM Second Lunch</span>
             <span class="font-extrabold bg-teal-900 text-white px-2 py-0.5 rounded text-[11px] font-mono shadow-2xs">
               ${h.secondLunchCount} Shifts (5 AM & 6 AM Second Lunches)
             </span>
             <span class="text-slate-400">&bull;</span>
-            <span class="text-slate-800 font-semibold text-[11px]">Relief: <strong class="font-mono text-slate-950">12:00</strong> &rarr; Target Breaker: <strong class="font-mono text-slate-950">12:00</strong></span>
+            <span class="text-slate-800 font-semibold text-[11px]">Relief: <strong class="font-mono text-slate-950">12:00</strong> &rarr; Target Breaker Shift: <strong class="font-mono text-slate-950">12:00–20:45</strong></span>
           </div>
 
           <div class="flex items-center gap-2 font-mono text-[11px]">
@@ -1822,26 +2156,32 @@
             ${badgeHtml}
           </div>
         `;
-      } else {
-        let subInfo = '';
-        if (is5am) {
-          subInfo = `Req: <strong>${h.totalReqBres}</strong> (${h.sorCount}&divide;3 = ${ratioText} &rarr; ${h.reqSorBres} + <span class="text-blue-700 font-extrabold">1 extra</span>)`;
-        } else {
-          subInfo = `Req: <strong>${h.totalReqBres}</strong> (${h.sorCount}&divide;3 = ${ratioText} &rarr; ${h.reqSorBres})`;
-        }
+          } else {
+            let subInfo = '';
+            if (is5am) {
+              subInfo = `Req: <strong>${h.totalReqBres}</strong> (${h.sorCount}&divide;3 = ${ratioText} &rarr; ${h.reqSorBres} + <span class="text-blue-700 font-extrabold">1 extra</span>)`;
+            } else {
+              subInfo = `Req: <strong>${h.totalReqBres}</strong> (${h.sorCount}&divide;3 = ${ratioText} &rarr; ${h.reqSorBres})`;
+            }
 
-        const nextDayBadge = h.isNextDayBre
-          ? ` <span class="px-1.5 py-0.2 rounded bg-purple-100 text-purple-900 border border-purple-300 font-mono text-[10px] font-bold" title="Breaker is scheduled on following day in WinTeam">(WD in WT: ${formatShortDate(h.targetBreDate)} &bull; 00:xx Breaker)</span>`
-          : '';
+            const nextDayBadge = h.isNextDayBre
+              ? ` <span class="px-1.5 py-0.2 rounded bg-purple-100 text-purple-900 border border-purple-300 font-mono text-[10px] font-bold" title="Breaker is scheduled on following day in WinTeam">(WD in WT: ${formatShortDate(h.targetBreDate)} &bull; 00:xx Breaker)</span>`
+              : '';
 
-        top.innerHTML = `
+            const targetBreEndTime = computeShiftEndTime(h.targetBreTime, 8, 0.75);
+            const targetBreShiftSpan = `${h.targetBreTime}–${targetBreEndTime}`;
+
+            top.innerHTML = `
           <div class="flex items-center gap-2 flex-wrap">
-            <span class="font-extrabold font-mono text-sm">${String(h.hour).padStart(2,'0')}:00 Hour</span>
+            <span class="px-2.5 py-1 rounded-md bg-slate-950 text-white font-mono text-xs font-black shadow-xs tracking-wide shrink-0">
+              ${formatLiteralDate(h.date)}
+            </span>
+            <span class="font-extrabold font-mono text-sm">${String(h.hour).padStart(2, '0')}:00 Hour</span>
             <span class="font-extrabold bg-slate-900 text-white px-2 py-0.5 rounded text-[11px] font-mono shadow-2xs">
               ${h.sorCount} Total SORs
             </span>
             <span class="text-slate-400">&bull;</span>
-            <span class="text-slate-800 font-semibold text-[11px]">Earliest: <strong class="font-mono text-slate-950">${h.minStartTime}</strong> &rarr; Target: <strong class="font-mono text-slate-950">${h.targetBreTime}</strong>${nextDayBadge}</span>
+            <span class="text-slate-800 font-semibold text-[11px]">Earliest SOR: <strong class="font-mono text-slate-950">${h.minStartTime}</strong> &rarr; Target Breaker Shift: <strong class="font-mono text-slate-950">${targetBreShiftSpan}</strong>${nextDayBadge}</span>
           </div>
 
           <div class="flex items-center gap-2 font-mono text-[11px]">
@@ -1852,36 +2192,36 @@
             ${badgeHtml}
           </div>
         `;
-      }
-      box.appendChild(top);
+          }
+          box.appendChild(top);
 
-      // Side-by-Side Pod Rows with High-Contrast Vertical Divider
-      const rowsContainer = document.createElement('div');
-      rowsContainer.className = 'divide-y-2 divide-slate-200 text-xs';
+          // Side-by-Side Pod Rows with High-Contrast Vertical Divider
+          const rowsContainer = document.createElement('div');
+          rowsContainer.className = 'divide-y-2 divide-slate-200 text-xs';
 
-      h.lines.forEach((line) => {
-        const row = document.createElement('div');
-        const isSurplusRow = line.status === 'SURPLUS_BREAKER';
-        const isMissingRow = line.status === 'MISSING_BREAKER' || line.status === 'MISSING_EXTRA';
-        const isMismatchRow = line.isTimeMismatch && !isMissingRow && !isSurplusRow;
-        const isIgnored = Boolean(line.isIgnored);
+          h.lines.forEach((line) => {
+            const row = document.createElement('div');
+            const isSurplusRow = line.status === 'SURPLUS_BREAKER';
+            const isMissingRow = line.status === 'MISSING_BREAKER' || line.status === 'MISSING_EXTRA';
+            const isMismatchRow = line.isTimeMismatch && !isMissingRow && !isSurplusRow;
+            const isIgnored = Boolean(line.isIgnored);
 
-        let rowBg = 'hover:bg-slate-50';
-        if (isIgnored) rowBg = 'bg-slate-50/60 opacity-60 border-l-4 border-slate-300 hover:opacity-100 transition-opacity';
-        else if (isMissingRow) rowBg = 'bg-rose-50/70 border-l-4 border-rose-500';
-        else if (isSurplusRow) rowBg = 'bg-amber-50/70 border-l-4 border-amber-500';
-        else if (line.is5amExtra) rowBg = 'bg-blue-50/40 border-l-4 border-blue-500 hover:bg-blue-50/70';
-        else if (line.isSecondLunch) rowBg = 'bg-teal-50/30 border-l-4 border-teal-500 hover:bg-teal-50/60';
-        else if (isMismatchRow) rowBg = 'bg-amber-50/40 border-l-4 border-amber-400 hover:bg-amber-50/70';
+            let rowBg = 'hover:bg-slate-50';
+            if (isIgnored) rowBg = 'bg-slate-50/60 opacity-60 border-l-4 border-slate-300 hover:opacity-100 transition-opacity';
+            else if (isMissingRow) rowBg = 'bg-rose-50/70 border-l-4 border-rose-500';
+            else if (isSurplusRow) rowBg = 'bg-amber-50/70 border-l-4 border-amber-500';
+            else if (line.is5amExtra) rowBg = 'bg-blue-50/40 border-l-4 border-blue-500 hover:bg-blue-50/70';
+            else if (line.isSecondLunch) rowBg = 'bg-teal-50/30 border-l-4 border-teal-500 hover:bg-teal-50/60';
+            else if (isMismatchRow) rowBg = 'bg-amber-50/40 border-l-4 border-amber-400 hover:bg-amber-50/70';
 
-        row.className = `grid grid-cols-1 md:grid-cols-2 transition-colors ${rowBg}`;
+            row.className = `grid grid-cols-1 md:grid-cols-2 transition-colors ${rowBg}`;
 
-        // Left Side: SOR Pod
-        const left = document.createElement('div');
-        left.className = 'p-2.5 border-r-2 border-slate-300 space-y-1.5 flex flex-col justify-center';
+            // Left Side: SOR Pod
+            const left = document.createElement('div');
+            left.className = 'p-2.5 border-r-2 border-slate-300 space-y-1.5 flex flex-col justify-center';
 
-        if (line.is5amExtra) {
-          left.innerHTML = `
+            if (line.is5amExtra) {
+              left.innerHTML = `
             <div class="p-2 rounded-lg bg-blue-100 border-2 border-blue-400 text-blue-950 text-[11px] flex items-center justify-between font-bold">
               <div class="flex items-center gap-1.5">
                 <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
@@ -1890,22 +2230,23 @@
               <span class="text-[10px] text-blue-900 bg-blue-200 border border-blue-400 px-2 py-0.5 rounded font-extrabold uppercase tracking-wide">Dedicated Buffer (+1 BRE)</span>
             </div>
           `;
-        } else if (line.isSecondLunch) {
-          let sHtml = '';
-          line.podSors.forEach((s) => {
-            const dlBadge = s._isDL ? `<span class="px-1.5 py-0.2 rounded font-extrabold text-[9px] bg-indigo-100 text-indigo-900 border border-indigo-300 font-mono shadow-2xs shrink-0" title="Dedication Likely (4+ same shifts this week)">DL</span>` : '';
-            sHtml += `
+            } else if (line.isSecondLunch) {
+              let sHtml = '';
+              line.podSors.forEach((s) => {
+                const dlBadge = s._isDL ? `<span class="px-1.5 py-0.2 rounded font-extrabold text-[9px] bg-indigo-100 text-indigo-900 border border-indigo-300 font-mono shadow-2xs shrink-0" title="Dedication Likely (4+ same shifts this week)">DL</span>` : '';
+                const sRange = (s._startTime && s._endTime) ? `${s._startTime}–${s._endTime}` : s._startTime;
+                sHtml += `
               <div class="flex items-center justify-between p-1.5 rounded-lg bg-teal-50/40 border-2 border-teal-300 text-[11px] shadow-2xs">
                 <div class="flex items-center gap-2 truncate">
                   <span class="font-extrabold text-slate-950 truncate">${s.EmpName || 'Unassigned'}</span>
                   ${dlBadge}
-                  <span class="text-slate-500 font-mono text-[10px]">(${s._startTime} start)</span>
+                  <span class="font-mono text-teal-950 font-bold bg-teal-100 px-1.5 py-0.5 rounded border border-teal-300 text-[10px] shrink-0">${sRange}</span>
                 </div>
-                <span class="font-mono text-teal-950 font-extrabold text-[11px] bg-teal-200 px-1.5 py-0.5 rounded border border-teal-300">${s._lunch.toFixed(2)}h lunch</span>
+                <span class="font-mono text-teal-950 font-extrabold text-[11px] bg-teal-200 px-1.5 py-0.5 rounded border border-teal-300 shrink-0">${s._lunch.toFixed(2)}h lunch</span>
               </div>
             `;
-          });
-          left.innerHTML = `
+              });
+              left.innerHTML = `
             <div class="space-y-1.5">
               <div class="p-1.5 px-2.5 rounded-lg bg-teal-100 border-2 border-teal-400 text-teal-950 text-xs font-bold flex items-center justify-between">
                 <div class="flex items-center gap-1.5">
@@ -1917,27 +2258,28 @@
               ${sHtml}
             </div>
           `;
-        } else if (line.podSors.length === 0) {
-          if (isIgnored) {
-            left.innerHTML = `
+            } else if (line.podSors.length === 0) {
+              if (isIgnored) {
+                left.innerHTML = `
               <div class="p-2 rounded-lg border-2 border-dashed border-slate-300 bg-slate-100/60 text-slate-600 text-xs font-bold flex items-center justify-between">
                 <span class="line-through text-slate-500">(No SORs in this slot &bull; Overstaffed breaker)</span>
                 <span class="text-[10px] font-bold text-slate-600 bg-slate-200 px-1.5 py-0.5 rounded border border-slate-300">Ignored</span>
               </div>
             `;
-          } else {
-            left.innerHTML = `
+              } else {
+                left.innerHTML = `
               <div class="p-2 rounded-lg border-2 border-dashed border-amber-400 bg-amber-100/60 text-amber-950 text-xs font-bold flex items-center justify-between">
                 <span>(No SORs in this slot &bull; Overstaffed breaker)</span>
                 <span class="text-[10px] font-extrabold uppercase tracking-wider text-amber-950 bg-amber-300 px-1.5 py-0.5 rounded border border-amber-400">Overstaff</span>
               </div>
             `;
-          }
-        } else {
-          let sHtml = '';
-          line.podSors.forEach((s, idx) => {
-            const dlBadge = s._isDL ? `<span class="px-1.5 py-0.2 rounded font-extrabold text-[9px] bg-indigo-100 text-indigo-900 border border-indigo-300 font-mono shadow-2xs shrink-0" title="Dedication Likely (4+ same shifts this week)">DL</span>` : '';
-            sHtml += `
+              }
+            } else {
+              let sHtml = '';
+              line.podSors.forEach((s, idx) => {
+                const dlBadge = s._isDL ? `<span class="px-1.5 py-0.2 rounded font-extrabold text-[9px] bg-indigo-100 text-indigo-900 border border-indigo-300 font-mono shadow-2xs shrink-0" title="Dedication Likely (4+ same shifts this week)">DL</span>` : '';
+                const sRange = (s._startTime && s._endTime) ? `${s._startTime}–${s._endTime}` : s._startTime;
+                sHtml += `
               <div class="flex items-center justify-between p-1.5 rounded-lg bg-white border-2 border-slate-300 text-[11px] shadow-2xs">
                 <div class="flex items-center gap-2 truncate">
                   <span class="font-mono font-bold text-slate-500 text-[10px]">#${idx + 1}</span>
@@ -1947,45 +2289,47 @@
                 </div>
                 <div class="flex items-center gap-2 font-mono text-[11px] shrink-0">
                   <span class="font-bold text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-300 text-[10px]">${s._hours ? s._hours.toFixed(1) + 'h' : ''}</span>
-                  <span class="font-extrabold text-slate-950 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-300">${s._startTime}</span>
+                  <span class="font-extrabold text-slate-950 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-300">${sRange}</span>
                   <span class="${s._lunch >= 1.5 ? 'text-teal-950 font-bold bg-teal-200 px-1.5 py-0.5 rounded border border-teal-300' : 'text-slate-500'}">${s._lunch.toFixed(2)}h</span>
                 </div>
               </div>
             `;
-          });
-          left.innerHTML = sHtml;
-        }
+              });
+              left.innerHTML = sHtml;
+            }
 
-        // Right Side: BRE Breaker
-        const right = document.createElement('div');
-        right.className = 'p-2.5 flex flex-col justify-center';
+            // Right Side: BRE Breaker
+            const right = document.createElement('div');
+            right.className = 'p-2.5 flex flex-col justify-center';
 
-        if (line.bre) {
-          const b = line.bre;
-          const isWrongTime = line.isTimeMismatch;
-          const isBlueBreaker = line.is5amExtra || line.isSecondLunch;
-          const rawWd = b.WorkDate || h.targetBreDate || h.date;
-          const isOtherDay = rawWd && (parseDateToKey(rawWd) !== parseDateToKey(h.date));
-          const wdText = `(WD in WT: ${formatShortDate(rawWd)})`;
-          const handledType = handledIssues.get(line.issueKey) || (isIgnored ? 'ignore' : null);
+            if (line.bre) {
+              const b = line.bre;
+              const isWrongTime = line.isTimeMismatch;
+              const isBlueBreaker = line.is5amExtra || line.isSecondLunch;
+              const rawWd = b.WorkDate || h.targetBreDate || h.date;
+              const isOtherDay = rawWd && (parseDateToKey(rawWd) !== parseDateToKey(h.date));
+              const wdText = `(WD in WT: ${formatShortDate(rawWd)})`;
+              const handledType = handledIssues.get(line.issueKey) || (isIgnored ? 'ignore' : null);
+              const bShiftEndTime = b._endTime || computeShiftEndTime(b._startTime, 8, 0.75);
+              const bTimeRange = (b._startTime && bShiftEndTime) ? `${b._startTime}–${bShiftEndTime}` : (b._startTime || '');
 
-          let badge = `<span class="px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-emerald-200 text-emerald-950 border border-emerald-400">Assigned</span>`;
-          if (isSurplusRow) {
-            const shortDate = formatShortDate(rawWd);
-            const shiftSpan = getShiftSpan(b._startTime);
-            const spec = getAssignedSpecialist(b);
-            const resolveMsg = spec
-              ? `Closed ${shortDate} ${shiftSpan} (Removed ${spec.label})`
-              : `Closed ${shortDate} ${shiftSpan}`;
-            const ignoreMsg = `Left ${shortDate} ${shiftSpan} (Dedication)`;
+              let badge = `<span class="px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-emerald-200 text-emerald-950 border border-emerald-400">Assigned</span>`;
+              if (isSurplusRow) {
+                const shortDate = formatShortDate(rawWd);
+                const shiftSpan = getShiftSpan(b._startTime);
+                const spec = getAssignedSpecialist(b);
+                const resolveMsg = spec
+                  ? `Closed ${shortDate} ${shiftSpan} (Removed ${spec.label})`
+                  : `Closed ${shortDate} ${shiftSpan}`;
+                const ignoreMsg = `Left ${shortDate} ${shiftSpan} (Dedication)`;
 
-            if (isIgnored) {
-              badge = `
+                if (isIgnored) {
+                  badge = `
                 <div class="flex items-center gap-1.5 shrink-0">
                   ${handledType === 'resolve'
-                    ? `<span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-200 text-emerald-950 border border-emerald-400">RESOLVED</span>`
-                    : `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-200 text-slate-700 border border-slate-300">IGNORED</span>`
-                  }
+                      ? `<span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-200 text-emerald-950 border border-emerald-400">RESOLVED</span>`
+                      : `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-200 text-slate-700 border border-slate-300">IGNORED</span>`
+                    }
                   <button type="button" class="px-2 py-0.5 rounded bg-slate-700 hover:bg-slate-900 text-white font-mono text-[10px] font-bold shadow-xs transition-all" onclick="handleIssueUndo('${line.issueKey}')" title="Undo and reactivate issue">
                     Undo
                   </button>
@@ -1994,8 +2338,8 @@
                   </button>
                 </div>
               `;
-            } else {
-              badge = `
+                } else {
+                  badge = `
                 <div class="flex items-center gap-1.5 shrink-0">
                   <span class="px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-amber-300 text-amber-950 border border-amber-500 shadow-2xs">OVERSTAFF</span>
                   <button type="button" class="btn-resolve px-2.5 py-0.5 rounded bg-emerald-700 hover:bg-emerald-800 text-white font-mono text-[10px] font-bold shadow-xs transition-all whitespace-nowrap" onclick="handleIssueAction('${line.issueKey}', 'resolve', '${escapeQuotes(resolveMsg)}', this)" title="Resolve & Copy: ${escapeQuotes(resolveMsg)}">
@@ -2006,24 +2350,24 @@
                   </button>
                 </div>
               `;
-            }
-          } else if (isWrongTime) {
-            const shortDate = formatShortDate(rawWd);
-            const sMil = toMil4(b._startTime);
-            const tMil = toMil4(line.expTime || h.targetBreTime);
-            const spec = getAssignedSpecialist(b);
-            const resolveMsg = spec
-              ? `Time Changed ${shortDate} ${sMil} to ${tMil} (Time Changed ${spec.label})`
-              : `Time Changed ${shortDate} ${sMil} to ${tMil}`;
-            const ignoreMsg = `Left ${shortDate} ${sMil} (Instead of TC to ${tMil})`;
+                }
+              } else if (isWrongTime) {
+                const shortDate = formatShortDate(rawWd);
+                const sMil = toMil4(b._startTime);
+                const tMil = toMil4(line.expTime || h.targetBreTime);
+                const spec = getAssignedSpecialist(b);
+                const resolveMsg = spec
+                  ? `Time Changed ${shortDate} ${sMil} to ${tMil} (Time Changed ${spec.label})`
+                  : `Time Changed ${shortDate} ${sMil} to ${tMil}`;
+                const ignoreMsg = `Left ${shortDate} ${sMil} (Instead of TC to ${tMil})`;
 
-            if (isIgnored) {
-              badge = `
+                if (isIgnored) {
+                  badge = `
                 <div class="flex items-center gap-1.5 shrink-0">
                   ${handledType === 'resolve'
-                    ? `<span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-200 text-emerald-950 border border-emerald-400">RESOLVED</span>`
-                    : `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-200 text-slate-700 border border-slate-300">IGNORED</span>`
-                  }
+                      ? `<span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-200 text-emerald-950 border border-emerald-400">RESOLVED</span>`
+                      : `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-200 text-slate-700 border border-slate-300">IGNORED</span>`
+                    }
                   <button type="button" class="px-2 py-0.5 rounded bg-slate-700 hover:bg-slate-900 text-white font-mono text-[10px] font-bold shadow-xs transition-all" onclick="handleIssueUndo('${line.issueKey}')" title="Undo and reactivate issue">
                     Undo
                   </button>
@@ -2032,8 +2376,8 @@
                   </button>
                 </div>
               `;
-            } else {
-              badge = `
+                } else {
+                  badge = `
                 <div class="flex items-center gap-1.5 shrink-0">
                   <span class="px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-amber-300 text-amber-950 border border-amber-500 shadow-2xs">Assigned (${line.offsetStr})</span>
                   <button type="button" class="btn-resolve px-2.5 py-0.5 rounded bg-emerald-700 hover:bg-emerald-800 text-white font-mono text-[10px] font-bold shadow-xs transition-all whitespace-nowrap" onclick="handleIssueAction('${line.issueKey}', 'resolve', '${escapeQuotes(resolveMsg)}', this)" title="Resolve & Copy: ${escapeQuotes(resolveMsg)}">
@@ -2044,47 +2388,47 @@
                   </button>
                 </div>
               `;
-            }
-          } else if (line.is5amExtra) {
-            badge = `<span class="px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-blue-600 text-white shadow-2xs">+1 5AM Extra</span>`;
-          } else if (line.isSecondLunch) {
-            badge = `<span class="px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-blue-600 text-white shadow-2xs">12 PM 2nd Lunch</span>`;
-          }
+                }
+              } else if (line.is5amExtra) {
+                badge = `<span class="px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-blue-600 text-white shadow-2xs">+1 5AM Extra</span>`;
+              } else if (line.isSecondLunch) {
+                badge = `<span class="px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-blue-600 text-white shadow-2xs">12 PM 2nd Lunch</span>`;
+              }
 
-          const dateBadge = (isOtherDay || line.isMidnightBreaker)
-            ? `<span class="text-[10px] text-purple-900 font-mono font-bold whitespace-nowrap">${wdText}</span>`
-            : '';
+              const dateBadge = (isOtherDay || line.isMidnightBreaker)
+                ? `<span class="text-[10px] text-purple-900 font-mono font-bold whitespace-nowrap">${wdText}</span>`
+                : '';
 
-          let timeDisplayHtml = `<span class="font-extrabold text-slate-950 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-300">${b._startTime}</span>`;
-          if (isBlueBreaker) {
-            timeDisplayHtml = `<span class="font-extrabold text-blue-950 bg-blue-100 px-1.5 py-0.5 rounded border border-blue-300">${b._startTime}</span>`;
-          }
-          if (isWrongTime) {
-            timeDisplayHtml = `
-              <div class="inline-flex items-center gap-1 shrink-0">
-                <span class="font-extrabold text-amber-950 bg-amber-200 px-1.5 py-0.5 rounded border border-amber-400 shadow-2xs">${b._startTime}</span>
-                <span class="text-[10px] text-amber-900 font-mono font-bold whitespace-nowrap">
+              let timeDisplayHtml = `<span class="font-extrabold text-slate-950 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-300 font-mono">${bTimeRange}</span>`;
+              if (isBlueBreaker) {
+                timeDisplayHtml = `<span class="font-extrabold text-blue-950 bg-blue-100 px-1.5 py-0.5 rounded border border-blue-300 font-mono">${bTimeRange}</span>`;
+              }
+              if (isWrongTime) {
+                timeDisplayHtml = `
+              <div class="inline-flex items-center gap-1 shrink-0 font-mono">
+                <span class="font-extrabold text-amber-950 bg-amber-200 px-1.5 py-0.5 rounded border border-amber-400 shadow-2xs">${bTimeRange}</span>
+                <span class="text-[10px] text-amber-900 font-bold whitespace-nowrap">
                   (${line.offsetStr})
                 </span>
               </div>
             `;
-          }
+              }
 
-          let breCardClass = 'bg-white border-2 border-slate-300';
-          if (isIgnored) {
-            breCardClass = 'bg-slate-100/70 border-2 border-slate-300 text-slate-600';
-          } else if (isSurplusRow) {
-            breCardClass = 'bg-amber-100/90 border-2 border-amber-500';
-          } else if (isBlueBreaker) {
-            breCardClass = 'bg-blue-50/90 border-2 border-blue-400 text-blue-950';
-          } else if (isWrongTime) {
-            breCardClass = 'bg-amber-50 border-2 border-amber-300';
-          }
+              let breCardClass = 'bg-white border-2 border-slate-300';
+              if (isIgnored) {
+                breCardClass = 'bg-slate-100/70 border-2 border-slate-300 text-slate-600';
+              } else if (isSurplusRow) {
+                breCardClass = 'bg-amber-100/90 border-2 border-amber-500';
+              } else if (isBlueBreaker) {
+                breCardClass = 'bg-blue-50/90 border-2 border-blue-400 text-blue-950';
+              } else if (isWrongTime) {
+                breCardClass = 'bg-amber-50 border-2 border-amber-300';
+              }
 
-          const brePillClass = isIgnored ? 'bg-slate-500 text-white font-mono text-[10px] font-extrabold' : (isBlueBreaker ? 'bg-blue-600 text-white font-mono text-[10px] font-extrabold' : 'bg-purple-700 text-white font-mono text-[10px] font-extrabold');
-          const bDlBadge = b._isDL ? `<span class="px-1.5 py-0.2 rounded font-extrabold text-[9px] bg-indigo-100 text-indigo-900 border border-indigo-300 font-mono shadow-2xs shrink-0" title="Dedication Likely (4+ same shifts this week)">DL</span>` : '';
+              const brePillClass = isIgnored ? 'bg-slate-500 text-white font-mono text-[10px] font-extrabold' : (isBlueBreaker ? 'bg-blue-600 text-white font-mono text-[10px] font-extrabold' : 'bg-purple-700 text-white font-mono text-[10px] font-extrabold');
+              const bDlBadge = b._isDL ? `<span class="px-1.5 py-0.2 rounded font-extrabold text-[9px] bg-indigo-100 text-indigo-900 border border-indigo-300 font-mono shadow-2xs shrink-0" title="Dedication Likely (4+ same shifts this week)">DL</span>` : '';
 
-          right.innerHTML = `
+              right.innerHTML = `
             <div class="flex items-center justify-between p-2 rounded-lg ${breCardClass} text-xs shadow-2xs gap-2 min-w-0">
               <div class="flex items-center gap-1.5 min-w-0 flex-1">
                 <span class="px-1.5 py-0.5 rounded ${brePillClass} shrink-0">BRE</span>
@@ -2098,27 +2442,31 @@
               </div>
             </div>
           `;
-        } else {
-          const targetDateForBre = line.targetBreDate || h.targetBreDate || h.date;
-          const targetTimeForBre = line.expTime || h.targetBreTime;
-          const shortDate = formatShortDate(targetDateForBre);
-          const shiftSpan = getShiftSpan(targetTimeForBre);
-          const resolveMsg = `Opened ${shortDate} ${shiftSpan}`;
-          const ignoreMsg = `Left ${shortDate} ${shiftSpan} Unstaffed (Existing Staff)`;
-          const handledType = handledIssues.get(line.issueKey) || (isIgnored ? 'ignore' : null);
-          const wdNote = h.isNextDayBre ? `(WD in WT: ${formatShortDate(targetDateForBre)})` : '';
+            } else {
+              const targetDateForBre = line.targetBreDate || h.targetBreDate || h.date;
+              const targetTimeForBre = line.expTime || h.targetBreTime;
+              const shouldBeEndTime = line.expEndTime || computeShiftEndTime(targetTimeForBre, 8, 0.75);
+              const shouldBeShift = `${targetTimeForBre}–${shouldBeEndTime}`;
+              const shortDate = formatShortDate(targetDateForBre);
+              const shiftSpan = getShiftSpan(targetTimeForBre);
+              const resolveMsg = `Opened ${shortDate} ${shiftSpan}`;
+              const ignoreMsg = `Left ${shortDate} ${shiftSpan} Unstaffed (Existing Staff)`;
+              const handledType = handledIssues.get(line.issueKey) || (isIgnored ? 'ignore' : null);
+              const wdNote = h.isNextDayBre ? `(WD in WT: ${formatShortDate(targetDateForBre)})` : '';
 
-          if (isIgnored) {
-            right.innerHTML = `
+              if (isIgnored) {
+                right.innerHTML = `
               <div class="p-2 rounded-lg bg-slate-100 border-2 border-dashed border-slate-300 text-slate-600 text-xs flex items-center justify-between gap-2 min-w-0">
-                <div class="flex items-center gap-1.5 min-w-0 flex-1">
+                <div class="flex items-center gap-1.5 min-w-0 flex-1 flex-wrap">
                   <span class="w-2 h-2 rounded-full bg-slate-400 shrink-0"></span>
                   <span class="font-bold line-through text-slate-500 truncate">Missing Breaker</span>
                   ${handledType === 'resolve'
                     ? `<span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-200 text-emerald-950 border border-emerald-400 shrink-0">RESOLVED</span>`
                     : `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-200 text-slate-700 border border-slate-300 shrink-0">IGNORED</span>`
                   }
-                  <span class="font-mono text-[11px] text-slate-500 shrink-0">Target: ${targetTimeForBre}</span>
+                  <span class="font-mono text-[11px] text-slate-600 font-bold bg-slate-200 px-1.5 py-0.5 rounded border border-slate-300 shrink-0">
+                    Should-be Shift: ${shouldBeShift}
+                  </span>
                   ${wdNote ? `<span class="font-mono text-[10px] text-purple-900 font-bold shrink-0">${wdNote}</span>` : ''}
                 </div>
                 <div class="flex items-center gap-1.5 shrink-0">
@@ -2131,13 +2479,15 @@
                 </div>
               </div>
             `;
-          } else {
-            right.innerHTML = `
+              } else {
+                right.innerHTML = `
               <div class="p-2 rounded-lg bg-rose-100/90 border-2 border-dashed border-rose-500 text-rose-950 text-xs flex items-center justify-between gap-2 min-w-0">
-                <div class="flex items-center gap-1.5 min-w-0 flex-1">
-                  <span class="w-2 h-2 rounded-full bg-rose-600 shrink-0"></span>
-                  <span class="font-extrabold truncate">Missing Breaker</span>
-                  <span class="font-mono text-[11px] font-bold text-slate-700 shrink-0">Target: ${targetTimeForBre}</span>
+                <div class="flex items-center gap-1.5 min-w-0 flex-1 flex-wrap">
+                  <span class="w-2.5 h-2.5 rounded-full bg-rose-600 shrink-0"></span>
+                  <span class="font-extrabold truncate text-rose-950">Missing Breaker</span>
+                  <span class="px-2 py-0.5 rounded bg-rose-200 text-rose-950 border border-rose-400 font-mono text-[11px] font-extrabold shrink-0 shadow-2xs">
+                    Should-be Shift: ${shouldBeShift}
+                  </span>
                   ${wdNote ? `<span class="font-mono text-[10px] text-purple-900 font-bold shrink-0">${wdNote}</span>` : ''}
                 </div>
                 <div class="flex items-center gap-1.5 shrink-0">
@@ -2150,158 +2500,159 @@
                 </div>
               </div>
             `;
-          }
-        }
+              }
+            }
 
-        row.appendChild(left);
-        row.appendChild(right);
-        rowsContainer.appendChild(row);
-      });
-
-      box.appendChild(rowsContainer);
-      return box;
-    }
-
-
-    // Export Specialized Shift / SOR CSV
-    function exportShiftCSV(targetJobCode, filenamePrefix) {
-      if (rawRecords.length === 0) return;
-
-      const matchingShifts = rawRecords.filter(r => String(r.JobNumber || '').trim() === targetJobCode);
-      if (matchingShifts.length === 0) {
-        alert(`No shifts found for job code ${targetJobCode}.`);
-        return;
-      }
-
-      matchingShifts.sort((a, b) => {
-        const dateA = parseDateToKey(String(a.WorkDate || '').trim());
-        const dateB = parseDateToKey(String(b.WorkDate || '').trim());
-        if (dateA !== dateB) return dateA - dateB;
-
-        const timeA = String(a.ShiftStartTime || a.InTime || '').trim();
-        const timeB = String(b.ShiftStartTime || b.InTime || '').trim();
-        return timeA.localeCompare(timeB);
-      });
-
-      const escapeVal = (v) => {
-        if (v === null || v === undefined) return '';
-        const str = String(v).trim();
-        if (str.includes(',') || str.includes('"') || str.includes('\n')) {
-          return `"${str.replace(/"/g, '""')}"`;
-        }
-        return str;
-      };
-
-      let csvContent = 'WorkDate,ShiftStartTime,ShiftEndTime,SHIFTLUNCH,shifthours,\r\n';
-
-      let lastDate = null;
-      matchingShifts.forEach(r => {
-        const currentDate = String(r.WorkDate || '').trim();
-        const isNewDate = (currentDate !== lastDate);
-        lastDate = currentDate;
-
-        const wDate = escapeVal(currentDate);
-        const sStart = escapeVal(r.ShiftStartTime || r.InTime || '');
-        const sEnd = escapeVal(r.ShiftEndTime || r.OutTime || '');
-        const sLunch = escapeVal(r.SHIFTLUNCH !== undefined && r.SHIFTLUNCH !== '' ? r.SHIFTLUNCH : r.Lunch);
-        const sHours = escapeVal(r.shifthours !== undefined && r.shifthours !== '' ? r.shifthours : r.Hours);
-        const newTag = isNewDate ? 'NEW' : '';
-
-        csvContent += `${wDate},${sStart},${sEnd},${sLunch},${sHours},${newTag}\r\n`;
-      });
-
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${filenamePrefix}_${targetJobCode}.csv`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }
-
-    // Event Listeners
-    document.addEventListener('DOMContentLoaded', () => {
-      // Auto fetch if served
-      if (window.location.protocol.startsWith('http')) {
-        fetch('./Proto.csv')
-          .then(res => { if (res.ok) return res.text(); throw new Error(); })
-          .then(txt => initData(parseCSV(txt), 'Proto.csv'))
-          .catch(() => {});
-      }
-
-      // Facility Tabs
-      document.querySelectorAll('.facility-tab').forEach(tab => {
-        tab.addEventListener('click', () => {
-          document.querySelectorAll('.facility-tab').forEach(t => {
-            t.className = 'facility-tab px-3 py-1 rounded-md transition-all text-slate-700 hover:text-slate-950';
+            row.appendChild(left);
+            row.appendChild(right);
+            rowsContainer.appendChild(row);
           });
-          tab.className = 'facility-tab px-3 py-1 rounded-md transition-all bg-slate-900 text-white shadow-xs font-bold';
-          selectedFacility = tab.dataset.facility;
-          renderAudit();
-        });
-      });
 
-      // Filter Issues Checkbox
-      document.getElementById('chkOnlyIssues').addEventListener('change', (e) => {
-        onlyIssues = e.target.checked;
-        renderAudit();
-      });
-
-      // File Input Trigger
-      document.getElementById('fileInput').addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = (evt) => initData(parseCSV(evt.target.result), file.name);
-        reader.readAsText(file);
-      });
-
-      // Drag and Drop
-      const dropBox = document.getElementById('emptyDropZone');
-      ['dragenter', 'dragover'].forEach(name => {
-        window.addEventListener(name, (e) => e.preventDefault());
-        dropBox.addEventListener(name, (e) => {
-          e.preventDefault();
-          dropBox.classList.add('border-slate-900', 'bg-slate-100');
-        });
-      });
-      ['dragleave', 'drop'].forEach(name => {
-        window.addEventListener(name, (e) => e.preventDefault());
-        dropBox.addEventListener(name, (e) => {
-          e.preventDefault();
-          dropBox.classList.remove('border-slate-900', 'bg-slate-100');
-        });
-      });
-      dropBox.addEventListener('drop', (e) => {
-        e.preventDefault();
-        const files = e.dataTransfer.files;
-        if (files.length > 0) {
-          const file = files[0];
-          const reader = new FileReader();
-          reader.onload = (evt) => initData(parseCSV(evt.target.result), file.name);
-          reader.readAsText(file);
+          box.appendChild(rowsContainer);
+          return box;
         }
-      });
 
-      // Export Buttons
-      document.getElementById('btnExport233265').addEventListener('click', () => {
-        exportShiftCSV('233265', 'SCV_SOR');
-      });
 
-      document.getElementById('btnExport235144').addEventListener('click', () => {
-        exportShiftCSV('235144', 'SCV_BRE');
-      });
+        // Export Specialized Shift / SOR CSV
+        function exportShiftCSV(targetJobCode, filenamePrefix) {
+          if (rawRecords.length === 0) return;
 
-      document.getElementById('btnExport266778').addEventListener('click', () => {
-        exportShiftCSV('266778', 'Sunnyvale_SOR');
-      });
+          const matchingShifts = rawRecords.filter(r => String(r.JobNumber || '').trim() === targetJobCode);
+          if (matchingShifts.length === 0) {
+            alert(`No shifts found for job code ${targetJobCode}.`);
+            return;
+          }
 
-      document.getElementById('btnExport267588').addEventListener('click', () => {
-        exportShiftCSV('267588', 'Sunnyvale_BRE');
-      });
-    });
+          matchingShifts.sort((a, b) => {
+            const dateA = parseDateToKey(String(a.WorkDate || '').trim());
+            const dateB = parseDateToKey(String(b.WorkDate || '').trim());
+            if (dateA !== dateB) return dateA - dateB;
+
+            const timeA = String(a.ShiftStartTime || a.InTime || '').trim();
+            const timeB = String(b.ShiftStartTime || b.InTime || '').trim();
+            return timeA.localeCompare(timeB);
+          });
+
+          const escapeVal = (v) => {
+            if (v === null || v === undefined) return '';
+            const str = String(v).trim();
+            if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+              return `"${str.replace(/"/g, '""')}"`;
+            }
+            return str;
+          };
+
+          let csvContent = 'WorkDate,ShiftStartTime,ShiftEndTime,SHIFTLUNCH,shifthours,\r\n';
+
+          let lastDate = null;
+          matchingShifts.forEach(r => {
+            const currentDate = String(r.WorkDate || '').trim();
+            const isNewDate = (currentDate !== lastDate);
+            lastDate = currentDate;
+
+            const wDate = escapeVal(currentDate);
+            const sStart = escapeVal(r.ShiftStartTime || r.InTime || '');
+            const sEnd = escapeVal(r.ShiftEndTime || r.OutTime || '');
+            const sLunch = escapeVal(r.SHIFTLUNCH !== undefined && r.SHIFTLUNCH !== '' ? r.SHIFTLUNCH : r.Lunch);
+            const sHours = escapeVal(r.shifthours !== undefined && r.shifthours !== '' ? r.shifthours : r.Hours);
+            const newTag = isNewDate ? 'NEW' : '';
+
+            csvContent += `${wDate},${sStart},${sEnd},${sLunch},${sHours},${newTag}\r\n`;
+          });
+
+          const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `${filenamePrefix}_${targetJobCode}.csv`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', () => {
+          // Auto fetch if served
+          if (window.location.protocol.startsWith('http')) {
+            fetch('./Proto.csv')
+              .then(res => { if (res.ok) return res.text(); throw new Error(); })
+              .then(txt => initData(parseCSV(txt), 'Proto.csv'))
+              .catch(() => { });
+          }
+
+          // Facility Tabs
+          document.querySelectorAll('.facility-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+              document.querySelectorAll('.facility-tab').forEach(t => {
+                t.className = 'facility-tab px-3 py-1 rounded-md transition-all text-slate-700 hover:text-slate-950';
+              });
+              tab.className = 'facility-tab px-3 py-1 rounded-md transition-all bg-slate-900 text-white shadow-xs font-bold';
+              selectedFacility = tab.dataset.facility;
+              renderAudit();
+            });
+          });
+
+          // Filter Issues Checkbox
+          document.getElementById('chkOnlyIssues').addEventListener('change', (e) => {
+            onlyIssues = e.target.checked;
+            renderAudit();
+          });
+
+          // File Input Trigger
+          document.getElementById('fileInput').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (evt) => initData(parseCSV(evt.target.result), file.name);
+            reader.readAsText(file);
+          });
+
+          // Drag and Drop
+          const dropBox = document.getElementById('emptyDropZone');
+          ['dragenter', 'dragover'].forEach(name => {
+            window.addEventListener(name, (e) => e.preventDefault());
+            dropBox.addEventListener(name, (e) => {
+              e.preventDefault();
+              dropBox.classList.add('border-slate-900', 'bg-slate-100');
+            });
+          });
+          ['dragleave', 'drop'].forEach(name => {
+            window.addEventListener(name, (e) => e.preventDefault());
+            dropBox.addEventListener(name, (e) => {
+              e.preventDefault();
+              dropBox.classList.remove('border-slate-900', 'bg-slate-100');
+            });
+          });
+          dropBox.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+              const file = files[0];
+              const reader = new FileReader();
+              reader.onload = (evt) => initData(parseCSV(evt.target.result), file.name);
+              reader.readAsText(file);
+            }
+          });
+
+          // Export Buttons
+          document.getElementById('btnExport233265').addEventListener('click', () => {
+            exportShiftCSV('233265', 'SCV_SOR');
+          });
+
+          document.getElementById('btnExport235144').addEventListener('click', () => {
+            exportShiftCSV('235144', 'SCV_BRE');
+          });
+
+          document.getElementById('btnExport266778').addEventListener('click', () => {
+            exportShiftCSV('266778', 'Sunnyvale_SOR');
+          });
+
+          document.getElementById('btnExport267588').addEventListener('click', () => {
+            exportShiftCSV('267588', 'Sunnyvale_BRE');
+          });
+        });
   </script>
 </body>
+
 </html>
