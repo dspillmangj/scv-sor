@@ -648,21 +648,20 @@
       if (!record) return null;
       const name = String(record.EmpName || '').trim();
       const num = String(record.EmployeeNumber || '').trim();
-      if (!name || name.toLowerCase() === 'open shift' || name.toLowerCase() === 'unassigned') {
-        const lower = name.toLowerCase();
-        if (!name || lower === 'open shift' || lower === 'unassigned' || lower.startsWith('open ') || lower === 'open') {
-          return null;
-        }
-        return {
-          name: name,
-          num: num,
-          label: num ? `${name} ${num}` : name
-        };
+      const lower = name.toLowerCase();
+      if (!name || lower === 'open shift' || lower === 'unassigned' || lower.startsWith('open ') || lower === 'open') {
+        return null;
       }
+      return {
+        name: name,
+        num: num,
+        label: num ? `${name} ${num}` : name
+      };
+    }
 
-      function hasAssignedEmployee(record) {
-        return getAssignedSpecialist(record) !== null;
-      }
+    function hasAssignedEmployee(record) {
+      return getAssignedSpecialist(record) !== null;
+    }
 
       function escapeQuotes(str) {
         if (!str) return '';
@@ -1475,54 +1474,53 @@
           // Breakers are always scheduled 1 hour later than the SORs they cover.
           // For shifts 23:00 and later, breakers start at midnight or later on the FOLLOWING DAY.
           const sourceBres = isNextDayBre ? nextDayBres : sameDayBres;
-          const candidateBres = sourceBres.filter(b => {
-            let candidateBres = sourceBres.filter(b => {
-              const t = String(b._startTime || b.ShiftStartTime || b.InTime || '').trim();
-              if (!t) return false;
-              const bh = parseInt(t.split(':')[0], 10);
-              return bh === targetBreHour;
-            });
-            candidateBres.sort((a, b) => a._startTime.localeCompare(b._startTime));
-            candidateBres.forEach(b => accountedBreUids.add(b._uid));
+          let candidateBres = sourceBres.filter(b => {
+            const t = String(b._startTime || b.ShiftStartTime || b.InTime || '').trim();
+            if (!t) return false;
+            const bh = parseInt(t.split(':')[0], 10);
+            return bh === targetBreHour;
+          });
+          candidateBres.sort((a, b) => a._startTime.localeCompare(b._startTime));
+          candidateBres.forEach(b => accountedBreUids.add(b._uid));
 
-            // Favor closing shifts with no current employee assigned over ones with an employee assigned:
-            // Rank breakers for required slots (keepers): assigned employees first, then dedication likely, then closest to target time.
-            const rankForKeeping = (a, b) => {
-              const aAssigned = hasAssignedEmployee(a) ? 1 : 0;
-              const bAssigned = hasAssignedEmployee(b) ? 1 : 0;
-              if (aAssigned !== bAssigned) return bAssigned - aAssigned;
-              const aDL = a._isDL ? 1 : 0;
-              const bDL = b._isDL ? 1 : 0;
-              if (aDL !== bDL) return bDL - aDL;
+          // Favor closing shifts with no current employee assigned over ones with an employee assigned:
+          // Rank breakers for required slots (keepers): assigned employees first, then dedication likely, then closest to target time.
+          const rankForKeeping = (a, b) => {
+            const aAssigned = hasAssignedEmployee(a) ? 1 : 0;
+            const bAssigned = hasAssignedEmployee(b) ? 1 : 0;
+            if (aAssigned !== bAssigned) return bAssigned - aAssigned;
+            const aDL = a._isDL ? 1 : 0;
+            const bDL = b._isDL ? 1 : 0;
+            if (aDL !== bDL) return bDL - aDL;
 
-              const [ah, am] = (a._startTime || '00:00').split(':').map(Number);
-              const [bh, bm] = (b._startTime || '00:00').split(':').map(Number);
-              const [th, tm] = (hourTargetTime || '00:00').split(':').map(Number);
-              let diffA = Math.abs((ah * 60 + am) - (th * 60 + tm));
-              if (diffA > 720) diffA = Math.abs(diffA - 1440);
-              let diffB = Math.abs((bh * 60 + bm) - (th * 60 + tm));
-              if (diffB > 720) diffB = Math.abs(diffB - 1440);
-              if (diffA !== diffB) return diffA - diffB;
+            const [ah, am] = (a._startTime || '00:00').split(':').map(Number);
+            const [bh, bm] = (b._startTime || '00:00').split(':').map(Number);
+            const [th, tm] = (hourTargetTime || '00:00').split(':').map(Number);
+            let diffA = Math.abs((ah * 60 + am) - (th * 60 + tm));
+            if (diffA > 720) diffA = Math.abs(diffA - 1440);
+            let diffB = Math.abs((bh * 60 + bm) - (th * 60 + tm));
+            if (diffB > 720) diffB = Math.abs(diffB - 1440);
+            if (diffA !== diffB) return diffA - diffB;
 
-              return (a._startTime || '').localeCompare(b._startTime || '');
-            };
+            return (a._startTime || '').localeCompare(b._startTime || '');
+          };
 
-            const sortedCandidates = [...candidateBres].sort(rankForKeeping);
-            const keepers = sortedCandidates.slice(0, totalReqBres);
-            const surplus = sortedCandidates.slice(totalReqBres);
+          const sortedCandidates = [...candidateBres].sort(rankForKeeping);
+          const keepers = sortedCandidates.slice(0, totalReqBres);
+          const surplus = sortedCandidates.slice(totalReqBres);
 
-            // Within keepers, sort chronologically so earlier shifts go to earlier pods / 5am extra
-            keepers.sort((a, b) => (a._startTime || '').localeCompare(b._startTime || ''));
+          // Within keepers, sort chronologically so earlier shifts go to earlier pods / 5am extra
+          keepers.sort((a, b) => (a._startTime || '').localeCompare(b._startTime || ''));
 
-            // Within surplus, sort so unassigned shifts are listed first to close
-            surplus.sort((a, b) => {
-              const aAssigned = hasAssignedEmployee(a) ? 1 : 0;
-              const bAssigned = hasAssignedEmployee(b) ? 1 : 0;
-              if (aAssigned !== bAssigned) return aAssigned - bAssigned; // unassigned (0) first
-              return (a._startTime || '').localeCompare(b._startTime || '');
-            });
+          // Within surplus, sort so unassigned shifts are listed first to close
+          surplus.sort((a, b) => {
+            const aAssigned = hasAssignedEmployee(a) ? 1 : 0;
+            const bAssigned = hasAssignedEmployee(b) ? 1 : 0;
+            if (aAssigned !== bAssigned) return aAssigned - bAssigned; // unassigned (0) first
+            return (a._startTime || '').localeCompare(b._startTime || '');
+          });
 
-            candidateBres = [...keepers, ...surplus];
+          candidateBres = [...keepers, ...surplus];
 
             const targetLabel = hourTargetTime;
             const actualBresCount = candidateBres.length;
