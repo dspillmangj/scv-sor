@@ -57,6 +57,12 @@
     html {
       scroll-behavior: smooth;
     }
+
+    @media (min-width: 1440px) {
+      .workspace-docked-rail {
+        margin-right: 21rem !important;
+      }
+    }
   </style>
 </head>
 
@@ -263,12 +269,19 @@
         </div>
 
         <!-- Right: Filter Issues & Stats -->
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2 flex-wrap">
           <label
             class="inline-flex items-center gap-1.5 cursor-pointer text-xs font-bold text-slate-900 select-none bg-slate-100 px-3 py-1 rounded-lg border border-slate-300">
             <input type="checkbox" id="chkOnlyIssues" class="rounded border-slate-400 text-slate-900 focus:ring-0">
             <span>Show Issues Only (Deficit &amp; Overstaff)</span>
           </label>
+          <button type="button" id="btnToggleSideNavFromRibbon" onclick="toggleDateDrawer()"
+            class="hidden inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-xs transition select-none cursor-pointer"
+            title="Toggle Date Navigator (Alt+D)">
+            <span>📅 Dates</span>
+            <span id="ribbonDateCountBadge"
+              class="px-1.5 py-0.2 rounded bg-slate-800 text-amber-300 text-[10px] font-mono font-bold">0</span>
+          </button>
         </div>
 
       </div>
@@ -307,10 +320,94 @@
         <!-- Rendered by JS -->
       </div>
 
-      <!-- Floating Side Date Rail for wide monitors -->
+      <!-- Floating Edge Handle Tab (Unobtrusive: docked on right edge, zero data blocked) -->
+      <div id="dateRailToggleTab" class="hidden fixed right-0 top-32 z-40 transition-all duration-200">
+        <button type="button" onclick="toggleDateDrawer()"
+          class="flex items-center gap-2 py-2 px-3 bg-slate-900/95 hover:bg-slate-950 text-white rounded-l-xl shadow-xl border-l-2 border-t-2 border-b-2 border-slate-700 font-mono text-xs font-bold cursor-pointer transition select-none group focus:outline-none"
+          title="Open Date Navigator (Alt+D)">
+          <svg class="w-3.5 h-3.5 text-amber-400 group-hover:-translate-x-0.5 transition-transform" fill="none"
+            stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+          </svg>
+          <span class="tracking-wide text-[11px] font-extrabold">DATES</span>
+          <span id="dateDrawerCountBadge"
+            class="px-1.5 py-0.2 rounded bg-slate-800 text-amber-300 text-[10px] font-black border border-slate-700">0</span>
+          <div id="dateDrawerMiniPills" class="flex items-center gap-1"></div>
+        </button>
+      </div>
+
+      <!-- Backdrop for narrower screens when drawer is open -->
+      <div id="dateDrawerBackdrop" onclick="closeDateDrawer()"
+        class="hidden fixed inset-0 bg-slate-950/40 backdrop-blur-xs z-40 transition-opacity duration-200"></div>
+
+      <!-- Slide-Out Date Navigator Drawer (Smoothly slides in from right; pinnable on wide screens) -->
       <aside id="sideDateRail"
-        class="hidden min-[1580px]:flex fixed right-4 top-28 z-40 flex-col gap-1.5 bg-white/95 backdrop-blur-md p-2.5 rounded-xl border-2 border-slate-400 shadow-xl max-h-[calc(100vh-140px)] overflow-y-auto w-44 text-[11px] font-mono select-none">
-        <!-- Rendered by JS -->
+        class="hidden fixed right-0 top-0 h-screen z-50 w-80 bg-white/95 backdrop-blur-md border-l-2 border-slate-300 shadow-2xl flex flex-col font-mono text-xs select-none transition-transform duration-300 ease-in-out translate-x-full">
+        <!-- Drawer Header -->
+        <div class="px-4 py-3 bg-slate-900 text-white border-b-2 border-slate-950 flex items-center justify-between shrink-0">
+          <div class="flex items-center gap-2">
+            <div
+              class="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center font-black text-xs text-white shadow-sm">
+              📅
+            </div>
+            <div>
+              <div class="font-extrabold text-xs tracking-tight text-white flex items-center gap-2">
+                <span>Date Navigator</span>
+                <span id="sideRailDateCount"
+                  class="text-[10px] px-1.5 py-0.2 rounded bg-slate-800 text-amber-300 font-mono font-bold border border-slate-700">0</span>
+              </div>
+              <div class="text-[10px] text-slate-400 font-normal">Click to jump &bull; Esc to close</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <!-- Pin / Dock toggle -->
+            <button type="button" id="btnPinDateDrawer" onclick="togglePinDateDrawer()"
+              class="px-2 py-1 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-semibold border border-slate-700 flex items-center gap-1 transition cursor-pointer"
+              title="Pin drawer open (wide screen)">
+              <span id="pinIcon">📍</span>
+              <span id="pinText" class="text-[10px] hidden sm:inline">Pin</span>
+            </button>
+            <!-- Close button -->
+            <button type="button" onclick="closeDateDrawer()"
+              class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-rose-900/60 hover:text-rose-200 text-slate-400 flex items-center justify-center font-bold text-sm transition cursor-pointer"
+              title="Close (Esc)">
+              ✕
+            </button>
+          </div>
+        </div>
+
+        <!-- Filter & Summary Subheader inside Drawer -->
+        <div
+          class="px-3 py-2 bg-slate-100 border-b border-slate-200 flex items-center justify-between gap-1 text-[11px] shrink-0">
+          <div class="flex items-center gap-1">
+            <button type="button" id="btnRailFilterAll" onclick="setRailFilter('ALL')"
+              class="px-2 py-0.5 rounded font-bold transition bg-slate-900 text-white shadow-2xs cursor-pointer">
+              All (<span id="railCountAll">0</span>)
+            </button>
+            <button type="button" id="btnRailFilterIssues" onclick="setRailFilter('ISSUES')"
+              class="px-2 py-0.5 rounded font-bold transition text-slate-700 hover:bg-slate-200 cursor-pointer">
+              Issues (<span id="railCountIssues">0</span>)
+            </button>
+          </div>
+          <div id="railTotalsSummary" class="text-[10px] font-bold text-slate-600 flex items-center gap-1"></div>
+        </div>
+
+        <!-- Scrollable List of Dates -->
+        <div id="sideRailListContainer" class="p-2.5 overflow-y-auto flex-1 space-y-1.5 scrollbar-thin">
+          <!-- Populated by JS -->
+        </div>
+
+        <!-- Drawer Footer -->
+        <div
+          class="px-3 py-2 bg-slate-50 border-t border-slate-200 text-[10px] text-slate-500 flex items-center justify-between shrink-0">
+          <span>Shortcuts: <kbd
+              class="px-1 py-0.2 bg-white border border-slate-300 rounded font-bold text-slate-700">Alt+D</kbd> or
+            <kbd class="px-1 py-0.2 bg-white border border-slate-300 rounded font-bold text-slate-700">Esc</kbd></span>
+          <button type="button" onclick="window.scrollTo({top: 0, behavior: 'smooth'})"
+            class="text-blue-600 hover:text-blue-800 font-bold hover:underline cursor-pointer">
+            ↑ Top
+          </button>
+        </div>
       </aside>
 
       <!-- Content Container -->
@@ -1942,85 +2039,443 @@
             }
           }
 
-    function jumpToDate(dateKey) {
-            const el = document.getElementById(`date-sec-${dateKey}`);
-            if (el) {
-              el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-          }
-    window.jumpToDate = jumpToDate;
+    let isDateDrawerOpen = false;
+    let isDateDrawerPinned = (typeof localStorage !== 'undefined') ? (localStorage.getItem('proto_side_rail_pinned') === 'true') : false;
+    let railFilterMode = 'ALL';
+    let lastActiveDateKey = null;
+    let cachedDateSummaries = [];
 
-        function renderDateNavRails(dateSummaries) {
-          const jumpBar = document.getElementById('dateQuickJumpBar');
-          const sideRail = document.getElementById('sideDateRail');
-          if (!jumpBar && !sideRail) return;
+    function getCategoryBadgesHtml(ds, compact = false) {
+      const badges = [];
+      if (ds.under > 0) {
+        badges.push(`
+          <span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-rose-200 text-rose-950 border border-rose-400 shadow-2xs" title="${ds.under} Understaffed Breakers">
+            -${ds.under}${compact ? '' : ' Short'}
+          </span>
+        `);
+      }
+      if (ds.over > 0) {
+        badges.push(`
+          <span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-amber-200 text-amber-950 border border-amber-400 shadow-2xs" title="${ds.over} Overstaffed Breakers">
+            +${ds.over}${compact ? '' : ' Over'}
+          </span>
+        `);
+      }
+      if (ds.offsets > 0) {
+        badges.push(`
+          <span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-sky-200 text-sky-950 border border-sky-400 shadow-2xs" title="${ds.offsets} Time Offsets">
+            &#9888; ${ds.offsets}${compact ? '' : ' Offset' + (ds.offsets > 1 ? 's' : '')}
+          </span>
+        `);
+      }
+      if (badges.length === 0) {
+        badges.push(`
+          <span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-emerald-200 text-emerald-950 border border-emerald-400 shadow-2xs" title="100% Fully Covered">
+            &check; ${compact ? '100%' : '100% Covered'}
+          </span>
+        `);
+      }
+      return badges.join('');
+    }
 
-          if (!dateSummaries || dateSummaries.length <= 1) {
-            if (jumpBar) jumpBar.classList.add('hidden');
-            if (sideRail) sideRail.classList.add('hidden');
-            return;
-          }
+    function applyDrawerPinState() {
+      const pinIcon = document.getElementById('pinIcon');
+      const pinText = document.getElementById('pinText');
+      const btnPin = document.getElementById('btnPinDateDrawer');
+      const workspace = document.getElementById('activeWorkspace');
 
-          if (jumpBar) {
-            jumpBar.classList.remove('hidden');
-            let barHtml = `
-          <div class="flex items-center gap-1.5 text-slate-800 font-extrabold text-[11px] uppercase tracking-wider shrink-0 mr-1">
-            <svg class="w-3.5 h-3.5 text-slate-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-            <span>Jump to Date:</span>
+      if (isDateDrawerPinned) {
+        if (pinIcon) pinIcon.textContent = '📌';
+        if (pinText) pinText.textContent = 'Pinned';
+        if (btnPin) {
+          btnPin.className = 'px-2 py-1 rounded-md bg-blue-600 hover:bg-blue-500 text-white text-[11px] font-bold border border-blue-400 flex items-center gap-1 transition cursor-pointer shadow-xs';
+        }
+        if (typeof window !== 'undefined' && window.innerWidth >= 1440 && workspace && isDateDrawerOpen) {
+          workspace.classList.add('workspace-docked-rail');
+        }
+      } else {
+        if (pinIcon) pinIcon.textContent = '📍';
+        if (pinText) pinText.textContent = 'Pin';
+        if (btnPin) {
+          btnPin.className = 'px-2 py-1 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-semibold border border-slate-700 flex items-center gap-1 transition cursor-pointer';
+        }
+        if (workspace) {
+          workspace.classList.remove('workspace-docked-rail');
+        }
+      }
+    }
+
+    function openDateDrawer() {
+      const drawer = document.getElementById('sideDateRail');
+      const backdrop = document.getElementById('dateDrawerBackdrop');
+      const toggleTab = document.getElementById('dateRailToggleTab');
+      const workspace = document.getElementById('activeWorkspace');
+      if (!drawer) return;
+
+      isDateDrawerOpen = true;
+      drawer.classList.remove('hidden', 'translate-x-full');
+      drawer.classList.add('translate-x-0');
+
+      if (backdrop) {
+        if (typeof window !== 'undefined' && (window.innerWidth < 1440 || !isDateDrawerPinned)) {
+          backdrop.classList.remove('hidden');
+        } else {
+          backdrop.classList.add('hidden');
+        }
+      }
+
+      if (toggleTab) {
+        toggleTab.classList.add('opacity-0', 'pointer-events-none');
+      }
+
+      if (typeof window !== 'undefined' && isDateDrawerPinned && window.innerWidth >= 1440 && workspace) {
+        workspace.classList.add('workspace-docked-rail');
+      }
+
+      updateActiveDateInRail();
+    }
+
+    function closeDateDrawer() {
+      const drawer = document.getElementById('sideDateRail');
+      const backdrop = document.getElementById('dateDrawerBackdrop');
+      const toggleTab = document.getElementById('dateRailToggleTab');
+      const workspace = document.getElementById('activeWorkspace');
+      if (!drawer) return;
+
+      isDateDrawerOpen = false;
+      drawer.classList.remove('translate-x-0');
+      drawer.classList.add('translate-x-full');
+
+      if (backdrop) {
+        backdrop.classList.add('hidden');
+      }
+
+      if (toggleTab) {
+        toggleTab.classList.remove('opacity-0', 'pointer-events-none');
+      }
+
+      if (workspace) {
+        workspace.classList.remove('workspace-docked-rail');
+      }
+    }
+
+    function toggleDateDrawer() {
+      if (isDateDrawerOpen) {
+        closeDateDrawer();
+      } else {
+        openDateDrawer();
+      }
+    }
+
+    function togglePinDateDrawer() {
+      isDateDrawerPinned = !isDateDrawerPinned;
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('proto_side_rail_pinned', isDateDrawerPinned ? 'true' : 'false');
+      }
+      applyDrawerPinState();
+      const backdrop = document.getElementById('dateDrawerBackdrop');
+      if (backdrop) {
+        if (typeof window !== 'undefined' && (window.innerWidth < 1440 || !isDateDrawerPinned)) {
+          if (isDateDrawerOpen) backdrop.classList.remove('hidden');
+        } else {
+          backdrop.classList.add('hidden');
+        }
+      }
+    }
+
+    function setRailFilter(mode) {
+      railFilterMode = mode;
+      const btnAll = document.getElementById('btnRailFilterAll');
+      const btnIssues = document.getElementById('btnRailFilterIssues');
+      if (mode === 'ALL') {
+        if (btnAll) btnAll.className = 'px-2 py-0.5 rounded font-bold transition bg-slate-900 text-white shadow-2xs cursor-pointer';
+        if (btnIssues) btnIssues.className = 'px-2 py-0.5 rounded font-bold transition text-slate-700 hover:bg-slate-200 cursor-pointer';
+      } else {
+        if (btnAll) btnAll.className = 'px-2 py-0.5 rounded font-bold transition text-slate-700 hover:bg-slate-200 cursor-pointer';
+        if (btnIssues) btnIssues.className = 'px-2 py-0.5 rounded font-bold transition bg-slate-900 text-white shadow-2xs cursor-pointer';
+      }
+      renderDrawerDateList();
+    }
+
+    function renderDrawerDateList() {
+      const container = document.getElementById('sideRailListContainer');
+      if (!container || !cachedDateSummaries) return;
+
+      const list = (railFilterMode === 'ISSUES')
+        ? cachedDateSummaries.filter(ds => (ds.under > 0 || ds.over > 0 || ds.offsets > 0))
+        : cachedDateSummaries;
+
+      if (list.length === 0) {
+        container.innerHTML = `
+          <div class="p-6 text-center text-slate-500 font-semibold text-xs bg-slate-50 rounded-xl border border-dashed border-slate-300 my-2">
+            ${railFilterMode === 'ISSUES' ? 'No dates with staffing issues!' : 'No dates available.'}
           </div>
-          <div class="flex items-center gap-1.5 flex-wrap">
         `;
-            dateSummaries.forEach(ds => {
-              let pillBg = 'bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-300';
-              let badge = '<span class="text-emerald-700 font-bold">&check;</span>';
-              if (ds.under > 0) {
-                pillBg = 'bg-rose-50 hover:bg-rose-100 text-rose-950 border-rose-300';
-                badge = `<span class="px-1 py-0.2 rounded bg-rose-200 text-rose-950 text-[10px] font-extrabold">-${ds.under}</span>`;
-              } else if (ds.over > 0) {
-                pillBg = 'bg-amber-50 hover:bg-amber-100 text-amber-950 border-amber-300';
-                badge = `<span class="px-1 py-0.2 rounded bg-amber-200 text-amber-950 text-[10px] font-extrabold">+${ds.over}</span>`;
-              }
-              barHtml += `
-            <button type="button" onclick="jumpToDate('${ds.key}')" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border-2 text-xs font-bold transition-all shadow-2xs ${pillBg}">
-              <span>${ds.literal || ds.date}</span>
-              ${badge}
-            </button>
-          `;
-            });
-            barHtml += `</div>`;
-            jumpBar.innerHTML = barHtml;
-          }
+        return;
+      }
 
-          if (sideRail) {
-            sideRail.classList.remove('hidden');
-            let sideHtml = `
-          <div class="flex items-center justify-between pb-1.5 mb-1 border-b border-slate-200 text-slate-800 font-bold text-[10px] uppercase tracking-wider">
-            <span>Dates (${dateSummaries.length})</span>
-            <span class="text-[9px] text-slate-500 font-normal">Side Jump</span>
-          </div>
-          <div class="flex flex-col gap-1">
+      let html = '';
+      list.forEach(ds => {
+        let toneClass = 'bg-white hover:bg-slate-50 border-slate-300 text-slate-900';
+        if (ds.under > 0) {
+          toneClass = 'bg-rose-50/60 hover:bg-rose-100/80 border-rose-300 text-slate-950';
+        } else if (ds.over > 0) {
+          toneClass = 'bg-amber-50/60 hover:bg-amber-100/80 border-amber-300 text-slate-950';
+        } else if (ds.offsets > 0) {
+          toneClass = 'bg-sky-50/60 hover:bg-sky-100/80 border-sky-300 text-slate-950';
+        }
+
+        const isActive = (lastActiveDateKey === ds.key);
+        const activeClass = isActive ? 'ring-2 ring-blue-600 border-blue-600 bg-blue-50/70' : '';
+        const badgesHtml = getCategoryBadgesHtml(ds, false);
+
+        html += `
+          <button type="button"
+            id="rail-btn-${ds.key}"
+            onclick="jumpToDate('${ds.key}')"
+            class="w-full text-left p-2.5 rounded-xl border-2 transition-all shadow-2xs hover:shadow-xs flex flex-col gap-1.5 cursor-pointer ${toneClass} ${activeClass}">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-1.5">
+                <span class="font-extrabold text-xs text-slate-950">${ds.literal || ds.date}</span>
+                <span class="text-[10px] text-slate-500 font-mono">(${ds.date})</span>
+              </div>
+              <span class="text-[10px] text-slate-600 font-semibold font-mono">${ds.shifts} shifts</span>
+            </div>
+            <div class="flex items-center gap-1 flex-wrap">
+              ${badgesHtml}
+            </div>
+          </button>
         `;
-            dateSummaries.forEach(ds => {
-              let btnBg = 'bg-slate-50 hover:bg-slate-100 text-slate-800 border-slate-300';
-              let badge = '<span class="text-emerald-600 font-bold text-[10px]">&check;</span>';
-              if (ds.under > 0) {
-                btnBg = 'bg-rose-50 hover:bg-rose-100 text-rose-950 border-rose-300';
-                badge = `<span class="px-1.5 py-0.2 rounded bg-rose-200 text-rose-950 text-[10px] font-extrabold">-${ds.under}</span>`;
-              } else if (ds.over > 0) {
-                btnBg = 'bg-amber-50 hover:bg-amber-100 text-amber-950 border-amber-300';
-                badge = `<span class="px-1.5 py-0.2 rounded bg-amber-200 text-amber-950 text-[10px] font-extrabold">+${ds.over}</span>`;
-              }
-              sideHtml += `
-            <button type="button" onclick="jumpToDate('${ds.key}')" class="flex items-center justify-between px-2 py-1 rounded-lg border text-left transition-all ${btnBg}">
-              <span class="font-bold truncate text-[10px]">${ds.literal || ds.date}</span>
-              ${badge}
-            </button>
-          `;
-            });
-            sideHtml += `</div>`;
-            sideRail.innerHTML = sideHtml;
+      });
+
+      container.innerHTML = html;
+    }
+
+    function setActiveDateInDrawer(dateKey) {
+      if (lastActiveDateKey === dateKey) return;
+      lastActiveDateKey = dateKey;
+      if (!cachedDateSummaries) return;
+
+      cachedDateSummaries.forEach(ds => {
+        const btn = document.getElementById(`rail-btn-${ds.key}`);
+        if (btn) {
+          if (ds.key === dateKey) {
+            btn.classList.add('ring-2', 'ring-blue-600', 'border-blue-600', 'bg-blue-50/70');
+          } else {
+            btn.classList.remove('ring-2', 'ring-blue-600', 'border-blue-600', 'bg-blue-50/70');
           }
         }
+      });
+    }
+
+    function updateActiveDateInRail() {
+      if (!cachedDateSummaries || cachedDateSummaries.length === 0) return;
+      if (typeof window === 'undefined' || !window.scrollY) return;
+      const scrollPos = (window.scrollY || 0) + 140;
+      let activeKey = null;
+
+      for (let i = 0; i < cachedDateSummaries.length; i++) {
+        const ds = cachedDateSummaries[i];
+        const el = document.getElementById(`date-sec-${ds.key}`);
+        if (el) {
+          const top = el.offsetTop || 0;
+          const height = el.offsetHeight || 0;
+          if (scrollPos >= top && scrollPos < top + height) {
+            activeKey = ds.key;
+            break;
+          }
+        }
+      }
+
+      if (activeKey) {
+        setActiveDateInDrawer(activeKey);
+      }
+    }
+
+    function jumpToDate(dateKey) {
+      const el = document.getElementById(`date-sec-${dateKey}`);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        el.classList.add('ring-4', 'ring-blue-500/60', 'transition-all');
+        setTimeout(() => {
+          el.classList.remove('ring-4', 'ring-blue-500/60');
+        }, 1500);
+      }
+
+      setActiveDateInDrawer(dateKey);
+
+      // On narrower screens or when unpinned, auto-close the drawer so data is 100% visible and unblocked
+      if (typeof window !== 'undefined' && (window.innerWidth < 1440 || !isDateDrawerPinned)) {
+        closeDateDrawer();
+      }
+    }
+    window.jumpToDate = jumpToDate;
+    window.openDateDrawer = openDateDrawer;
+    window.closeDateDrawer = closeDateDrawer;
+    window.toggleDateDrawer = toggleDateDrawer;
+    window.togglePinDateDrawer = togglePinDateDrawer;
+    window.setRailFilter = setRailFilter;
+
+    function renderDateNavRails(dateSummaries) {
+      cachedDateSummaries = dateSummaries || [];
+      const jumpBar = document.getElementById('dateQuickJumpBar');
+      const sideRail = document.getElementById('sideDateRail');
+      const toggleTab = document.getElementById('dateRailToggleTab');
+      const ribbonBtn = document.getElementById('btnToggleSideNavFromRibbon');
+
+      if (!dateSummaries || dateSummaries.length <= 1) {
+        if (jumpBar) jumpBar.classList.add('hidden');
+        if (sideRail) sideRail.classList.add('hidden');
+        if (toggleTab) toggleTab.classList.add('hidden');
+        if (ribbonBtn) ribbonBtn.classList.add('hidden');
+        closeDateDrawer();
+        return;
+      }
+
+      // Compute total issue metrics across all dates
+      let totalAllUnder = 0;
+      let totalAllOver = 0;
+      let totalAllOffsets = 0;
+      dateSummaries.forEach(ds => {
+        totalAllUnder += ds.under;
+        totalAllOver += ds.over;
+        totalAllOffsets += ds.offsets;
+      });
+
+      // Show ribbon button
+      if (ribbonBtn) {
+        ribbonBtn.classList.remove('hidden');
+        const ribbonBadge = document.getElementById('ribbonDateCountBadge');
+        if (ribbonBadge) ribbonBadge.textContent = dateSummaries.length;
+      }
+
+      // 1. Render Top Quick Jump Bar
+      if (jumpBar) {
+        jumpBar.classList.remove('hidden');
+        let buttonsHtml = '';
+        dateSummaries.forEach(ds => {
+          let pillTone = 'bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-300';
+          if (ds.under > 0) {
+            pillTone = 'bg-rose-50 hover:bg-rose-100 text-rose-950 border-rose-300';
+          } else if (ds.over > 0) {
+            pillTone = 'bg-amber-50 hover:bg-amber-100 text-amber-950 border-amber-300';
+          } else if (ds.offsets > 0) {
+            pillTone = 'bg-sky-50 hover:bg-sky-100 text-sky-950 border-sky-300';
+          }
+          const badgesHtml = getCategoryBadgesHtml(ds, true);
+          buttonsHtml += `
+            <button type="button" onclick="jumpToDate('${ds.key}')"
+              class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border-2 text-xs font-bold transition-all shadow-2xs cursor-pointer ${pillTone}">
+              <span>${ds.literal || ds.date}</span>
+              <div class="flex items-center gap-1">
+                ${badgesHtml}
+              </div>
+            </button>
+          `;
+        });
+
+        jumpBar.innerHTML = `
+          <div class="flex items-center justify-between w-full flex-wrap gap-2">
+            <div class="flex items-center gap-1.5 text-slate-800 font-extrabold text-[11px] uppercase tracking-wider shrink-0">
+              <svg class="w-3.5 h-3.5 text-slate-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+              <span>Jump to Date:</span>
+            </div>
+            <button type="button" onclick="openDateDrawer()"
+              class="ml-auto inline-flex items-center gap-1 text-[11px] font-bold text-blue-700 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 px-2.5 py-0.5 rounded-md border border-blue-200 transition cursor-pointer">
+              <span>Open Side Navigator</span>
+              <span class="text-xs">&rsaquo;</span>
+            </button>
+          </div>
+          <div class="flex items-center gap-1.5 flex-wrap mt-1">
+            ${buttonsHtml}
+          </div>
+        `;
+      }
+
+      // 2. Render Floating Edge Handle Tab
+      if (toggleTab) {
+        toggleTab.classList.remove('hidden');
+        const countBadge = document.getElementById('dateDrawerCountBadge');
+        if (countBadge) countBadge.textContent = dateSummaries.length;
+
+        const miniPills = document.getElementById('dateDrawerMiniPills');
+        if (miniPills) {
+          let p = '';
+          if (totalAllUnder > 0) p += `<span class="px-1 py-0.2 rounded bg-rose-500 text-white text-[9px] font-black" title="${totalAllUnder} Understaffed">-${totalAllUnder}</span>`;
+          if (totalAllOver > 0) p += `<span class="px-1 py-0.2 rounded bg-amber-500 text-slate-950 text-[9px] font-black" title="${totalAllOver} Overstaffed">+${totalAllOver}</span>`;
+          if (totalAllOffsets > 0) p += `<span class="px-1 py-0.2 rounded bg-sky-400 text-slate-950 text-[9px] font-black" title="${totalAllOffsets} Offsets">&#9888;${totalAllOffsets}</span>`;
+          if (!p) p = `<span class="px-1 py-0.2 rounded bg-emerald-500 text-white text-[9px] font-black">&check;</span>`;
+          miniPills.innerHTML = p;
+        }
+      }
+
+      // 3. Populate Drawer Panel
+      if (sideRail) {
+        sideRail.classList.remove('hidden');
+
+        const sideCount = document.getElementById('sideRailDateCount');
+        if (sideCount) sideCount.textContent = dateSummaries.length;
+
+        const railCountAll = document.getElementById('railCountAll');
+        if (railCountAll) railCountAll.textContent = dateSummaries.length;
+
+        const issuesCount = dateSummaries.filter(ds => (ds.under > 0 || ds.over > 0 || ds.offsets > 0)).length;
+        const railCountIssues = document.getElementById('railCountIssues');
+        if (railCountIssues) railCountIssues.textContent = issuesCount;
+
+        const railTotalsSummary = document.getElementById('railTotalsSummary');
+        if (railTotalsSummary) {
+          let s = [];
+          if (totalAllUnder > 0) s.push(`<span class="text-rose-700 font-black">-${totalAllUnder}</span>`);
+          if (totalAllOver > 0) s.push(`<span class="text-amber-800 font-black">+${totalAllOver}</span>`);
+          if (totalAllOffsets > 0) s.push(`<span class="text-sky-800 font-black">&#9888;${totalAllOffsets}</span>`);
+          railTotalsSummary.innerHTML = s.join(' &bull; ') || '<span class="text-emerald-700 font-bold">&check; 100%</span>';
+        }
+
+        renderDrawerDateList();
+        applyDrawerPinState();
+
+        // If pinned on wide screen, open by default
+        if (typeof window !== 'undefined' && isDateDrawerPinned && window.innerWidth >= 1440) {
+          openDateDrawer();
+        }
+      }
+    }
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('scroll', () => {
+        if (window.railScrollThrottle) return;
+        window.railScrollThrottle = setTimeout(() => {
+          window.railScrollThrottle = null;
+          updateActiveDateInRail();
+        }, 120);
+      });
+
+      window.addEventListener('resize', () => {
+        applyDrawerPinState();
+        if (isDateDrawerOpen) {
+          const backdrop = document.getElementById('dateDrawerBackdrop');
+          if (backdrop) {
+            if (window.innerWidth < 1440 || !isDateDrawerPinned) {
+              backdrop.classList.remove('hidden');
+            } else {
+              backdrop.classList.add('hidden');
+            }
+          }
+        }
+      });
+
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && isDateDrawerOpen) {
+          closeDateDrawer();
+          return;
+        }
+        if ((e.altKey && (e.key === 'd' || e.key === 'D')) || (e.ctrlKey && e.altKey && e.key.toLowerCase() === 'd')) {
+          e.preventDefault();
+          toggleDateDrawer();
+        }
+      });
+    }
 
         function renderFacilityBlock(data) {
           const card = document.createElement('div');
