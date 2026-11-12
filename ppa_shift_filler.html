@@ -223,6 +223,18 @@
             <span id="badgeWeekEnding"
               class="px-2.5 py-0.5 rounded text-[11px] font-bold bg-slate-800 text-slate-300 border border-slate-700 font-mono">Week
               Ending: No CSV Loaded</span>
+            <!-- 3-File Status Indicators -->
+            <div id="headerFileStatusBadges" class="flex items-center gap-1.5 flex-wrap">
+              <button onclick="openUploadModal()" id="badgeStatusPPA" class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1 hover:bg-amber-500/30 transition-colors">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> PPA: Missing
+              </button>
+              <button onclick="openUploadModal()" id="badgeStatusEMP" class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1 hover:bg-amber-500/30 transition-colors">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> EMP: Missing
+              </button>
+              <button onclick="openUploadModal()" id="badgeStatusWW" class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1 hover:bg-amber-500/30 transition-colors">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> WW: Missing
+              </button>
+            </div>
             <span id="badgeGroundTruth"
               class="hidden px-2.5 py-0.5 rounded text-[11px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> WinTeam Report: Authoritative
@@ -242,30 +254,28 @@
       <!-- Action & View Controls -->
       <div class="flex items-center gap-2 flex-wrap">
 
-        <!-- TWO PRIMARY APP MODES -->
+        <!-- TWO PRIMARY APP MODES (Default to Open Shifts & WinTeam Allocator) -->
         <div class="flex bg-slate-800 p-0.5 rounded-lg border border-slate-700 text-xs font-semibold">
-          <button id="modeBtnPeople" onclick="switchMainTab('people')"
-            class="px-3.5 py-1.5 rounded-md bg-blue-600 text-white shadow-sm flex items-center gap-2 transition-all">
-            <svg class="w-4 h-4 text-blue-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-            </svg>
-            <div class="text-left">
-              <span class="block font-bold leading-tight">Specialist Roster &amp; Schedule Grid</span>
-              <span class="block text-[10px] font-normal text-blue-200 leading-tight">Working Weeks Order &bull; WinTeam
-                Authoritative Hours</span>
-            </div>
-          </button>
           <button id="modeBtnShift" onclick="switchMainTab('shift')"
-            class="px-3.5 py-1.5 rounded-md text-slate-300 hover:text-white flex items-center gap-2 transition-all">
-            <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            class="px-3.5 py-1.5 rounded-md bg-blue-600 text-white shadow-sm flex items-center gap-2 transition-all">
+            <svg class="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round"
                 d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
             <div class="text-left">
-              <span class="block font-bold leading-tight">Open Shifts &amp; Ranked Candidates</span>
-              <span class="block text-[10px] font-normal text-slate-400 leading-tight">Day-by-Day Shifts &bull; Best
-                Matching Officers</span>
+              <span class="block font-bold leading-tight">Open Shifts &amp; WinTeam Allocator</span>
+              <span class="block text-[10px] font-normal text-blue-200 leading-tight">4 Job Codes &bull; WinTeam Sorted &bull; Fast Assign</span>
+            </div>
+          </button>
+          <button id="modeBtnPeople" onclick="switchMainTab('people')"
+            class="px-3.5 py-1.5 rounded-md text-slate-300 hover:text-white flex items-center gap-2 transition-all">
+            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            <div class="text-left">
+              <span class="block font-bold leading-tight">Specialist Roster Grid</span>
+              <span class="block text-[10px] font-normal text-slate-400 leading-tight">WW Seniority &bull; All Specialists</span>
             </div>
           </button>
         </div>
@@ -448,7 +458,7 @@
   </section>
 
   <!-- STICKY SHIFT LINKER BAR (Links Open Shifts to Specialists directly on the Grid) -->
-  <section class="bg-slate-800 text-white border-b border-slate-700 px-4 py-2 sticky top-[57px] z-30 shadow-sm">
+  <section class="bg-slate-800 text-white border-b border-slate-700 px-4 py-2 sticky top-[57px] z-30 shadow-sm hidden">
     <div class="max-w-[1920px] mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-2.5">
 
       <!-- Open Shift Selector -->
@@ -499,7 +509,7 @@
 
     <!-- VIEW 1: SUPERCHARGED WORKING WEEKS MASTER GRID -->
     <div id="viewWorkingWeeksGrid"
-      class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden flex flex-col">
+      class="hidden bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden flex flex-col">
 
       <!-- Toolbar & Rules Alert -->
       <div
@@ -617,13 +627,32 @@
     </div>
 
     <!-- VIEW 2: SHIFT-FIRST MODE (Day-by-Day Shifts & Best Officers) -->
-    <div id="viewShiftFirst" class="hidden flex flex-col gap-4">
+    <div id="viewShiftFirst" class="flex flex-col gap-4">
 
       <!-- Day-by-Day Ribbon Bar & Shift Filters -->
       <div class="bg-white border border-slate-200 rounded-xl shadow-xs p-3.5 flex flex-col gap-3">
 
+        <!-- Four Job Codes Navigation Ribbon -->
+        <div class="flex items-center justify-between gap-2 flex-wrap pb-2.5 border-b border-slate-100">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-xs font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-1.5 shrink-0">
+              <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              </svg>
+              <span>Job Codes:</span>
+            </span>
+            <div id="shiftFirstJobRibbon" class="flex items-center gap-1.5 flex-wrap">
+              <!-- Rendered dynamically: All 4 Jobs, 233265, 235144, 266778, 267588 -->
+            </div>
+          </div>
+          <div class="text-[11px] text-slate-500 font-medium hidden lg:flex items-center gap-2">
+            <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-semibold border border-slate-200">WinTeam Law + WW Reference</span>
+            <span>Target &lt;45.0h &bull; 8h Rest Rule Enforced</span>
+          </div>
+        </div>
+
         <!-- Day Navigation Tabs Ribbon -->
-        <div class="flex items-center justify-between gap-2 flex-wrap pb-2 border-b border-slate-100">
+        <div class="flex items-center justify-between gap-2 flex-wrap pb-1 border-b border-slate-100">
           <div class="flex items-center gap-2 flex-wrap">
             <span class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5 shrink-0">
               <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -635,9 +664,6 @@
             <div id="shiftFirstDayRibbon" class="flex items-center gap-1.5 flex-wrap">
               <!-- Rendered dynamically -->
             </div>
-          </div>
-          <div class="text-[11px] text-slate-500 font-medium hidden lg:block">
-            Weekly Target: &lt;45h &bull; Same-Post Rollover Allowed &bull; Diff Post Max 8h
           </div>
         </div>
 
@@ -671,13 +697,14 @@
               <option value="under45">Under 45h Cap Only</option>
             </select>
 
-            <!-- Sort By -->
+            <!-- Sort By: Default to WinTeam Order -->
             <select id="selectShiftFirstSort" onchange="handleShiftFirstSortChange(this.value)"
-              class="text-xs bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 focus:ring-1 focus:ring-blue-500 font-medium">
+              class="text-xs bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 focus:ring-1 focus:ring-blue-500 font-semibold text-slate-800">
+              <option value="winteam">Sort: WinTeam Order (Start Time &rarr; Post &rarr; ShiftID)</option>
+              <option value="post">Sort: WinTeam Post (Post Description &rarr; Time)</option>
               <option value="time">Sort: Earliest Start Time</option>
               <option value="hours">Sort: Shift Hours (High &rarr; Low)</option>
-              <option value="post">Sort: Post Description</option>
-              <option value="candidates">Sort: Most Officers Available</option>
+              <option value="candidates">Sort: Fewest Candidates (Hardest to Fill)</option>
             </select>
           </div>
 
@@ -1075,19 +1102,23 @@
     </div>
   </div>
 
-  <!-- MODAL: UPLOAD CSVs -->
+  <!-- MODAL: UPLOAD CSVs (Supports PPA, EMP, & Working Weeks with Auto-Detection) -->
   <div id="modalUpload"
     class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
     <div
-      class="bg-white rounded-xl shadow-2xl border border-slate-200 max-w-lg w-full flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+      class="bg-white rounded-xl shadow-2xl border border-slate-200 max-w-2xl w-full flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
 
       <div class="p-4 border-b border-slate-200 bg-slate-900 text-white flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-          </svg>
-          <h3 class="font-bold text-sm text-white">Load Schedule & Working Weeks Files</h3>
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+            </svg>
+          </div>
+          <div>
+            <h3 class="font-bold text-sm text-white">Load Rostering & Schedule CSVs</h3>
+            <div class="text-[11px] text-slate-400">Upload PPA, EMP, & Working Weeks &bull; Auto-detects each file</div>
+          </div>
         </div>
         <button onclick="closeUploadModal()" class="text-slate-400 hover:text-white p-1 rounded-md">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -1096,72 +1127,110 @@
         </button>
       </div>
 
-      <div class="p-5 flex flex-col gap-4 text-xs">
+      <div class="p-5 flex flex-col gap-4 text-xs max-h-[80vh] overflow-y-auto">
 
-        <!-- Quick Load Option -->
-        <div
-          class="p-3.5 rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 flex items-center justify-between gap-3">
-          <div>
-            <div class="font-bold text-blue-900 text-xs">Quick-Load Workspace Files</div>
-            <div class="text-[11px] text-blue-700">Instantly load <code>PPA.csv</code> (WinTeam Report) &amp; Working
-              Weeks CSV from the current project directory.</div>
+        <!-- Unified Drag & Drop Zone: Auto-detects all 3 files -->
+        <div id="modalDropZone"
+          ondragover="event.preventDefault(); this.classList.add('border-blue-500', 'bg-blue-50/60');"
+          ondragleave="this.classList.remove('border-blue-500', 'bg-blue-50/60');"
+          ondrop="event.preventDefault(); this.classList.remove('border-blue-500', 'bg-blue-50/60'); handleFiles(event.dataTransfer.files);"
+          class="border-2 border-dashed border-blue-300 rounded-xl p-5 text-center bg-blue-50/30 transition-all cursor-pointer hover:border-blue-500 hover:bg-blue-50/50">
+          <svg class="w-10 h-10 text-blue-500 mx-auto mb-2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+          </svg>
+          <div class="font-bold text-slate-900 text-sm">Drop All 3 Files Here (or click to select)</div>
+          <p class="text-[11px] text-slate-600 mt-1 max-w-md mx-auto">
+            Select or drag <strong>PPA.csv</strong>, <strong>EMP.csv</strong>, and <strong>Working Weeks CSV</strong> all at once. The system automatically inspects headers and routes each file!
+          </p>
+          <div class="mt-3 flex items-center justify-center gap-2">
+            <label class="cursor-pointer px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+              </svg>
+              <span>Select CSV Files (Multiple Allowed)</span>
+              <input type="file" id="inputMultiFiles" accept=".csv" multiple class="hidden" onchange="handleMultiFileInput(event)" />
+            </label>
+            <button onclick="quickLoadWorkspaceFiles()" class="px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-semibold text-xs transition-all flex items-center gap-1.5" title="Attempt auto-loading from server workspace">
+              <svg class="w-3.5 h-3.5 text-blue-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+              <span>Quick Auto-Load</span>
+            </button>
           </div>
-          <button onclick="quickLoadWorkspaceFiles()"
-            class="px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-sm shrink-0 flex items-center gap-1.5">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-            <span>Load Workspace Files</span>
-          </button>
         </div>
 
-        <div
-          class="border-2 border-dashed border-slate-300 rounded-xl p-4 text-center hover:border-emerald-500 transition-colors bg-slate-50/50">
-          <div class="font-bold text-slate-800 text-xs mb-0.5">1. WinTeam Schedule Report (Authoritative Law &amp;
-            Shifts)</div>
-          <div
-            class="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 mb-2">
-            Treated as Law</div>
-          <p class="text-[11px] text-slate-600 mb-2.5 max-w-md mx-auto">
-            Contains all confirmed shifts and open slots (blank Employee ID). Dictates true scheduled hours and whether
-            an officer is scheduled on each day.
-          </p>
-          <label
-            class="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-sm transition-all">
-            <span>Choose WinTeam Report (PPA.csv)</span>
-            <input type="file" id="inputPPAFile" accept=".csv" class="hidden"
-              onchange="handleFileUpload(event, 'ppa')" />
-          </label>
-          <div id="uploadStatusPPA" class="text-[11px] text-amber-600 font-semibold mt-2">No WinTeam Report loaded yet
-            (Required)</div>
-        </div>
+        <!-- 3 File Status & Individual Pickers -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
 
-        <div
-          class="border-2 border-dashed border-slate-300 rounded-xl p-4 text-center hover:border-blue-500 transition-colors bg-slate-50/50">
-          <div class="font-bold text-slate-800 text-xs mb-0.5">2. Working Weeks Availability File (Permanent Preferred
-            Availability)</div>
-          <div
-            class="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-200 mb-2">
-            Reference Sheet &bull; Dictated by WinTeam</div>
-          <p class="text-[11px] text-slate-600 mb-2.5 max-w-md mx-auto">
-            Used as reference for 1st Choice, 2nd Choice, and Hired Availability windows, plus operational notes. Its
-            hours and WT columns are superseded by WinTeam.
-          </p>
-          <label
-            class="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-sm transition-all">
-            <span>Choose Working Weeks CSV</span>
-            <input type="file" id="inputWWFile" accept=".csv" class="hidden" onchange="handleFileUpload(event, 'ww')" />
-          </label>
-          <div id="uploadStatusWW" class="text-[11px] text-amber-600 font-semibold mt-2">No Working Weeks CSV loaded yet
-            (Required)</div>
+          <!-- 1. PPA File Card -->
+          <div id="cardStatusPPA" class="p-3.5 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between gap-2.5">
+            <div>
+              <div class="flex items-center justify-between gap-1 mb-1">
+                <span class="font-extrabold text-slate-900 text-xs">1. PPA.csv</span>
+                <span class="px-1.5 py-0.2 rounded text-[9.5px] font-bold bg-blue-100 text-blue-800 border border-blue-200">Open Shifts</span>
+              </div>
+              <p class="text-[10.5px] text-slate-600 leading-tight">
+                Contains open post shifts to fill across 4 job codes.
+              </p>
+              <div id="uploadStatusPPA" class="text-[11px] text-amber-700 font-semibold mt-2">
+                Not loaded yet
+              </div>
+            </div>
+            <label class="cursor-pointer w-full text-center py-1.5 px-2 rounded-lg bg-white border border-slate-300 hover:border-blue-500 text-slate-700 font-bold text-[11px] shadow-2xs transition-all block">
+              <span>Choose PPA.csv</span>
+              <input type="file" accept=".csv" class="hidden" onchange="handleSingleFileUpload(event, 'ppa')" />
+            </label>
+          </div>
+
+          <!-- 2. EMP File Card -->
+          <div id="cardStatusEMP" class="p-3.5 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between gap-2.5">
+            <div>
+              <div class="flex items-center justify-between gap-1 mb-1">
+                <span class="font-extrabold text-slate-900 text-xs">2. EMP.csv</span>
+                <span class="px-1.5 py-0.2 rounded text-[9.5px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">WinTeam Law</span>
+              </div>
+              <p class="text-[10.5px] text-slate-600 leading-tight">
+                WinTeam Master: Live confirmed shifts, true hours & daily schedules.
+              </p>
+              <div id="uploadStatusEMP" class="text-[11px] text-amber-700 font-semibold mt-2">
+                Not loaded yet
+              </div>
+            </div>
+            <label class="cursor-pointer w-full text-center py-1.5 px-2 rounded-lg bg-white border border-slate-300 hover:border-emerald-500 text-slate-700 font-bold text-[11px] shadow-2xs transition-all block">
+              <span>Choose EMP.csv</span>
+              <input type="file" accept=".csv" class="hidden" onchange="handleSingleFileUpload(event, 'emp')" />
+            </label>
+          </div>
+
+          <!-- 3. WW File Card -->
+          <div id="cardStatusWW" class="p-3.5 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between gap-2.5">
+            <div>
+              <div class="flex items-center justify-between gap-1 mb-1">
+                <span class="font-extrabold text-slate-900 text-xs">3. Working Weeks</span>
+                <span class="px-1.5 py-0.2 rounded text-[9.5px] font-bold bg-indigo-100 text-indigo-800 border border-indigo-200">Availability</span>
+              </div>
+              <p class="text-[10.5px] text-slate-600 leading-tight">
+                Preferences (1st/2nd choice), seniority ranking, & special notes.
+              </p>
+              <div id="uploadStatusWW" class="text-[11px] text-amber-700 font-semibold mt-2">
+                Not loaded yet
+              </div>
+            </div>
+            <label class="cursor-pointer w-full text-center py-1.5 px-2 rounded-lg bg-white border border-slate-300 hover:border-indigo-500 text-slate-700 font-bold text-[11px] shadow-2xs transition-all block">
+              <span>Choose WW CSV</span>
+              <input type="file" accept=".csv" class="hidden" onchange="handleSingleFileUpload(event, 'ww')" />
+            </label>
+          </div>
+
         </div>
 
       </div>
 
-      <div class="p-3 border-t border-slate-200 bg-slate-50 text-right">
+      <div class="p-3 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
+        <div class="text-[11px] text-slate-500 font-mono" id="modalFilesSummaryText">
+          0 of 3 files loaded
+        </div>
         <button onclick="closeUploadModal()"
-          class="px-4 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs">
-          Done
+          class="px-5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-sm">
+          Done &bull; Continue Scheduling
         </button>
       </div>
 
@@ -1180,26 +1249,75 @@
       dates: [],
       lastDateOfWeek: '',
       rawPPA: '',
+      rawEMP: '',
       rawWW: '',
+      empReportRecords: [],
+      empHoursFromEMP: {},
+      empShiftsFromEMP: {}, // eid -> date -> [shifts]
+      empInfoFromEMP: {},
       empActualHours: {},
       empWorkingDates: {},
       empDayWorkingShifts: {}, // eid -> date -> [shifts]
       sessionAssignments: [],
       activeLinkingShiftId: null,
       filterMatchingOnly: false,
-      activeTab: 'people', // 'people' (People-First Mode) | 'shift' (Shift-First Mode)
+      activeTab: 'shift', // Default to Shift-First Mode for rapid shift filling
       gridFilter: 'all',
       gridSearch: '',
       // Mode 2: Shift-First state
-      shiftFirstSelectedDay: 'all', // 'all' or specific date e.g. '10/30/2026'
+      shiftFirstSelectedDay: 'all', // 'all' or specific date e.g. '11/14/2026'
+      shiftFirstJobFilter: 'all', // 'all' | '233265' | '235144' | '266778' | '267588'
       shiftFirstSearch: '',
       shiftFirstStatusFilter: 'open', // 'open' | 'assigned' | 'all'
       shiftFirstTierFilter: 'all', // 'all' | 'tier1' | 'under45'
-      shiftFirstSort: 'time', // 'time' | 'hours' | 'post' | 'candidates'
+      shiftFirstSort: 'winteam', // 'winteam' | 'post' | 'time' | 'hours' | 'candidates'
       shiftFirstExpandedShifts: {}, // shiftId -> boolean
       shiftFirstShowConflicted: {}, // shiftId -> boolean
+      shiftFirstShowHiredFallback: {}, // shiftId -> boolean
+      avoidHiredAV: false,
       queueSelectedShiftId: null,
-      simProposal: null
+      simProposal: null,
+      filesStatus: {
+        ppa: { loaded: false, filename: '', count: 0, openCount: 0 },
+        emp: { loaded: false, filename: '', count: 0, specialistCount: 0 },
+        ww: { loaded: false, filename: '', count: 0 }
+      }
+    };
+
+    // --- FOUR JOB CODES SPECIFICATION ---
+    const JOB_CODES = {
+      '233265': {
+        code: '233265',
+        title: 'Apple - SCV SOR',
+        shortTitle: 'SCV SOR (Core Posts)',
+        isBre: false,
+        theme: 'blue',
+        badgeCls: 'bg-blue-100 text-blue-800 border-blue-200'
+      },
+      '235144': {
+        code: '235144',
+        title: 'Apple - SCV SOR Break Relief',
+        shortTitle: 'SCV SOR BRE (Break Relief)',
+        isBre: true,
+        theme: 'indigo',
+        badgeCls: 'bg-indigo-100 text-indigo-800 border-indigo-200'
+      },
+      '266778': {
+        code: '266778',
+        title: 'Apple - SCV SOR (Sunnyvale)',
+        shortTitle: 'Sunnyvale (Core Posts)',
+        isBre: false,
+        theme: 'emerald',
+        badgeCls: 'bg-emerald-100 text-emerald-800 border-emerald-200'
+      },
+      '267588': {
+        code: '267588',
+        title: 'Apple - SCV SOR Break Relief (Sunnyvale)',
+        shortTitle: 'Sunnyvale BRE (Break Relief)',
+        isBre: true,
+        theme: 'amber',
+        badgeCls: 'bg-amber-100 text-amber-800 border-amber-200'
+      }
     };
 
     // --- TIME BLOCK DEFINITIONS ---
@@ -1477,37 +1595,227 @@
       return rows;
     }
 
-    // --- INITIALIZATION ---
+    // --- INITIALIZATION & FILE DETECTION ---
 
-    // --- QUICK LOAD WORKSPACE CSV FILES ---
+    function detectCSVType(csvText) {
+      if (!csvText) return 'unknown';
+      const sample = csvText.slice(0, 4000);
+      const lines = sample.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+      if (lines.length === 0) return 'unknown';
+
+      const h = lines[0];
+      // PPA has JobPostDetailID or ScheduleDetailsID or shifthours or RecordTypeID with PostDescription
+      if (h.includes('JobPostDetailID') || h.includes('ScheduleDetailsID') || h.includes('shifthours') || (h.includes('RecordTypeID') && h.includes('PostDescription') && !h.includes('RolloverDescription'))) {
+        return 'ppa';
+      }
+      // EMP has EmployeeNumber and WorkDate and PostDescription, and RolloverDescription or CellNotes without JobPostDetailID
+      if (h.includes('EmployeeNumber') && h.includes('WorkDate') && (h.includes('RolloverDescription') || h.includes('PostDescription')) && !h.includes('JobPostDetailID')) {
+        return 'emp';
+      }
+      // WW has Acting Supervisor, Logistics Hybrid, Day 1, Preferred 1st Choice, Hired AV, or EID in first few lines
+      for (let i = 0; i < Math.min(5, lines.length); i++) {
+        const l = lines[i];
+        if (l.includes('Acting Supervisor') || l.includes('Logistics Hybrid') || l.includes('Day 1') || 
+            l.includes('Preferred 1st Choice') || l.includes('Hired AV') || l.includes('EID') || l.includes('Scheduled in WT')) {
+          return 'ww';
+        }
+      }
+      return 'unknown';
+    }
+
+    function handleFiles(fileList) {
+      if (!fileList || fileList.length === 0) return;
+      const files = Array.from(fileList);
+      let loadedCount = 0;
+      const results = [];
+
+      files.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const content = e.target.result;
+          let kind = detectCSVType(content);
+          if (kind === 'unknown') {
+            const lower = file.name.toLowerCase();
+            if (lower.includes('ppa')) kind = 'ppa';
+            else if (lower.includes('emp')) kind = 'emp';
+            else if (lower.includes('working') || lower.includes('availability') || lower.includes('ww')) kind = 'ww';
+          }
+
+          if (kind === 'ppa') {
+            loadPPA(content, file.name);
+            results.push(`PPA (${file.name})`);
+          } else if (kind === 'emp') {
+            loadEMP(content, file.name);
+            results.push(`EMP (${file.name})`);
+          } else if (kind === 'ww') {
+            loadWorkingWeeks(content, file.name);
+            results.push(`Working Weeks (${file.name})`);
+          } else {
+            // Heuristic check: lines count
+            loadWorkingWeeks(content, file.name);
+            results.push(`Working Weeks (${file.name})`);
+          }
+
+          loadedCount++;
+          if (loadedCount === files.length) {
+            renderDayHeaders();
+            calculateAllHours();
+            populateLinkingShiftDropdown();
+            updateKPISummaries();
+            updateFileStatusBadges();
+            renderWorkingWeeksGrid();
+            renderShiftFirstView();
+            renderWinTeamTable();
+            showToast(`Loaded: ${results.join(', ')}`);
+          }
+        };
+        reader.readAsText(file);
+      });
+    }
+
+    function handleMultiFileInput(evt) {
+      if (evt.target.files && evt.target.files.length > 0) {
+        handleFiles(evt.target.files);
+      }
+    }
+
+    function handleSingleFileUpload(evt, type) {
+      const file = evt.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const content = e.target.result;
+        if (type === 'ppa') loadPPA(content, file.name);
+        else if (type === 'emp') loadEMP(content, file.name);
+        else if (type === 'ww') loadWorkingWeeks(content, file.name);
+
+        renderDayHeaders();
+        calculateAllHours();
+        populateLinkingShiftDropdown();
+        updateKPISummaries();
+        updateFileStatusBadges();
+        renderWorkingWeeksGrid();
+        renderShiftFirstView();
+        renderWinTeamTable();
+        showToast(`Loaded ${file.name} successfully.`);
+      };
+      reader.readAsText(file);
+    }
+
+    function handleFileUpload(evt, type) {
+      handleSingleFileUpload(evt, type);
+    }
+
+    function updateFileStatusBadges() {
+      // 1. PPA status
+      const bPPA = document.getElementById('badgeStatusPPA');
+      const stPPA = document.getElementById('uploadStatusPPA');
+      const ppaLoaded = state.shifts && state.shifts.length > 0;
+      const openCount = ppaLoaded ? state.shifts.filter(s => s.isOpen && !s.assignedEmployee && isFillablePostDescription(s.postDesc)).length : 0;
+      
+      if (bPPA) {
+        if (ppaLoaded) {
+          bPPA.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1 hover:bg-emerald-500/30 transition-colors';
+          bPPA.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> PPA: ${state.shifts.length} shifts (${openCount} open)`;
+        } else {
+          bPPA.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1 hover:bg-amber-500/30 transition-colors';
+          bPPA.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> PPA: Missing`;
+        }
+      }
+      if (stPPA) {
+        stPPA.textContent = ppaLoaded ? `Loaded (${state.shifts.length} shifts, ${openCount} open across 4 jobs)` : 'Not loaded yet';
+        stPPA.className = ppaLoaded ? 'text-[11px] text-emerald-700 font-semibold mt-2' : 'text-[11px] text-amber-700 font-semibold mt-2';
+      }
+
+      // 2. EMP status
+      const bEMP = document.getElementById('badgeStatusEMP');
+      const stEMP = document.getElementById('uploadStatusEMP');
+      const empLoaded = state.empReportRecords && state.empReportRecords.length > 0;
+      const empSpecialists = empLoaded ? Object.keys(state.empHoursFromEMP).length : 0;
+
+      if (bEMP) {
+        if (empLoaded) {
+          bEMP.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1 hover:bg-emerald-500/30 transition-colors';
+          bEMP.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> EMP: ${state.empReportRecords.length} records (${empSpecialists} specs)`;
+        } else {
+          bEMP.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1 hover:bg-amber-500/30 transition-colors';
+          bEMP.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> EMP: Missing`;
+        }
+      }
+      if (stEMP) {
+        stEMP.textContent = empLoaded ? `Loaded (${state.empReportRecords.length} shifts, ${empSpecialists} scheduled specialists)` : 'Not loaded yet';
+        stEMP.className = empLoaded ? 'text-[11px] text-emerald-700 font-semibold mt-2' : 'text-[11px] text-amber-700 font-semibold mt-2';
+      }
+
+      // 3. WW status
+      const bWW = document.getElementById('badgeStatusWW');
+      const stWW = document.getElementById('uploadStatusWW');
+      const wwLoaded = state.employees && state.employees.length > 0 && !state.employees.every(e => e.isFromWinTeamOnly);
+
+      if (bWW) {
+        if (wwLoaded) {
+          bWW.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1 hover:bg-emerald-500/30 transition-colors';
+          bWW.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> WW: ${state.employees.length} specialists`;
+        } else {
+          bWW.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1 hover:bg-amber-500/30 transition-colors';
+          bWW.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> WW: Missing`;
+        }
+      }
+      if (stWW) {
+        stWW.textContent = wwLoaded ? `Loaded (${state.employees.length} specialists & preferences)` : 'Not loaded yet';
+        stWW.className = wwLoaded ? 'text-[11px] text-emerald-700 font-semibold mt-2' : 'text-[11px] text-amber-700 font-semibold mt-2';
+      }
+
+      const summaryText = document.getElementById('modalFilesSummaryText');
+      if (summaryText) {
+        const loadedCount = (ppaLoaded ? 1 : 0) + (empLoaded ? 1 : 0) + (wwLoaded ? 1 : 0);
+        summaryText.textContent = `${loadedCount} of 3 files loaded`;
+      }
+    }
+
+    // --- QUICK LOAD WORKSPACE CSV FILES (CORS-SAFE) ---
     async function quickLoadWorkspaceFiles() {
+      if (window.location.protocol === 'file:') {
+        showToast('Direct file:// fetch is blocked by browser security. Please choose or drag-drop your CSV files below.');
+        openUploadModal();
+        return;
+      }
+
       try {
-        showToast('Loading workspace CSV files (PPA.csv & Working Weeks)...');
+        showToast('Auto-loading workspace CSV files (PPA, EMP, Working Weeks)...');
         let ppaLoaded = false;
+        let empLoaded = false;
         let wwLoaded = false;
 
-        // Try fetching PPA.csv (WinTeam Schedule Report)
+        // Try fetching PPA.csv
         try {
           const resPPA = await fetch('PPA.csv');
           if (resPPA.ok) {
             const textPPA = await resPPA.text();
-            state.rawPPA = textPPA;
-            loadPPA(textPPA);
+            loadPPA(textPPA, 'PPA.csv');
             ppaLoaded = true;
-            const st = document.getElementById('uploadStatusPPA');
-            if (st) {
-              st.textContent = `Loaded PPA.csv (${state.shifts.length} WinTeam shifts)`;
-              st.className = 'text-[11px] text-emerald-600 font-semibold mt-2';
-            }
           }
         } catch (e) {
-          console.warn('Could not fetch PPA.csv directly:', e);
+          console.warn('Could not auto-fetch PPA.csv:', e);
+        }
+
+        // Try fetching EMP.csv
+        try {
+          const resEMP = await fetch('EMP.csv');
+          if (resEMP.ok) {
+            const textEMP = await resEMP.text();
+            loadEMP(textEMP, 'EMP.csv');
+            empLoaded = true;
+          }
+        } catch (e) {
+          console.warn('Could not auto-fetch EMP.csv:', e);
         }
 
         // Try fetching Working Weeks CSV
         const wwFileNames = [
+          'Permanent Preferred Availability( Working Weeks) - WE 11_19.csv',
+          'Permanent%20Preferred%20Availability(%20Working%20Weeks)%20-%20WE%2011_19.csv',
           'Permanent Preferred Availability( Working Weeks) - WE 11_05.csv',
-          'Permanent%20Preferred%20Availability(%20Working%20Weeks)%20-%20WE%2011_05.csv',
           'WorkingWeeks.csv'
         ];
 
@@ -1516,14 +1824,8 @@
             const resWW = await fetch(fname);
             if (resWW.ok) {
               const textWW = await resWW.text();
-              state.rawWW = textWW;
-              loadWorkingWeeks(textWW);
+              loadWorkingWeeks(textWW, fname);
               wwLoaded = true;
-              const st = document.getElementById('uploadStatusWW');
-              if (st) {
-                st.textContent = `Loaded Working Weeks CSV (${state.employees.length} specialists)`;
-                st.className = 'text-[11px] text-emerald-600 font-semibold mt-2';
-              }
               break;
             }
           } catch (e) {
@@ -1531,34 +1833,39 @@
           }
         }
 
-        if (ppaLoaded || wwLoaded) {
-          renderDayHeaders();
-          calculateAllHours();
-          populateLinkingShiftDropdown();
-          updateKPISummaries();
-          renderWorkingWeeksGrid();
-          renderShiftFirstView();
+        renderDayHeaders();
+        calculateAllHours();
+        populateLinkingShiftDropdown();
+        updateKPISummaries();
+        updateFileStatusBadges();
+        renderWorkingWeeksGrid();
+        renderShiftFirstView();
+        renderWinTeamTable();
+
+        if (ppaLoaded || empLoaded || wwLoaded) {
           closeUploadModal();
-          showToast(`Successfully loaded ${ppaLoaded ? 'WinTeam Report' : ''} ${wwLoaded ? '& Working Weeks CSV' : ''}!`);
+          showToast(`Loaded: ${ppaLoaded ? 'PPA ' : ''}${empLoaded ? 'EMP ' : ''}${wwLoaded ? 'WW' : ''}`);
         } else {
-          showToast('Could not auto-fetch local CSVs. Please use "Choose File" buttons.');
           openUploadModal();
         }
       } catch (err) {
         console.error(err);
-        showToast('Please select CSV files manually using the file pickers.');
         openUploadModal();
       }
     }
 
     function initData() {
-      // Always require user CSV uploads; no default data
       state.employees = [];
       state.shifts = [];
       state.dates = [];
       state.lastDateOfWeek = '';
       state.rawPPA = '';
+      state.rawEMP = '';
       state.rawWW = '';
+      state.empReportRecords = [];
+      state.empHoursFromEMP = {};
+      state.empShiftsFromEMP = {};
+      state.empInfoFromEMP = {};
       state.sessionAssignments = [];
 
       updateKPISummaries();
@@ -1566,12 +1873,14 @@
       renderWorkingWeeksGrid();
       renderShiftFirstView();
 
-      // Automatically prompt user to upload CSV files on load
-      setTimeout(() => {
-        if (!state.rawPPA || !state.rawWW) {
+      // If running on a web server, attempt quick-load. If file://, open modal to let user drop files
+      if (window.location.protocol === 'file:') {
+        setTimeout(() => {
           openUploadModal();
-        }
-      }, 150);
+        }, 150);
+      } else {
+        quickLoadWorkspaceFiles();
+      }
     }
 
     function renderDayHeaders() {
@@ -1599,23 +1908,13 @@
             <div>Hours Variance</div>
             <div class="text-[9px] text-slate-400 font-normal">[WT Law &minus; WW Ref]</div>
           </th>
-          <th class="py-2.5 px-3 border-r border-slate-800 min-w-[170px]" colspan="7">Upload CSV Files to display daily schedules</th>
-          <th class="py-2.5 px-3 min-w-[200px]">Working Weeks Notes</th>
+          <th class="py-2.5 px-2 border-r border-slate-800 text-center w-24">Actions</th>
+          <th class="py-2.5 px-3 border-r border-slate-800 min-w-[200px]">Notes &amp; Guardrails</th>
         `;
         return;
       }
 
-      let daysHtml = state.dates.map(dt => {
-        const meta = getDayMeta(dt);
-        return `
-          <th class="py-2.5 px-3 border-r border-slate-800 min-w-[175px]">
-            <div class="font-bold text-white">${escapeHtml(meta.shortLabel || dt)}</div>
-            <div class="text-[9px] text-slate-400 font-normal lowercase tracking-normal">WinTeam Shift (Law) &bull; WW Prefs (Ref)</div>
-          </th>
-        `;
-      }).join('');
-
-      row.innerHTML = `
+      let html = `
         <th class="py-2.5 px-2 border-r border-slate-800 text-center w-10 font-mono text-[10.5px]">Row #</th>
         <th class="py-2.5 px-2.5 border-r border-slate-800 w-24 font-mono text-[10.5px]">Employee ID</th>
         <th class="py-2.5 px-3 border-r border-slate-800 min-w-[220px]">Officer Full Name</th>
@@ -1635,12 +1934,25 @@
           <div>Hours Variance</div>
           <div class="text-[9px] text-slate-400 font-normal">[WT Law &minus; WW Ref]</div>
         </th>
-        ${daysHtml}
-        <th class="py-2.5 px-3 min-w-[200px]">Working Weeks Notes</th>
+        <th class="py-2.5 px-2 border-r border-slate-800 text-center w-24">Actions</th>
+        <th class="py-2.5 px-3 border-r border-slate-800 min-w-[200px]">Notes &amp; Guardrails</th>
       `;
+
+      state.dates.forEach(dt => {
+        const dObj = new Date(dt + 'T12:00:00');
+        const dayName = isNaN(dObj) ? dt : dObj.toLocaleDateString('en-US', { weekday: 'short' });
+        html += `
+          <th class="py-2.5 px-2.5 border-r border-slate-800 text-center min-w-[170px]">
+            <div class="text-white font-bold text-xs">${dayName}</div>
+            <div class="text-[10px] text-slate-400 font-mono font-normal">${dt}</div>
+          </th>
+        `;
+      });
+
+      row.innerHTML = html;
     }
 
-    function loadWorkingWeeks(csvText) {
+    function loadWorkingWeeks(csvText, fileName = 'WorkingWeeks.csv') {
       const lines = parseCSV(csvText);
       if (!lines || lines.length < 3) return;
 
@@ -1667,7 +1979,7 @@
         }
       }
 
-      // Index existing employees by EID if WinTeam was loaded first
+      state.rawWW = csvText;
       const existingMap = {};
       state.employees.forEach(e => { existingMap[e.eid] = e; });
 
@@ -1729,7 +2041,6 @@
       }
 
       // Identify bottom 75 specialists in Working Weeks seniority order
-      // (The bottom 75 people in Working Weeks are not eligible to work BRE shifts under JC 235144 or 267588)
       const totalWW = wwEmployees.length;
       state.wwEmployeeCount = totalWW;
       const bottom75CutoffIndex = Math.max(0, totalWW - 75);
@@ -1746,9 +2057,14 @@
       });
 
       state.employees = wwEmployees;
+      state.filesStatus.ww = {
+        loaded: true,
+        filename: fileName,
+        count: wwEmployees.length
+      };
     }
 
-    function loadPPA(csvText) {
+    function loadPPA(csvText, fileName = 'PPA.csv') {
       const lines = parseCSV(csvText);
       if (!lines || lines.length < 2) return;
 
@@ -1756,6 +2072,7 @@
       const colIdx = {};
       header.forEach((h, idx) => { colIdx[h] = idx; });
 
+      state.rawPPA = csvText;
       state.shifts = [];
       const discoveredDates = new Set();
       const wtEmployeesMap = {};
@@ -1803,8 +2120,6 @@
           }
         }
 
-        // CUTOFF FORMULA:
-        // Exclude out-of-week rollover hours past midnight Thursday.
         let countedHours = hoursRaw;
         let isRolloverCutoff = false;
         const isRolloverTime = timeStringToHours(outTime) < timeStringToHours(inTime);
@@ -1849,35 +2164,125 @@
         state.shifts.push(shiftObj);
       }
 
-      // If state.dates was not yet set from Working Weeks CSV, initialize dates from WinTeam report
-      if (!state.dates || state.dates.length === 0) {
-        const sortedDates = Array.from(discoveredDates).sort((a, b) => new Date(a) - new Date(b));
-        if (sortedDates.length > 0) {
-          state.dates = sortedDates;
-          state.lastDateOfWeek = sortedDates[sortedDates.length - 1];
-          const badgeWE = document.getElementById('badgeWeekEnding');
-          if (badgeWE) {
-            badgeWE.textContent = 'Week Ending: ' + state.lastDateOfWeek;
-            badgeWE.className = 'px-2.5 py-0.5 rounded text-[11px] font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30 font-mono';
-          }
+      state.wtEmployeesMap = wtEmployeesMap;
+
+      if ((!state.dates || state.dates.length === 0) && discoveredDates.size > 0) {
+        state.dates = sortDatesList(Array.from(discoveredDates));
+        state.lastDateOfWeek = state.dates[state.dates.length - 1];
+      }
+
+      state.filesStatus.ppa = {
+        loaded: true,
+        filename: fileName,
+        count: state.shifts.length,
+        openCount: state.shifts.filter(s => s.isOpen && isFillablePostDescription(s.postDesc)).length
+      };
+    }
+
+    function loadEMP(csvText, fileName = 'EMP.csv') {
+      const lines = parseCSV(csvText);
+      if (!lines || lines.length < 2) return;
+
+      const header = lines[0].map(h => h.trim());
+      const colIdx = {};
+      header.forEach((h, idx) => { colIdx[h] = idx; });
+
+      const records = [];
+      const empHours = {};
+      const empShifts = {};
+      const empInfo = {};
+      const discoveredDates = new Set();
+
+      for (let i = 1; i < lines.length; i++) {
+        const r = lines[i];
+        if (!r || r.length <= 1) continue;
+
+        const getVal = (col) => {
+          const idx = colIdx[col];
+          return (idx !== undefined && idx < r.length) ? r[idx].trim() : '';
+        };
+
+        const eid = getVal('EmployeeNumber');
+        if (!eid) continue;
+
+        const workDate = getVal('WorkDate');
+        const workDateNorm = normDate(workDate);
+        if (workDateNorm) discoveredDates.add(workDateNorm);
+
+        const inTime = getVal('InTime');
+        const outTime = getVal('OutTime');
+        const hoursRaw = cleanFloat(getVal('Hours'));
+        const nextDay = getVal('NextDay');
+        const shiftId = getVal('ShiftID');
+        const jobNumber = getVal('JobNumber');
+        const jobDesc = getVal('JobDescription');
+        const postDesc = getVal('PostDescription');
+        const empName = getVal('EmpName');
+        const phone1 = getVal('Phone1');
+        const cellNotes = getVal('CellNotes');
+
+        if (!empHours[eid]) empHours[eid] = 0.0;
+        empHours[eid] += hoursRaw;
+
+        if (!empShifts[eid]) empShifts[eid] = {};
+        if (!empShifts[eid][workDateNorm]) empShifts[eid][workDateNorm] = [];
+
+        const shiftItem = {
+          id: `emp_${i}`,
+          source: 'EMP',
+          eid,
+          empName,
+          workDate,
+          workDateNorm,
+          inTime,
+          outTime,
+          inTimeHours: timeStringToHours(inTime),
+          outTimeHours: timeStringToHours(outTime),
+          hoursRaw,
+          countedHours: hoursRaw,
+          nextDay,
+          shiftId,
+          jobNumber,
+          jobDesc,
+          postDesc,
+          phone1,
+          cellNotes
+        };
+
+        empShifts[eid][workDateNorm].push(shiftItem);
+        records.push(shiftItem);
+
+        if (!empInfo[eid]) {
+          empInfo[eid] = {
+            eid,
+            name: empName,
+            phone: phone1,
+            notes: cellNotes
+          };
         }
       }
 
-      // Re-apply cutoff formula now that lastDateOfWeek is confirmed
-      if (state.lastDateOfWeek) {
-        state.shifts.forEach(s => {
-          const isRolloverTime = s.outTimeHours < s.inTimeHours;
-          if (s.workDateNorm === state.lastDateOfWeek && (s.nextDay === '1' || isRolloverTime)) {
-            const pastMidnightHours = s.outTimeHours;
-            if (pastMidnightHours > 0) {
-              s.countedHours = Math.max(0, s.hoursRaw - pastMidnightHours);
-              s.isRolloverCutoff = true;
-            }
-          }
-        });
+      state.rawEMP = csvText;
+      state.empReportRecords = records;
+      state.empHoursFromEMP = empHours;
+      state.empShiftsFromEMP = empShifts;
+      state.empInfoFromEMP = empInfo;
+
+      if ((!state.dates || state.dates.length === 0) && discoveredDates.size > 0) {
+        state.dates = sortDatesList(Array.from(discoveredDates));
+        state.lastDateOfWeek = state.dates[state.dates.length - 1];
       }
 
-      state.wtEmployeesMap = wtEmployeesMap;
+      state.filesStatus.emp = {
+        loaded: true,
+        filename: fileName,
+        count: records.length,
+        specialistCount: Object.keys(empHours).length
+      };
+    }
+
+    function sortDatesList(datesArr) {
+      return datesArr.sort((a, b) => new Date(a) - new Date(b));
     }
 
     // --- RECALCULATE GUARANTEED ACTUAL HOURS & WORKING SHIFTS (WINTEAM AS LAW) ---
@@ -1888,8 +2293,39 @@
 
       const employeeEids = new Set(state.employees.map(e => e.eid));
 
-      // 1. If any specialist exists in the authoritative WinTeam report who was not in Working Weeks,
-      // include them in the roster so no scheduled officer or hours are omitted! (WinTeam is Law)
+      // 1. Incorporate any specialists from EMP.csv who were not on Working Weeks
+      if (state.empInfoFromEMP) {
+        Object.keys(state.empInfoFromEMP).forEach(eid => {
+          if (!employeeEids.has(eid)) {
+            const empInfo = state.empInfoFromEMP[eid];
+            const daily = {};
+            state.dates.forEach(dt => {
+              daily[dt] = { p1: '', p2: '', hired: '', wwReferenceWT: '' };
+            });
+
+            const newEmp = {
+              wwIndex: 9000 + state.employees.length,
+              eid,
+              name: empInfo.name || `Specialist #${eid}`,
+              email: '',
+              phone: empInfo.phone || '',
+              notes: empInfo.notes ? `WinTeam Note: ${empInfo.notes}` : 'Scheduled in WinTeam (EMP.csv)',
+              tags: [{ text: 'WinTeam Only', cls: 'bg-purple-100 text-purple-800 border-purple-200' }],
+              ptft: 'FT',
+              limit: 45.0,
+              sheetHours: 0.0,
+              daily,
+              actualHours: 0.0,
+              isFromWinTeamOnly: true,
+              isBottom75: false
+            };
+            state.employees.push(newEmp);
+            employeeEids.add(eid);
+          }
+        });
+      }
+
+      // Also incorporate specialists from PPA if any
       if (state.wtEmployeesMap) {
         Object.keys(state.wtEmployeesMap).forEach(eid => {
           if (!employeeEids.has(eid)) {
@@ -1905,8 +2341,8 @@
               name: wtInfo.name || `Specialist #${eid}`,
               email: '',
               phone: wtInfo.phone || '',
-              notes: wtInfo.notes ? `WinTeam Schedule Note: ${wtInfo.notes}` : 'Scheduled in WinTeam (Not on WW Reference Sheet)',
-              tags: [{ text: 'WinTeam Law (Not in WW)', cls: 'bg-purple-100 text-purple-800 border-purple-200' }],
+              notes: wtInfo.notes ? `WinTeam Note: ${wtInfo.notes}` : 'Scheduled in WinTeam (PPA.csv)',
+              tags: [{ text: 'WinTeam Only', cls: 'bg-purple-100 text-purple-800 border-purple-200' }],
               ptft: 'FT',
               limit: 45.0,
               sheetHours: 0.0,
@@ -1921,6 +2357,7 @@
         });
       }
 
+      // Initialize structures for every employee
       state.employees.forEach(emp => {
         state.empActualHours[emp.eid] = 0.0;
         state.empWorkingDates[emp.eid] = new Set();
@@ -1930,18 +2367,32 @@
         });
       });
 
-      // 2. Authoritative guaranteed shifts from WinTeam Schedule Report
-      state.shifts.forEach(s => {
-        if (s.eid && state.empActualHours[s.eid] !== undefined) {
-          state.empActualHours[s.eid] += s.countedHours;
-          state.empWorkingDates[s.eid].add(s.workDateNorm);
-          if (state.empDayWorkingShifts[s.eid][s.workDateNorm]) {
-            state.empDayWorkingShifts[s.eid][s.workDateNorm].push(s);
+      // 2. Base Scheduled Shifts & Hours
+      // Priority A: EMP.csv is the master employee schedule
+      if (state.rawEMP && state.empReportRecords && state.empReportRecords.length > 0) {
+        state.empReportRecords.forEach(s => {
+          if (s.eid && state.empActualHours[s.eid] !== undefined) {
+            state.empActualHours[s.eid] += s.countedHours;
+            state.empWorkingDates[s.eid].add(s.workDateNorm);
+            if (state.empDayWorkingShifts[s.eid][s.workDateNorm]) {
+              state.empDayWorkingShifts[s.eid][s.workDateNorm].push(s);
+            }
           }
-        }
-      });
+        });
+      } else {
+        // Priority B: PPA.csv confirmed shifts
+        state.shifts.forEach(s => {
+          if (s.eid && state.empActualHours[s.eid] !== undefined) {
+            state.empActualHours[s.eid] += s.countedHours;
+            state.empWorkingDates[s.eid].add(s.workDateNorm);
+            if (state.empDayWorkingShifts[s.eid][s.workDateNorm]) {
+              state.empDayWorkingShifts[s.eid][s.workDateNorm].push(s);
+            }
+          }
+        });
+      }
 
-      // 3. Session assignments (linked during this working session)
+      // 3. Current Working Session Assignments
       state.sessionAssignments.forEach(sa => {
         if (state.empActualHours[sa.eid] !== undefined) {
           state.empActualHours[sa.eid] += sa.countedHours;
@@ -1952,7 +2403,7 @@
         }
       });
 
-      // 4. Update employee actual hours directly from WinTeam Law
+      // Update emp.actualHours on all employee objects
       state.employees.forEach(emp => {
         emp.actualHours = state.empActualHours[emp.eid] || 0.0;
       });
@@ -2157,7 +2608,14 @@
       tier2.sort(sortCandidates);
       tier3.sort(sortCandidates);
 
-      return { tier1, tier2, tier3, conflicted, allMatchesMap };
+      const p1 = tier1.filter(c => c.currentH < 20.0);
+      const p2 = tier1.filter(c => c.currentH >= 20.0);
+      const p3 = tier2.filter(c => c.currentH < 20.0);
+      const p4 = tier2.filter(c => c.currentH >= 20.0);
+      const p5 = tier3.filter(c => c.currentH < 20.0);
+      const p6 = tier3.filter(c => c.currentH >= 20.0);
+
+      return { tier1, tier2, tier3, p1, p2, p3, p4, p5, p6, conflicted, allMatchesMap };
     }
 
     // --- POPULATE STICKY SHIFT LINKER DROPDOWN ---
@@ -2820,7 +3278,8 @@
       renderShiftFirstView();
       renderWinTeamTable();
 
-      showToast(`Assigned ${employee.name} (${shift.countedHours.toFixed(1)}h) to ${shift.workDateNorm} shift.`);
+      // Automatically copy EID to clipboard for quick paste into WinTeam!
+      copyToClipboard(employee.eid, `Assigned ${employee.name} — EID ${employee.eid} copied! Ready to paste into WinTeam.`);
     }
 
     function unassignShift(shiftId, showNotification = true) {
@@ -2843,45 +3302,98 @@
       renderWinTeamTable();
 
       if (showNotification) {
-        showToast(`Unassigned ${empName} from shift.`);
+        showToast(`Unassigned ${empName || 'officer'} from ${shift.workDateNorm} shift.`);
       }
     }
 
     // --- DAY INFO HELPER ---
-    function getDayMeta(dateStr) {
-      if (!dateStr) return { dateStr: '', dayName: '', shortDay: '', shortLabel: '', fullLabel: '' };
-      const parts = dateStr.split('/');
-      if (parts.length === 3) {
-        const m = parseInt(parts[0], 10);
-        const d = parseInt(parts[1], 10);
-        const y = parseInt(parts[2], 10);
-        const dt = new Date(y, m - 1, d);
-        const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        const shortDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-        const dayName = dayNames[dt.getDay()] || '';
-        const shortDay = shortDays[dt.getDay()] || '';
-        return {
-          dateStr,
-          dayName,
-          shortDay,
-          shortLabel: `${shortDay} ${m}/${d}`,
-          fullLabel: `${dayName}, ${m}/${d}/${y}`
-        };
+    function getDayMeta(dtStr) {
+      if (!dtStr) return { shortDay: 'DAY', shortLabel: 'Day', fullLabel: 'Day' };
+      const d = new Date(dtStr + 'T12:00:00');
+      if (isNaN(d)) {
+        return { shortDay: dtStr, shortLabel: dtStr, fullLabel: dtStr };
       }
-      return { dateStr, dayName: '', shortDay: '', shortLabel: dateStr, fullLabel: dateStr };
+      const shortDay = d.toLocaleDateString('en-US', { weekday: 'short' });
+      const fullDay = d.toLocaleDateString('en-US', { weekday: 'long' });
+      const monthDay = d.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
+      return {
+        shortDay,
+        shortLabel: `${shortDay} ${monthDay}`,
+        fullLabel: `${fullDay}, ${dtStr}`
+      };
     }
 
-    // --- MODE 2: SHIFT-FIRST VIEW (Day-by-Day Shifts & Best Officers) ---
+    // --- MODE 2: SHIFT-FIRST VIEW (WinTeam Sorting & 4 Job Codes Separation) ---
     function renderShiftFirstView() {
+      renderShiftFirstJobRibbon();
       renderShiftFirstDayRibbon();
       renderShiftFirstDaysContent();
+    }
+
+    function renderShiftFirstJobRibbon() {
+      const ribbon = document.getElementById('shiftFirstJobRibbon');
+      if (!ribbon) return;
+
+      const getJobOpenCount = (jobCode) => {
+        return state.shifts.filter(s => {
+          const isJob = jobCode === 'all' || String(s.jobNumber).trim() === jobCode;
+          const isDay = state.shiftFirstSelectedDay === 'all' || s.workDateNorm === state.shiftFirstSelectedDay;
+          return isJob && isDay && s.isOpen && !s.assignedEmployee && isFillablePostDescription(s.postDesc);
+        }).length;
+      };
+
+      const totalOpen = getJobOpenCount('all');
+      const isAllSelected = state.shiftFirstJobFilter === 'all';
+      const allBtnCls = isAllSelected
+        ? 'bg-indigo-600 text-white shadow-sm font-bold'
+        : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200 font-medium';
+
+      let html = `
+        <button onclick="setShiftFirstJob('all')" class="px-2.5 py-1 rounded-lg text-xs flex items-center gap-1.5 transition-all ${allBtnCls}">
+          <span>All 4 Job Codes</span>
+          <span class="px-1.5 py-0.2 rounded-full font-mono text-[10px] ${isAllSelected ? 'bg-indigo-800 text-white' : 'bg-slate-200 text-slate-800'} font-bold">${totalOpen}</span>
+        </button>
+      `;
+
+      const jobKeys = ['233265', '235144', '266778', '267588'];
+      jobKeys.forEach(jk => {
+        const jDef = JOB_CODES[jk] || { code: jk, shortTitle: jk, isBre: false };
+        const count = getJobOpenCount(jk);
+        const isSelected = state.shiftFirstJobFilter === jk;
+        const btnCls = isSelected
+          ? 'bg-indigo-600 text-white shadow-sm font-bold ring-2 ring-indigo-400/40'
+          : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200 font-medium';
+
+        html += `
+          <button onclick="setShiftFirstJob('${jk}')" class="px-2.5 py-1 rounded-lg text-xs flex items-center gap-1.5 transition-all ${btnCls}">
+            <span class="font-mono text-[11px] font-bold">${jk}</span>
+            <span>${jDef.shortTitle}</span>
+            <span class="px-1.5 py-0.2 rounded-full font-mono text-[10px] ${isSelected ? 'bg-indigo-800 text-white' : 'bg-slate-200 text-slate-800'} font-bold">${count}</span>
+          </button>
+        `;
+      });
+
+      ribbon.innerHTML = html;
+    }
+
+    function setShiftFirstJob(jobCode) {
+      state.shiftFirstJobFilter = jobCode;
+      renderShiftFirstView();
     }
 
     function renderShiftFirstDayRibbon() {
       const ribbon = document.getElementById('shiftFirstDayRibbon');
       if (!ribbon) return;
 
-      const totalOpen = state.shifts.filter(s => s.isOpen && !s.assignedEmployee && isFillablePostDescription(s.postDesc)).length;
+      const getDayOpenCount = (dayStr) => {
+        return state.shifts.filter(s => {
+          const isDay = dayStr === 'all' || s.workDateNorm === dayStr;
+          const isJob = state.shiftFirstJobFilter === 'all' || String(s.jobNumber).trim() === state.shiftFirstJobFilter;
+          return isDay && isJob && s.isOpen && !s.assignedEmployee && isFillablePostDescription(s.postDesc);
+        }).length;
+      };
+
+      const totalOpen = getDayOpenCount('all');
       const isAllSelected = state.shiftFirstSelectedDay === 'all';
       const allBtnCls = isAllSelected
         ? 'bg-blue-600 text-white shadow-sm font-bold'
@@ -2896,7 +3408,7 @@
 
       state.dates.forEach(dt => {
         const meta = getDayMeta(dt);
-        const dayOpen = state.shifts.filter(s => s.workDateNorm === dt && s.isOpen && !s.assignedEmployee && isFillablePostDescription(s.postDesc)).length;
+        const dayOpen = getDayOpenCount(dt);
         const isSelected = state.shiftFirstSelectedDay === dt;
         const btnCls = isSelected
           ? 'bg-blue-600 text-white shadow-sm font-bold'
@@ -2948,75 +3460,133 @@
           : 'text-[10px] font-mono font-bold px-2.5 py-1 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/30 shrink-0 self-start sm:self-auto';
       }
 
-      const badgeStatus = document.getElementById('badgeAutoFillHiredStatus');
-      if (badgeStatus) {
-        badgeStatus.textContent = checked ? 'Priority Active' : 'Fallback Allowed';
-        badgeStatus.className = checked
-          ? 'text-[9.5px] bg-emerald-500/20 text-emerald-300 font-semibold px-2 py-0.5 rounded-full border border-emerald-500/30'
-          : 'text-[9.5px] bg-amber-500/20 text-amber-300 font-semibold px-2 py-0.5 rounded-full border border-amber-500/30';
-      }
-
       renderShiftFirstDaysContent();
-      if (state.activeLinkingShiftId) {
-        handleLinkingShiftChange(state.activeLinkingShiftId);
+      if (document.getElementById('modalAutoFill') && !document.getElementById('modalAutoFill').classList.contains('hidden')) {
+        runAutoFillSimulation();
       }
     }
 
     function handleAutoFillAvoidHiredToggle(checked) {
       toggleAvoidHiredAV(checked);
-      runAutoFillSimulation();
     }
 
     function toggleShiftHiredFallback(shiftId) {
+      if (!state.shiftFirstShowHiredFallback) state.shiftFirstShowHiredFallback = {};
       state.shiftFirstShowHiredFallback[shiftId] = !state.shiftFirstShowHiredFallback[shiftId];
       renderShiftFirstDaysContent();
     }
 
-    function handleShiftFirstSortChange(sort) {
-      state.shiftFirstSort = sort;
+    function handleShiftFirstSortChange(sortVal) {
+      state.shiftFirstSort = sortVal;
       renderShiftFirstDaysContent();
     }
 
     function resetShiftFirstFilters() {
       state.shiftFirstSelectedDay = 'all';
+      state.shiftFirstJobFilter = 'all';
       state.shiftFirstSearch = '';
       state.shiftFirstStatusFilter = 'open';
-      state.shiftFirstTierFilter = 'avoidHired';
-      state.avoidHiredAV = true;
-      state.shiftFirstSort = 'time';
+      state.shiftFirstTierFilter = 'all';
+      state.shiftFirstSort = 'winteam';
 
-      const searchInput = document.getElementById('inputShiftFirstSearch');
-      if (searchInput) searchInput.value = '';
-      const statusSel = document.getElementById('selectShiftFirstStatus');
-      if (statusSel) statusSel.value = 'open';
-      const tierSel = document.getElementById('selectShiftFirstTier');
-      if (tierSel) tierSel.value = 'avoidHired';
-      const sortSel = document.getElementById('selectShiftFirstSort');
-      if (sortSel) sortSel.value = 'time';
-      const chkAvoid = document.getElementById('chkAvoidHiredAV');
-      if (chkAvoid) chkAvoid.checked = true;
+      const sInp = document.getElementById('inputShiftFirstSearch');
+      if (sInp) sInp.value = '';
+      const sStat = document.getElementById('selectShiftFirstStatus');
+      if (sStat) sStat.value = 'open';
+      const sTier = document.getElementById('selectShiftFirstTier');
+      if (sTier) sTier.value = 'all';
+      const sSort = document.getElementById('selectShiftFirstSort');
+      if (sSort) sSort.value = 'winteam';
 
       renderShiftFirstView();
     }
 
     function toggleExpandShiftCandidates(shiftId) {
+      if (!state.shiftFirstExpandedShifts) state.shiftFirstExpandedShifts = {};
       state.shiftFirstExpandedShifts[shiftId] = !state.shiftFirstExpandedShifts[shiftId];
       renderShiftFirstDaysContent();
     }
 
     function toggleShiftConflicted(shiftId) {
+      if (!state.shiftFirstShowConflicted) state.shiftFirstShowConflicted = {};
       state.shiftFirstShowConflicted[shiftId] = !state.shiftFirstShowConflicted[shiftId];
       renderShiftFirstDaysContent();
+    }
+
+    // --- SORT SHIFTS (WINTEAM ORDER & ACCURACY) ---
+    function sortShifts(shiftsList, sortMode) {
+      const sorted = [...shiftsList];
+      if (sortMode === 'winteam') {
+        // WinTeam Standard: Date -> InTime (Start Time) -> PostDescription (Alphanumeric) -> ShiftID
+        sorted.sort((a, b) => {
+          if (a.workDateNorm !== b.workDateNorm) {
+            return a.workDateNorm.localeCompare(b.workDateNorm);
+          }
+          if (Math.abs(a.inTimeHours - b.inTimeHours) > 0.001) {
+            return a.inTimeHours - b.inTimeHours;
+          }
+          const postA = (a.postDesc || '').toString();
+          const postB = (b.postDesc || '').toString();
+          const cmp = postA.localeCompare(postB, undefined, { numeric: true, sensitivity: 'base' });
+          if (cmp !== 0) return cmp;
+          return (a.shiftId || '').toString().localeCompare((b.shiftId || '').toString());
+        });
+      } else if (sortMode === 'post') {
+        // WinTeam Post Order: PostDescription -> Start Time
+        sorted.sort((a, b) => {
+          const postA = (a.postDesc || '').toString();
+          const postB = (b.postDesc || '').toString();
+          const cmp = postA.localeCompare(postB, undefined, { numeric: true, sensitivity: 'base' });
+          if (cmp !== 0) return cmp;
+          return a.inTimeHours - b.inTimeHours;
+        });
+      } else if (sortMode === 'hours') {
+        sorted.sort((a, b) => b.countedHours - a.countedHours || a.inTimeHours - b.inTimeHours);
+      } else if (sortMode === 'candidates') {
+        sorted.sort((a, b) => {
+          const candA = getCandidateMatchesForShift(a);
+          const candB = getCandidateMatchesForShift(b);
+          const countA = candA.tier1.length + candA.tier2.length;
+          const countB = candB.tier1.length + candB.tier2.length;
+          return countA - countB || a.inTimeHours - b.inTimeHours;
+        });
+      } else {
+        // default earliest time
+        sorted.sort((a, b) => a.inTimeHours - b.inTimeHours || a.outTimeHours - b.outTimeHours);
+      }
+      return sorted;
     }
 
     function renderShiftFirstDaysContent() {
       const container = document.getElementById('shiftFirstDaysContainer');
       if (!container) return;
 
+      if (!state.shifts || state.shifts.length === 0) {
+        container.innerHTML = `
+          <div class="p-12 text-center text-slate-500 text-xs bg-white rounded-xl border border-slate-200 shadow-xs flex flex-col items-center">
+            <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-3">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+              </svg>
+            </div>
+            <div class="font-bold text-slate-900 text-base mb-1">No Shifts Data Loaded</div>
+            <p class="text-xs text-slate-500 max-w-md mb-4">
+              Drop or upload <strong>PPA.csv</strong>, <strong>EMP.csv</strong>, and <strong>Working Weeks CSV</strong> to start filling shifts into WinTeam immediately.
+            </p>
+            <button onclick="openUploadModal()" class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+              <span>Load CSV Files</span>
+            </button>
+          </div>
+        `;
+        return;
+      }
+
       const targetDates = state.shiftFirstSelectedDay === 'all'
         ? state.dates
         : [state.shiftFirstSelectedDay];
 
+      const jobKeys = ['233265', '235144', '266778', '267588'];
       let totalVisibleShifts = 0;
       let html = '';
 
@@ -3040,36 +3610,33 @@
           });
         }
 
-        // Sort dayShifts
-        if (state.shiftFirstSort === 'time') {
-          dayShifts.sort((a, b) => (a.inTimeHours - b.inTimeHours) || (a.outTimeHours - b.outTimeHours));
-        } else if (state.shiftFirstSort === 'hours') {
-          dayShifts.sort((a, b) => b.countedHours - a.countedHours);
-        } else if (state.shiftFirstSort === 'post') {
-          dayShifts.sort((a, b) => (a.postDesc || '').localeCompare(b.postDesc || ''));
+        // Filter by Job Code if selected
+        if (state.shiftFirstJobFilter !== 'all') {
+          dayShifts = dayShifts.filter(s => String(s.jobNumber).trim() === state.shiftFirstJobFilter);
         }
 
+        totalVisibleShifts += dayShifts.length;
         const openInDay = dayShifts.filter(s => s.isOpen && !s.assignedEmployee && isFillablePostDescription(s.postDesc)).length;
         const totalHoursInDay = dayShifts.reduce((acc, s) => acc + s.countedHours, 0.0);
-        totalVisibleShifts += dayShifts.length;
 
-        // Day Section Header
+        // Day Section Container
         html += `
-          <div class="flex flex-col gap-3">
+          <div class="flex flex-col gap-3.5">
+            <!-- Day Banner -->
             <div class="flex items-center justify-between bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-xs">
               <div class="flex items-center gap-3">
-                <span class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-xs uppercase tracking-wider">
+                <span class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-extrabold text-xs uppercase tracking-wider">
                   ${meta.shortDay}
                 </span>
                 <div>
                   <h3 class="font-bold text-sm text-white">${meta.fullLabel}</h3>
                   <div class="text-[11px] text-slate-400">
-                    <strong class="text-amber-400">${openInDay} open shifts</strong> to fill &bull; ${totalHoursInDay.toFixed(1)} total hours &bull; Target &lt;45h/week
+                    <strong class="text-amber-400">${openInDay} open shifts</strong> to fill &bull; ${totalHoursInDay.toFixed(1)} total hours
                   </div>
                 </div>
               </div>
-              <div class="text-right">
-                <span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-slate-800 text-slate-300 border border-slate-700">
+              <div class="flex items-center gap-2">
+                <span class="px-2.5 py-0.5 rounded text-[11px] font-mono font-bold bg-slate-800 text-slate-300 border border-slate-700">
                   ${dayShifts.length} shifts
                 </span>
               </div>
@@ -3078,39 +3645,83 @@
 
         if (dayShifts.length === 0) {
           html += `
-            <div class="p-8 text-center text-slate-400 text-xs bg-white rounded-xl border border-slate-200">
+            <div class="p-6 text-center text-slate-400 text-xs bg-white rounded-xl border border-slate-200">
               No shifts match the current filters on this day.
             </div>
           `;
         } else {
-          html += `<div class="grid grid-cols-1 gap-3.5">`;
-          dayShifts.forEach(shift => {
-            html += renderShiftCard(shift);
-          });
-          html += `</div>`;
+          // If viewing All 4 Jobs, display separated sections for each Job Code!
+          if (state.shiftFirstJobFilter === 'all') {
+            jobKeys.forEach(jk => {
+              const jDef = JOB_CODES[jk] || { code: jk, title: jk, shortTitle: jk, isBre: false, theme: 'slate' };
+              const jobShifts = sortShifts(dayShifts.filter(s => String(s.jobNumber).trim() === jk), state.shiftFirstSort);
+              if (jobShifts.length === 0) return;
+
+              const jobOpen = jobShifts.filter(s => s.isOpen && !s.assignedEmployee && isFillablePostDescription(s.postDesc)).length;
+              const jobHours = jobShifts.reduce((acc, s) => acc + s.countedHours, 0.0);
+
+              let themeBorder = 'border-blue-200 bg-blue-50/20';
+              let headerBg = 'bg-blue-900 text-white';
+              if (jDef.theme === 'indigo') {
+                themeBorder = 'border-indigo-200 bg-indigo-50/20';
+                headerBg = 'bg-indigo-900 text-white';
+              } else if (jDef.theme === 'emerald') {
+                themeBorder = 'border-emerald-200 bg-emerald-50/20';
+                headerBg = 'bg-emerald-950 text-white';
+              } else if (jDef.theme === 'amber') {
+                themeBorder = 'border-amber-200 bg-amber-50/20';
+                headerBg = 'bg-amber-950 text-white';
+              }
+
+              html += `
+                <div class="rounded-xl border ${themeBorder} overflow-hidden shadow-2xs">
+                  <!-- Job Code Subheader -->
+                  <div class="${headerBg} px-3.5 py-2 flex items-center justify-between flex-wrap gap-2">
+                    <div class="flex items-center gap-2">
+                      <span class="font-mono text-xs font-black tracking-wide px-2 py-0.5 rounded bg-black/30">${jk}</span>
+                      <span class="font-bold text-xs">${escapeHtml(jDef.title)}</span>
+                      <span class="px-1.5 py-0.2 rounded text-[10px] font-bold ${jDef.isBre ? 'bg-amber-400 text-slate-950' : 'bg-blue-400 text-slate-950'}">
+                        ${jDef.isBre ? 'Break Relief Extra (BRE)' : 'Core Posts'}
+                      </span>
+                    </div>
+                    <div class="flex items-center gap-2 text-[11px]">
+                      <span class="font-mono text-amber-300 font-bold">${jobOpen} open</span>
+                      <span class="text-slate-400">&bull;</span>
+                      <span class="font-mono text-slate-300">${jobHours.toFixed(1)} hrs</span>
+                      <button onclick="setShiftFirstJob('${jk}')" class="ml-2 px-2 py-0.5 rounded text-[10px] font-bold bg-white/20 hover:bg-white/30 text-white transition-colors">
+                        Focus Job &rarr;
+                      </button>
+                    </div>
+                  </div>
+                  <!-- Shifts List -->
+                  <div class="p-3 grid grid-cols-1 gap-3 bg-white">
+              `;
+              jobShifts.forEach(shift => {
+                html += renderShiftCard(shift);
+              });
+              html += `</div></div>`;
+            });
+          } else {
+            // A specific Job Code is isolated
+            const sortedShifts = sortShifts(dayShifts, state.shiftFirstSort);
+            html += `<div class="grid grid-cols-1 gap-3">`;
+            sortedShifts.forEach(shift => {
+              html += renderShiftCard(shift);
+            });
+            html += `</div>`;
+          }
         }
 
         html += `</div>`; // Close day section
       });
 
-      if (state.shifts.length === 0) {
+      if (totalVisibleShifts === 0) {
         html = `
-          <div class="p-16 text-center text-slate-500 text-xs bg-white rounded-xl border border-slate-200 shadow-xs flex flex-col items-center">
-            <svg class="w-10 h-10 text-slate-400 mb-2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.253 3.75m3 2.25H3.75m16.5 0v11.25A2.25 2.25 0 0118 21H6a2.25 2.25 0 01-2.25-2.25V7.5h16.5z" />
-            </svg>
-            <div class="font-bold text-slate-800 text-sm mb-1">No Shifts CSV Loaded</div>
-            <p class="text-xs text-slate-500 max-w-sm mb-3">Upload your PPA.csv file containing weekly shifts and open slots to view and fill shifts.</p>
-            <button onclick="openUploadModal()" class="px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-1.5">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-              <span>Upload CSV Files</span>
-            </button>
-          </div>
-        `;
-      } else if (totalVisibleShifts === 0) {
-        html = `
-          <div class="p-12 text-center text-slate-400 text-xs bg-white rounded-xl border border-slate-200">
-            No shifts found matching your search or filters. <button onclick="resetShiftFirstFilters()" class="text-blue-600 font-bold underline ml-1">Reset all filters</button>
+          <div class="p-12 text-center text-slate-500 text-xs bg-white rounded-xl border border-slate-200">
+            No shifts match the current search, day, or job code filter.
+            <div class="mt-2">
+              <button onclick="resetShiftFirstFilters()" class="text-blue-600 font-bold underline">Reset Filters</button>
+            </div>
           </div>
         `;
       }
@@ -3118,10 +3729,34 @@
       container.innerHTML = html;
     }
 
+    function copyEID(eid, evt) {
+      if (evt) evt.stopPropagation();
+      copyToClipboard(eid, `Copied EID ${eid} to clipboard!`);
+    }
+
+    function copyWinTeamShiftLine(shiftId, evt) {
+      if (evt) evt.stopPropagation();
+      const shift = state.shifts.find(s => s.id === shiftId);
+      if (!shift) return;
+      const emp = shift.assignedEmployee;
+      const text = `${shift.jobNumber}\t${shift.workDateNorm}\t${shift.postDesc}\t${shift.inTime}-${shift.outTime}\t${emp ? emp.eid : ''}\t${emp ? emp.name : 'Open'}`;
+      copyToClipboard(text, `Copied WinTeam shift line to clipboard!`);
+    }
+
     function renderShiftCard(shift) {
       const isAssigned = !shift.isOpen || shift.assignedEmployee !== null;
       const assignedEmp = shift.assignedEmployee;
-      const { tier1, tier2, tier3, p1, p2, p3, p4, p5, p6, conflicted } = getCandidateMatchesForShift(shift);
+      const matches = getCandidateMatchesForShift(shift) || {};
+      const tier1 = matches.tier1 || [];
+      const tier2 = matches.tier2 || [];
+      const tier3 = matches.tier3 || [];
+      const conflicted = matches.conflicted || [];
+      const p1 = matches.p1 || tier1.filter(c => c.currentH < 20.0);
+      const p2 = matches.p2 || tier1.filter(c => c.currentH >= 20.0);
+      const p3 = matches.p3 || tier2.filter(c => c.currentH < 20.0);
+      const p4 = matches.p4 || tier2.filter(c => c.currentH >= 20.0);
+      const p5 = matches.p5 || tier3.filter(c => c.currentH < 20.0);
+      const p6 = matches.p6 || tier3.filter(c => c.currentH >= 20.0);
 
       // Filter candidates based on tier filter and avoidHiredAV setting
       let candidates = [];
@@ -3141,15 +3776,10 @@
       } else if (state.shiftFirstTierFilter === 'avoidHired') {
         candidates = [...tier1, ...tier2];
       } else {
-        // 'all': respect avoidHiredAV flag
         candidates = avoidHired ? [...tier1, ...tier2] : [...tier1, ...tier2, ...tier3];
       }
 
-      // Sort strictly by the requested priority hierarchy:
-      // 1. Staying within limit / no non-billable OT first
-      // 2. Priority Rank (1st <20h -> 1st >=20h -> 2nd <20h -> 2nd >=20h -> Hired <20h -> Hired >=20h)
-      // 3. Lowest actual weekly hours first
-      // 4. Alphabetical by name
+      // Sort candidates by priority hierarchy
       candidates.sort((a, b) => {
         const otA = a.willOvertime ? 1 : 0;
         const otB = b.willOvertime ? 1 : 0;
@@ -3159,9 +3789,10 @@
         return a.emp.name.localeCompare(b.emp.name);
       });
 
-      const isExpanded = state.shiftFirstExpandedShifts[shift.id] === true;
-      const showConflicted = state.shiftFirstShowConflicted[shift.id] === true;
-      const showHiredFallback = state.shiftFirstShowHiredFallback[shift.id] === true;
+      // Safe lookup for expanded/conflicted/hired fallback states
+      const isExpanded = !!(state.shiftFirstExpandedShifts && state.shiftFirstExpandedShifts[shift.id]);
+      const showConflicted = !!(state.shiftFirstShowConflicted && state.shiftFirstShowConflicted[shift.id]);
+      const showHiredFallback = !!(state.shiftFirstShowHiredFallback && state.shiftFirstShowHiredFallback[shift.id]);
       const displayCandidates = isExpanded ? candidates : candidates.slice(0, 3);
       const remainingCandidatesCount = candidates.length - 3;
 
@@ -3169,16 +3800,21 @@
         ? 'border-emerald-300 bg-white ring-1 ring-emerald-500/30'
         : 'border-slate-200 bg-white hover:border-slate-300';
 
+      const jDef = JOB_CODES[shift.jobNumber] || { code: shift.jobNumber, title: shift.jobDesc, isBre: isBreShift(shift) };
+
       let statusBadgeHtml = '';
       if (isAssigned) {
         statusBadgeHtml = `
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-2 flex-wrap">
             <span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1.5">
               <span class="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
               <span>Assigned: <strong>${escapeHtml(assignedEmp.name)}</strong> (${shift.assignedTier || 'Assigned'})</span>
             </span>
+            <button onclick="copyEID('${assignedEmp.eid}', event)" class="px-2 py-1 rounded-md bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-mono font-bold flex items-center gap-1">
+              📋 Copy EID: ${assignedEmp.eid}
+            </button>
             <button onclick="unassignShift('${shift.id}')" class="px-2.5 py-1 rounded-lg bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 text-xs font-bold transition-colors">
-              Undo Assignment
+              Undo
             </button>
           </div>
         `;
@@ -3201,22 +3837,25 @@
                 ✓
               </div>
               <div>
-                <div class="font-bold text-slate-900 text-sm">
-                  ${escapeHtml(assignedEmp.name)} 
-                  <span class="text-slate-500 font-mono text-xs">#${assignedEmp.eid}</span>
+                <div class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                  <span>${escapeHtml(assignedEmp.name)}</span>
+                  <span class="text-slate-600 font-mono text-xs">#${assignedEmp.eid}</span>
+                  <button onclick="copyEID('${assignedEmp.eid}', event)" class="text-[10px] text-blue-600 hover:underline font-bold font-sans">Copy EID</button>
                 </div>
                 <div class="text-[11px] text-emerald-800 mt-0.5">
-                  WinTeam Weekly Hours: <strong class="font-mono">${assignedEmp.actualHours.toFixed(2)} hrs</strong> &bull; Target: &lt;45.0h &bull; Preference: ${shift.assignedTier || 'Assigned'}
+                  WinTeam Hours: <strong class="font-mono">${assignedEmp.actualHours.toFixed(2)} hrs</strong> &bull; Target &lt;45.0h &bull; Phone: ${escapeHtml(assignedEmp.phone || 'N/A')}
                 </div>
               </div>
             </div>
             <div class="flex items-center gap-2">
-              <button onclick="openOfficerDetailModal('${assignedEmp.eid}')" class="px-3 py-1.5 rounded-lg bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 font-semibold text-xs flex items-center gap-1.5">
-                <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                <span>Officer Profile</span>
+              <button onclick="copyWinTeamShiftLine('${shift.id}', event)" class="px-2.5 py-1.5 rounded-lg bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 font-semibold text-xs flex items-center gap-1">
+                📋 Copy WT Line
               </button>
-              <button onclick="unassignShift('${shift.id}')" class="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs shadow-sm">
-                Change Assignment
+              <button onclick="openOfficerDetailModal('${assignedEmp.eid}')" class="px-2.5 py-1.5 rounded-lg bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 font-semibold text-xs flex items-center gap-1">
+                Profile
+              </button>
+              <button onclick="unassignShift('${shift.id}')" class="px-2.5 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs shadow-sm">
+                Change
               </button>
             </div>
           </div>
@@ -3238,7 +3877,7 @@
             <div>
               <div class="flex items-center justify-between mb-2 flex-wrap gap-1">
                 <div class="text-[11px] font-bold text-slate-700 flex items-center gap-1.5 flex-wrap">
-                  <span>Available Specialists Ranked by Priority &amp; Headroom</span>
+                  <span>Available Specialists Ranked by Priority & Headroom</span>
                   <span class="px-1.5 py-0.2 rounded-full bg-blue-100 text-blue-800 font-mono text-[10px] font-extrabold">${candidates.length}</span>
                   <span class="text-[10.5px] text-slate-500 font-normal">
                     (${p1.length} 1st &lt;20h &bull; ${p2.length} 1st &ge;20h &bull; ${p3.length} 2nd &lt;20h &bull; ${p4.length} 2nd &ge;20h${tier3.length > 0 ? (avoidHired ? ` &bull; <span class="text-slate-400 font-normal">${tier3.length} Hired AV avoided</span>` : ` &bull; ${tier3.length} Hired AV`) : ''})
@@ -3251,209 +3890,131 @@
                 ` : ''}
               </div>
 
-              <div class="divide-y divide-slate-100 border border-slate-200 rounded-lg overflow-hidden bg-white">
-                ${displayCandidates.map((c, idx) => {
-            const rank = idx + 1;
-            const rankBadgeClass = rank === 1 ? 'bg-blue-600 text-white font-extrabold' : 'bg-slate-200 text-slate-700 font-bold';
+              <!-- Top Candidate Cards -->
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5">
+          `;
 
-            let priorityBadgeClass = 'badge-p1';
-            if (c.priorityRank === 1) priorityBadgeClass = 'badge-p1-under20 font-bold';
-            else if (c.priorityRank === 2) priorityBadgeClass = 'badge-p1-over20 font-semibold';
-            else if (c.priorityRank === 3) priorityBadgeClass = 'badge-p2-under20 font-bold';
-            else if (c.priorityRank === 4) priorityBadgeClass = 'badge-p2-over20 font-semibold';
-            else if (c.priorityRank === 5) priorityBadgeClass = 'badge-hired-under20 font-medium';
-            else if (c.priorityRank === 6) priorityBadgeClass = 'badge-hired-over20 font-normal';
+          displayCandidates.forEach(cand => {
+            const emp = cand.emp;
+            const willOvertime = cand.willOvertime;
+            const currentH = (cand.currentH !== undefined) ? cand.currentH : (emp.actualHours || 0.0);
+            const projectedH = (cand.projectedH !== undefined) ? cand.projectedH : (currentH + shift.countedHours);
+            const effLimit = (cand.effectiveLimit !== undefined) ? cand.effectiveLimit : ((cand.effLimit !== undefined) ? cand.effLimit : getEmployeeEffectiveLimit(emp));
+            const tierLabel = cand.tierLabel || cand.tier || 'Matched';
 
-            const buttonClass = c.priorityRank <= 2
-              ? 'bg-blue-600 hover:bg-blue-500 text-white'
-              : (c.priorityRank <= 4
-                ? 'bg-amber-600 hover:bg-amber-500 text-white'
-                : 'bg-slate-700 hover:bg-slate-600 text-white');
+            let tierCls = 'bg-blue-50 text-blue-800 border-blue-200';
+            if (cand.priorityRank === 1) tierCls = 'bg-emerald-50 text-emerald-800 border-emerald-300 font-bold';
+            else if (cand.priorityRank === 2) tierCls = 'bg-blue-50 text-blue-800 border-blue-300 font-bold';
+            else if (cand.priorityRank === 3) tierCls = 'bg-amber-50 text-amber-800 border-amber-300 font-bold';
+            else if (cand.priorityRank === 4) tierCls = 'bg-orange-50 text-orange-800 border-orange-300 font-semibold';
+            else tierCls = 'bg-slate-100 text-slate-700 border-slate-300 italic';
 
-            const remainingUnder45 = 45.0 - c.projectedH;
-            const hoursIndicator = !c.willOvertime
-              ? `<span class="text-emerald-700 font-semibold font-mono text-[10.5px]">(${remainingUnder45.toFixed(1)}h headroom left under 45h limit)</span>`
-              : `<span class="text-rose-700 font-bold font-mono text-[10.5px]">⚠️ Will exceed 45h limit by +${Math.abs(remainingUnder45).toFixed(1)}h OT</span>`;
+            let hourBadgeCls = 'bg-slate-100 text-slate-700';
+            if (projectedH <= 40.0) hourBadgeCls = 'bg-emerald-100 text-emerald-800 font-bold';
+            else if (projectedH <= effLimit) hourBadgeCls = 'bg-amber-100 text-amber-800 font-bold';
+            else hourBadgeCls = 'bg-rose-100 text-rose-800 font-bold';
 
-            return `
-                    <div class="p-2.5 hover:bg-slate-50 transition-colors flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 text-xs">
-                      
-                      <!-- Officer Info & Match Reasons & Notes -->
-                      <div class="flex items-center gap-2.5 flex-1 min-w-0">
-                        <span class="w-6 h-6 rounded-md ${rankBadgeClass} flex items-center justify-center text-[10px] shrink-0 font-mono">
-                          #${rank}
-                        </span>
-                        
-                        <div class="min-w-0 flex-1">
-                          <div class="flex items-center gap-2 flex-wrap">
-                            <span class="font-bold text-slate-900 text-xs">${escapeHtml(c.emp.name)}</span>
-                            <span class="text-slate-400 font-mono text-[11px]">#${c.emp.eid}</span>
-                            <span class="px-2 py-0.5 rounded text-[10px] ${priorityBadgeClass} border">
-                              ${c.priorityLabel || c.matchLabel}
-                            </span>
-                            <span class="text-[9px] text-slate-400">[Source: Working Weeks Sheet]</span>
-                            ${c.isRollover ? '<span class="px-1.5 py-0.2 rounded text-[9.5px] font-bold badge-rollover-allowed">Same-Post Rollover</span>' : ''}
-                            ${c.emp.notes && c.emp.notes.trim() ? `
-                              <span class="px-1.5 py-0.5 rounded bg-amber-50 text-amber-900 border border-amber-200 text-[10px] font-medium flex items-center gap-1 shrink-0" title="Officer Note: ${escapeHtml(c.emp.notes.replace(/\r?\n/g, ' '))}">
-                                <svg class="w-3 h-3 text-amber-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                                <span class="font-sans font-semibold">${escapeHtml(c.emp.notes.replace(/\r?\n/g, ' &bull; '))}</span>
-                              </span>
-                            ` : ''}
-                          </div>
-                          
-                          <!-- Weekly Hours Calculation -->
-                          <div class="text-[11px] text-slate-500 font-mono mt-0.5 flex items-center gap-1.5 flex-wrap">
-                            <span>WinTeam Law Current: <strong class="text-slate-800">${c.currentH.toFixed(1)} hrs</strong></span>
-                            <span>&rarr;</span>
-                            <span>Projected: <strong class="${c.willOvertime ? 'text-rose-600 font-bold' : 'text-emerald-700 font-bold'}">${c.projectedH.toFixed(1)} hrs</strong></span>
-                            ${hoursIndicator}
-                          </div>
-                        </div>
-                      </div>
-
-                      <!-- Action Button -->
-                      <div class="flex items-center gap-2 shrink-0">
-                        <button onclick="openOfficerDetailModal('${c.emp.eid}')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 hover:text-slate-900 text-[11px] font-semibold flex items-center gap-1 shadow-2xs transition-colors" title="View Officer Profile, Preferences & Weekly Schedule">
-                          <svg class="w-3 h-3 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                          <span>Profile</span>
-                        </button>
-                        <button onclick="assignCandidate('${shift.id}', '${c.emp.eid}', '${c.tier}')" class="px-3.5 py-1 rounded-lg ${buttonClass} text-xs font-bold shadow-sm transition-all flex items-center gap-1">
-                          <span>Assign Officer</span>
-                        </button>
-                      </div>
-
+            bodyHtml += `
+              <div class="p-2.5 rounded-lg border border-slate-200 bg-slate-50/70 hover:bg-white hover:border-blue-400 hover:shadow-xs transition-all flex flex-col justify-between text-xs gap-2">
+                <div>
+                  <div class="flex items-center justify-between gap-1 mb-1">
+                    <span class="px-1.5 py-0.5 rounded text-[9.5px] border ${tierCls}">
+                      ${tierLabel}
+                    </span>
+                    <button onclick="copyEID('${emp.eid}', event)" class="px-1.5 py-0.5 rounded bg-slate-200 hover:bg-slate-300 text-slate-800 font-mono text-[10px] font-bold flex items-center gap-1" title="Click to copy EID for WinTeam">
+                      📋 ${emp.eid}
+                    </button>
+                  </div>
+                  <div class="font-bold text-slate-900 truncate" title="${escapeHtml(emp.name)}">
+                    ${escapeHtml(emp.name)}
+                  </div>
+                  <div class="text-[11px] text-slate-500 font-mono mt-0.5">
+                    ${currentH.toFixed(1)}h &rarr; <strong class="${hourBadgeCls} px-1 rounded">${projectedH.toFixed(1)}h</strong> <span class="text-[10px] text-slate-400">/ ${effLimit.toFixed(1)}h</span>
+                  </div>
+                  ${cand.restBufferLabel ? `
+                    <div class="text-[10px] text-emerald-700 mt-1 flex items-center gap-1">
+                      <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                      ${cand.restBufferLabel}
                     </div>
-                  `;
-          }).join('')}
-              </div>
-
-              ${candidates.length > 3 ? `
-                <div class="mt-2 text-center">
-                  <button onclick="toggleExpandShiftCandidates('${shift.id}')" class="text-xs text-blue-600 hover:text-blue-800 font-semibold">
-                    ${isExpanded ? 'Show fewer candidates' : `Show all ${candidates.length} candidates (${remainingCandidatesCount} more)`}
+                  ` : ''}
+                </div>
+                <div class="flex items-center gap-1.5 pt-1 border-t border-slate-100">
+                  <button onclick="assignCandidate('${shift.id}', '${emp.eid}', '${tierLabel}')"
+                    class="w-full py-1.5 rounded-md bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-2xs transition-all flex items-center justify-center gap-1">
+                    <span>Assign Shift</span>
+                    <span class="text-[10px] text-blue-200">&bull; Copies EID</span>
                   </button>
                 </div>
-              ` : ''}
-
-              ${avoidHired && tier3.length > 0 ? `
-                <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between">
-                  <button onclick="toggleShiftHiredFallback('${shift.id}')" class="text-xs text-slate-500 hover:text-slate-800 underline flex items-center gap-1 font-medium">
-                    <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
-                    <span>${showHiredFallback ? 'Hide' : 'Show'} ${tier3.length} Avoided Hired AV Candidates (Emergency Fallback)</span>
-                  </button>
-                  <span class="text-[10px] text-slate-400 italic">Excluded per policy</span>
-                </div>
-                ${showHiredFallback ? `
-                  <div class="mt-2 divide-y divide-slate-100 border border-slate-200 rounded-lg overflow-hidden bg-slate-50/50">
-                    <div class="px-3 py-1.5 bg-slate-100 text-[10px] font-bold text-slate-600 uppercase tracking-wider flex items-center justify-between">
-                      <span>Avoided Hired AV Candidates (${tier3.length})</span>
-                      <span class="text-[9.5px] font-normal text-slate-500">Low Priority Fallback</span>
-                    </div>
-                    ${tier3.map((c, hIdx) => {
-            const hRank = candidates.length + hIdx + 1;
-            const hRemaining = 45.0 - c.projectedH;
-            const hHoursInd = !c.willOvertime
-              ? `<span class="text-emerald-700 font-semibold font-mono text-[10px]">(${hRemaining.toFixed(1)}h left)</span>`
-              : `<span class="text-rose-700 font-bold font-mono text-[10px]">OT: +${Math.abs(hRemaining).toFixed(1)}h</span>`;
-            return `
-                        <div class="p-2.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 text-xs hover:bg-white transition-colors">
-                          <div class="flex items-center gap-2 flex-1 min-w-0">
-                            <span class="w-5 h-5 rounded bg-slate-200 text-slate-600 flex items-center justify-center text-[9px] shrink-0 font-mono font-bold">#${hRank}</span>
-                            <div class="min-w-0 flex-1">
-                              <div class="flex items-center gap-1.5 flex-wrap">
-                                <span class="font-bold text-slate-800 text-xs">${escapeHtml(c.emp.name)}</span>
-                                <span class="text-slate-400 font-mono text-[10.5px]">#${c.emp.eid}</span>
-                                <span class="px-1.5 py-0.2 rounded text-[9.5px] ${c.priorityRank === 5 ? 'badge-hired-under20 font-medium' : 'badge-hired-over20'} border">
-                                  ${c.priorityLabel}
-                                </span>
-                              </div>
-                              <div class="text-[10.5px] text-slate-500 font-mono mt-0.5">
-                                Current: ${c.currentH.toFixed(1)}h &rarr; Projected: ${c.projectedH.toFixed(1)}h ${hHoursInd}
-                              </div>
-                            </div>
-                          </div>
-                          <button onclick="assignCandidate('${shift.id}', '${c.emp.eid}', '${c.tier}')" class="px-3 py-1 rounded-lg bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs shrink-0 shadow-2xs">
-                            Assign (Hired AV)
-                          </button>
-                        </div>
-                      `;
-          }).join('')}
-                  </div>
-                ` : ''}
-              ` : ''}
-
-            </div>
-          `;
-        }
-
-        if (showConflicted && conflicted.length > 0) {
-          bodyHtml += `
-            <div class="mt-2 p-2.5 bg-rose-50/60 border border-rose-200 rounded-lg text-xs">
-              <div class="font-bold text-rose-800 mb-1.5 flex items-center gap-1">
-                <svg class="w-3.5 h-3.5 text-rose-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                <span>Unavailable &amp; Conflicted Specialists (${conflicted.length}):</span>
               </div>
-              <div class="divide-y divide-rose-100 max-h-48 overflow-y-auto">
-                ${conflicted.slice(0, 15).map(cf => `
-                  <div class="py-1 flex items-center justify-between text-[11px]">
-                    <span class="font-medium text-slate-800">${escapeHtml(cf.emp.name)} <span class="text-slate-400 font-mono">#${cf.emp.eid}</span></span>
-                    <span class="text-rose-700 font-semibold">${escapeHtml(cf.reason)}</span>
-                  </div>
-                `).join('')}
+            `;
+          });
+
+          bodyHtml += `</div>`; // Close grid
+
+          if (candidates.length > 3) {
+            bodyHtml += `
+              <div class="mt-2 text-center">
+                <button onclick="toggleExpandShiftCandidates('${shift.id}')" class="text-xs text-blue-600 hover:text-blue-800 font-semibold underline">
+                  ${isExpanded ? 'Collapse Candidate List' : `View all ${candidates.length} matching specialists (+${remainingCandidatesCount} more)`}
+                </button>
               </div>
-              ${conflicted.length > 15 ? `<div class="text-[10px] text-slate-500 text-center mt-1">+${conflicted.length - 15} more unavailable specialists</div>` : ''}
-            </div>
-          `;
+            `;
+          }
         }
       }
 
-      return `
-        <div id="card_${shift.id}" class="border rounded-xl shadow-xs transition-all ${borderClass}">
-          
-          <!-- Shift Header Bar -->
-          <div class="p-3 border-b border-slate-100 bg-slate-50/80 rounded-t-xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5">
-            <div class="flex items-center gap-2 flex-wrap">
-              <span class="font-extrabold text-sm text-slate-900 font-mono">
-                ${shift.inTime} &ndash; ${shift.outTime}
-              </span>
-
-              <span class="px-2 py-0.5 rounded text-[11px] font-extrabold bg-blue-100 text-blue-800 border border-blue-200 font-mono">
-                ${shift.countedHours.toFixed(1)} Hours
-              </span>
-
-              <span class="text-slate-300">&bull;</span>
-
-              <span class="text-slate-700 font-semibold text-xs">
-                ${escapeHtml(shift.postDesc || shift.jobPostDetailId || 'Standard')}
-              </span>
-
-              <span class="text-slate-400 font-mono text-[11px]">
-                Job #${shift.jobNumber || '233265'}
-              </span>
-
-              ${isBreShift(shift) ? `
-                <span class="px-2 py-0.5 rounded text-[10px] font-black bg-purple-100 text-purple-900 border border-purple-300 font-mono flex items-center gap-1" title="BRE Shift (JC ${shift.jobNumber}): Bottom 75 officers in Working Weeks are ineligible">
-                  <span>BRE Shift</span>
-                  <span class="text-purple-700 font-sans font-semibold">&bull; Bottom 75 Ineligible</span>
-                </span>
-              ` : ''}
-
-              ${shift.shiftId ? `<span class="px-1.5 py-0.2 rounded bg-slate-200 text-slate-700 text-[10px] font-mono">Shift #${shift.shiftId}</span>` : ''}
-              ${shift.scheduleDetailsId ? `<span class="px-1.5 py-0.2 rounded bg-slate-100 text-slate-600 text-[10px] font-mono">Details #${shift.scheduleDetailsId}</span>` : ''}
-              <span class="text-[9px] text-emerald-800 font-semibold">[Source: WinTeam Report (Law)]</span>
+      let conflictedHtml = '';
+      if (showConflicted && conflicted.length > 0) {
+        conflictedHtml = `
+          <div class="mt-3 p-3 bg-rose-50/60 border border-rose-200 rounded-lg text-xs">
+            <div class="font-bold text-rose-900 mb-1.5 flex items-center justify-between">
+              <span>Disqualified / Conflicted Specialists (${conflicted.length})</span>
+              <button onclick="toggleShiftConflicted('${shift.id}')" class="text-[11px] text-rose-700 underline font-medium">Close</button>
             </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 max-h-48 overflow-y-auto">
+        `;
+        conflicted.forEach(c => {
+          conflictedHtml += `
+            <div class="p-1.5 bg-white rounded border border-rose-200 text-[11px]">
+              <div class="font-bold text-slate-800 truncate">${escapeHtml(c.emp.name)} <span class="font-mono text-slate-400 text-[10px]">#${c.emp.eid}</span></div>
+              <div class="text-rose-700 text-[10px] mt-0.5">${escapeHtml(c.reason)}</div>
+            </div>
+          `;
+        });
+        conflictedHtml += `</div></div>`;
+      }
 
-            <!-- Status Badge -->
+      return `
+        <div class="rounded-xl border ${borderClass} shadow-2xs p-4 flex flex-col gap-3 transition-all" id="card_${shift.id}">
+          <!-- Top Row: Shift Identification & Times -->
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-100 pb-2.5">
+            <div class="flex items-center gap-2.5 flex-wrap">
+              <span class="font-mono text-xs font-black px-2 py-0.5 rounded bg-slate-900 text-white">
+                ${shift.jobNumber}
+              </span>
+              <span class="font-extrabold text-sm text-slate-950 font-mono">
+                Post: ${escapeHtml(shift.postDesc || 'General Post')}
+              </span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold ${jDef.isBre ? 'bg-amber-100 text-amber-800 border border-amber-200' : 'bg-blue-100 text-blue-800 border border-blue-200'}">
+                ${jDef.isBre ? 'BRE (Break Relief)' : 'Core Post'}
+              </span>
+              <span class="font-mono text-xs font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded">
+                ${shift.inTime} - ${shift.outTime} (${shift.countedHours.toFixed(2)}h)
+              </span>
+              <span class="text-[10px] font-mono text-slate-400">
+                Shift: ${shift.shiftId || '1A'} &bull; DetailID: ${shift.scheduleDetailsId || shift.jobPostDetailId || 'N/A'}
+              </span>
+            </div>
             <div>
               ${statusBadgeHtml}
             </div>
           </div>
 
-          <!-- Shift Candidate Body -->
-          <div class="p-3.5 flex flex-col gap-2.5 bg-white">
+          <!-- Body: Candidates or Assigned Details -->
+          <div>
             ${bodyHtml}
+            ${conflictedHtml}
           </div>
-
         </div>
       `;
     }
@@ -4308,6 +4869,18 @@
         setTimeout(() => toast.remove(), 200);
       }, 3000);
     }
+
+    
+    // --- GLOBAL DRAG AND DROP FILE LISTENER ---
+    window.addEventListener('dragover', (e) => {
+      e.preventDefault();
+    });
+    window.addEventListener('drop', (e) => {
+      e.preventDefault();
+      if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        handleFiles(e.dataTransfer.files);
+      }
+    });
 
     window.addEventListener('DOMContentLoaded', () => {
       initData();
