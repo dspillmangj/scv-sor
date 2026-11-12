@@ -692,9 +692,11 @@
             <!-- Tier Filter -->
             <select id="selectShiftFirstTier" onchange="handleShiftFirstTierChange(this.value)"
               class="text-xs bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 focus:ring-1 focus:ring-blue-500 font-medium">
-              <option value="all">All Qualified Officers</option>
+              <option value="all">All Qualified Officers (Clean First, Notes Lowest)</option>
+              <option value="clean">Clean Officers Only (No Notes)</option>
               <option value="tier1">1st Choice Officers Only</option>
               <option value="under45">Under 45h Cap Only</option>
+              <option value="notes">Lowest Tier: Officers with Notes Only</option>
             </select>
 
             <!-- Sort By: Default to WinTeam Order -->
@@ -1084,6 +1086,7 @@
               <th class="p-2.5 text-center w-12">Done</th>
               <th class="p-2.5">EID</th>
               <th class="p-2.5">Specialist Name</th>
+              <th class="p-2.5 bg-amber-100/80 text-amber-950 font-extrabold border-l border-r border-amber-300 min-w-[160px]">WW Notes</th>
               <th class="p-2.5">Date</th>
               <th class="p-2.5">Shift Time</th>
               <th class="p-2.5">Hours</th>
@@ -1479,6 +1482,14 @@
     }
 
     // --- EMPLOYEE STATUS & GUARDRAIL HELPERS ---
+    function hasEmployeeAnyNotes(emp) {
+      if (!emp) return false;
+      const wwNote = (emp.notes || '').toString().trim();
+      const ppaNote = (emp.ppaNotes || '').toString().trim();
+      const cellNote = (emp.cellNotes || '').toString().trim();
+      return (wwNote.length > 0 || ppaNote.length > 0 || cellNote.length > 0);
+    }
+
     function getEmployeeStatus(emp, dateStr = null) {
       if (!emp) return { isBlocked: false, reason: '' };
       const n = (emp.notes || '').toLowerCase();
@@ -2403,9 +2414,15 @@
         }
       });
 
-      // Update emp.actualHours on all employee objects
+      // Update emp.actualHours and attach any notes from PPA/EMP
       state.employees.forEach(emp => {
         emp.actualHours = state.empActualHours[emp.eid] || 0.0;
+        if (!emp.ppaNotes && state.wtEmployeesMap && state.wtEmployeesMap[emp.eid]) {
+          emp.ppaNotes = state.wtEmployeesMap[emp.eid].notes || '';
+        }
+        if (!emp.cellNotes && state.empInfoFromEMP && state.empInfoFromEMP[emp.eid]) {
+          emp.cellNotes = state.empInfoFromEMP[emp.eid].notes || '';
+        }
       });
     }
 
@@ -2421,6 +2438,7 @@
       const tier1 = [];
       const tier2 = [];
       const tier3 = [];
+      const tierNotes = []; // Lowest tier for officers with ANY notes
       const conflicted = [];
       const allMatchesMap = {}; // eid -> candidate match info
 
@@ -2528,41 +2546,86 @@
         const isRolloverSamePost = existingShiftsOnDate.length > 0 && existingShiftsOnDate.every(es => (es.postDesc || es.jobPostDetailId || '').trim() === shiftPost);
         const rolloverNote = isRolloverSamePost ? ' (Same-Post Rollover)' : (existingShiftsOnDate.length > 0 ? ' (Split Shift \u22648h)' : '');
 
-        // 5. Check Preferences: Tier 1 (1st Choice)
+        // 5. Check if officer has ANY notes in WW, PPA, or EMP:
+        // If they have a hair inside their notes column, put them at the lowest tier for manual assignment!
+        const hasNotes = hasEmployeeAnyNotes(emp);
+        const officerNotesText = (emp.notes || emp.ppaNotes || emp.cellNotes || '').trim();
+
+        // 5b. Check Preferences: Tier 1 (1st Choice)
         const p1W = parseTimeWindow(p1Val);
         if (p1W && p1W.start <= inT && inT < p1W.end) {
-          const item = {
-            emp,
-            tier: 'Tier 1 (1st Choice)',
-            tierNum: 1,
-            matchLabel: '1st Choice: ' + p1Val + rolloverNote,
-            currentH,
-            projectedH: currentH + shHours,
-            willOvertime: (currentH + shHours) > effLimit,
-            effectiveLimit: effLimit,
-            isRollover: isRolloverSamePost
-          };
-          tier1.push(item);
-          allMatchesMap[eid] = item;
+          if (hasNotes) {
+            tierNotes.push({
+              emp,
+              tier: 'Lowest Tier (Has Notes - Manual Only)',
+              tierLabel: 'Lowest Tier: Has Notes (Manual Only)',
+              tierNum: 4,
+              matchLabel: '1st Choice [Has Notes: ' + officerNotesText + ']',
+              currentH,
+              projectedH: currentH + shHours,
+              willOvertime: (currentH + shHours) > effLimit,
+              effectiveLimit: effLimit,
+              isRollover: isRolloverSamePost,
+              priorityRank: 99,
+              hasNotes: true,
+              notesText: officerNotesText
+            });
+          } else {
+            const item = {
+              emp,
+              tier: 'Tier 1 (1st Choice)',
+              tierNum: 1,
+              matchLabel: '1st Choice: ' + p1Val + rolloverNote,
+              currentH,
+              projectedH: currentH + shHours,
+              willOvertime: (currentH + shHours) > effLimit,
+              effectiveLimit: effLimit,
+              isRollover: isRolloverSamePost,
+              priorityRank: (currentH < 20.0 ? 1 : 2),
+              hasNotes: false
+            };
+            tier1.push(item);
+            allMatchesMap[eid] = item;
+          }
           return;
         }
 
         // Check Preferences: Tier 2 (2nd Choice)
         const p2W = parseTimeWindow(p2Val);
         if (p2W && p2W.start <= inT && inT < p2W.end) {
-          const item = {
-            emp,
-            tier: 'Tier 2 (2nd Choice)',
-            tierNum: 2,
-            matchLabel: '2nd Choice: ' + p2Val + rolloverNote,
-            currentH,
-            projectedH: currentH + shHours,
-            willOvertime: (currentH + shHours) > effLimit,
-            effectiveLimit: effLimit,
-            isRollover: isRolloverSamePost
-          };
-          tier2.push(item);
-          allMatchesMap[eid] = item;
+          if (hasNotes) {
+            tierNotes.push({
+              emp,
+              tier: 'Lowest Tier (Has Notes - Manual Only)',
+              tierLabel: 'Lowest Tier: Has Notes (Manual Only)',
+              tierNum: 4,
+              matchLabel: '2nd Choice [Has Notes: ' + officerNotesText + ']',
+              currentH,
+              projectedH: currentH + shHours,
+              willOvertime: (currentH + shHours) > effLimit,
+              effectiveLimit: effLimit,
+              isRollover: isRolloverSamePost,
+              priorityRank: 99,
+              hasNotes: true,
+              notesText: officerNotesText
+            });
+          } else {
+            const item = {
+              emp,
+              tier: 'Tier 2 (2nd Choice)',
+              tierNum: 2,
+              matchLabel: '2nd Choice: ' + p2Val + rolloverNote,
+              currentH,
+              projectedH: currentH + shHours,
+              willOvertime: (currentH + shHours) > effLimit,
+              effectiveLimit: effLimit,
+              isRollover: isRolloverSamePost,
+              priorityRank: (currentH < 20.0 ? 3 : 4),
+              hasNotes: false
+            };
+            tier2.push(item);
+            allMatchesMap[eid] = item;
+          }
           return;
         }
 
@@ -2570,33 +2633,44 @@
         const hWs = parseHiredWindows(hiredVal);
         for (const hw of hWs) {
           if (hw.start <= inT && inT < hw.end) {
-            const item = {
-              emp,
-              tier: 'Tier 3 (Hired AV)',
-              tierNum: 3,
-              matchLabel: 'Hired AV: ' + hiredVal + rolloverNote,
-              currentH,
-              projectedH: currentH + shHours,
-              willOvertime: (currentH + shHours) > effLimit,
-              effectiveLimit: effLimit,
-              isRollover: isRolloverSamePost
-            };
-            tier3.push(item);
-            allMatchesMap[eid] = item;
-            return;
+            if (hasNotes) {
+              tierNotes.push({
+                emp,
+                tier: 'Lowest Tier (Has Notes - Manual Only)',
+                tierLabel: 'Lowest Tier: Has Notes (Manual Only)',
+                tierNum: 4,
+                matchLabel: 'Hired AV [Has Notes: ' + officerNotesText + ']',
+                currentH,
+                projectedH: currentH + shHours,
+                willOvertime: (currentH + shHours) > effLimit,
+                effectiveLimit: effLimit,
+                isRollover: isRolloverSamePost,
+                priorityRank: 99,
+                hasNotes: true,
+                notesText: officerNotesText
+              });
+            } else {
+              const item = {
+                emp,
+                tier: 'Tier 3 (Hired AV)',
+                tierNum: 3,
+                matchLabel: 'Hired AV: ' + hiredVal + rolloverNote,
+                currentH,
+                projectedH: currentH + shHours,
+                willOvertime: (currentH + shHours) > effLimit,
+                effectiveLimit: effLimit,
+                isRollover: isRolloverSamePost,
+                priorityRank: (currentH < 20.0 ? 5 : 6),
+                hasNotes: false
+              };
+              tier3.push(item);
+              allMatchesMap[eid] = item;
+            }
+            break;
           }
         }
-
-        conflicted.push({
-          emp,
-          reason: 'Outside preferences',
-          currentH,
-          projectedH: currentH + shHours,
-          willOvertime: (currentH + shHours) > effLimit
-        });
       });
 
-      // Sort: Under personal limit first (prevents non-billable OT and limit breaches), then Lowest Actual Weekly Hours first, then Name
       const sortCandidates = (a, b) => {
         const otA = a.willOvertime ? 1 : 0;
         const otB = b.willOvertime ? 1 : 0;
@@ -2615,7 +2689,7 @@
       const p5 = tier3.filter(c => c.currentH < 20.0);
       const p6 = tier3.filter(c => c.currentH >= 20.0);
 
-      return { tier1, tier2, tier3, p1, p2, p3, p4, p5, p6, conflicted, allMatchesMap };
+      return { tier1, tier2, tier3, tierNotes, p1, p2, p3, p4, p5, p6, conflicted, allMatchesMap };
     }
 
     // --- POPULATE STICKY SHIFT LINKER DROPDOWN ---
@@ -3256,6 +3330,7 @@
         shiftId: shift.id,
         eid: employee.eid,
         name: employee.name,
+        wwNotes: employee.notes || '', 
         workDateNorm: shift.workDateNorm,
         inTime: shift.inTime,
         outTime: shift.outTime,
@@ -3739,7 +3814,7 @@
       const shift = state.shifts.find(s => s.id === shiftId);
       if (!shift) return;
       const emp = shift.assignedEmployee;
-      const text = `${shift.jobNumber}\t${shift.workDateNorm}\t${shift.postDesc}\t${shift.inTime}-${shift.outTime}\t${emp ? emp.eid : ''}\t${emp ? emp.name : 'Open'}`;
+      const text = `${shift.jobNumber}\t${shift.workDateNorm}\t${shift.postDesc}\t${shift.inTime}-${shift.outTime}\t${emp ? emp.eid : ''}\t${emp ? emp.name : 'Open'}\t${emp ? (emp.notes || 'None').replace(/\r?\n/g, ' ') : ''}`;
       copyToClipboard(text, `Copied WinTeam shift line to clipboard!`);
     }
 
@@ -3750,6 +3825,7 @@
       const tier1 = matches.tier1 || [];
       const tier2 = matches.tier2 || [];
       const tier3 = matches.tier3 || [];
+      const tierNotes = matches.tierNotes || [];
       const conflicted = matches.conflicted || [];
       const p1 = matches.p1 || tier1.filter(c => c.currentH < 20.0);
       const p2 = matches.p2 || tier1.filter(c => c.currentH >= 20.0);
@@ -3775,8 +3851,13 @@
         candidates = pool.filter(c => !c.willOvertime);
       } else if (state.shiftFirstTierFilter === 'avoidHired') {
         candidates = [...tier1, ...tier2];
-      } else {
+      } else if (state.shiftFirstTierFilter === 'notes') {
+        candidates = [...tierNotes];
+      } else if (state.shiftFirstTierFilter === 'clean') {
         candidates = avoidHired ? [...tier1, ...tier2] : [...tier1, ...tier2, ...tier3];
+      } else {
+        // 'all': clean candidates first, followed by tierNotes (lowest tier) at the bottom
+        candidates = avoidHired ? [...tier1, ...tier2, ...tierNotes] : [...tier1, ...tier2, ...tier3, ...tierNotes];
       }
 
       // Sort candidates by priority hierarchy
@@ -3845,6 +3926,11 @@
                 <div class="text-[11px] text-emerald-800 mt-0.5">
                   WinTeam Hours: <strong class="font-mono">${assignedEmp.actualHours.toFixed(2)} hrs</strong> &bull; Target &lt;45.0h &bull; Phone: ${escapeHtml(assignedEmp.phone || 'N/A')}
                 </div>
+                <!-- ALWAYS VISIBLE WW NOTES ON ASSIGNED SHIFT -->
+                <div class="mt-1.5 text-[11px] ${assignedEmp.notes ? 'bg-amber-100 text-amber-950 font-bold border border-amber-300 shadow-2xs' : 'bg-emerald-100/60 text-emerald-800 border border-emerald-200'} px-2.5 py-1 rounded-md flex items-start gap-1.5">
+                  <span class="text-amber-800 font-black shrink-0">📝 WW Notes:</span>
+                  <span>${escapeHtml(assignedEmp.notes || 'None')}</span>
+                </div>
               </div>
             </div>
             <div class="flex items-center gap-2">
@@ -3903,7 +3989,8 @@
             const tierLabel = cand.tierLabel || cand.tier || 'Matched';
 
             let tierCls = 'bg-blue-50 text-blue-800 border-blue-200';
-            if (cand.priorityRank === 1) tierCls = 'bg-emerald-50 text-emerald-800 border-emerald-300 font-bold';
+            if (cand.priorityRank === 99 || cand.hasNotes) tierCls = 'bg-rose-100 text-rose-900 border-rose-300 font-extrabold';
+            else if (cand.priorityRank === 1) tierCls = 'bg-emerald-50 text-emerald-800 border-emerald-300 font-bold';
             else if (cand.priorityRank === 2) tierCls = 'bg-blue-50 text-blue-800 border-blue-300 font-bold';
             else if (cand.priorityRank === 3) tierCls = 'bg-amber-50 text-amber-800 border-amber-300 font-bold';
             else if (cand.priorityRank === 4) tierCls = 'bg-orange-50 text-orange-800 border-orange-300 font-semibold';
@@ -3928,7 +4015,12 @@
                   <div class="font-bold text-slate-900 truncate" title="${escapeHtml(emp.name)}">
                     ${escapeHtml(emp.name)}
                   </div>
-                  <div class="text-[11px] text-slate-500 font-mono mt-0.5">
+                  <!-- ALWAYS VISIBLE WW NOTES -->
+                  <div class="mt-1 text-[10.5px] ${emp.notes ? 'bg-amber-100 text-amber-950 font-semibold border border-amber-300' : 'bg-slate-100 text-slate-500 font-normal border border-slate-200'} px-2 py-0.5 rounded flex items-start gap-1 leading-tight" title="${escapeHtml(emp.notes || 'No notes in Working Weeks')}">
+                    <span class="font-extrabold ${emp.notes ? 'text-amber-800' : 'text-slate-400'} shrink-0">📝 WW:</span>
+                    <span class="truncate">${escapeHtml(emp.notes || 'None')}</span>
+                  </div>
+                  <div class="text-[11px] text-slate-500 font-mono mt-1">
                     ${currentH.toFixed(1)}h &rarr; <strong class="${hourBadgeCls} px-1 rounded">${projectedH.toFixed(1)}h</strong> <span class="text-[10px] text-slate-400">/ ${effLimit.toFixed(1)}h</span>
                   </div>
                   ${cand.restBufferLabel ? `
@@ -4278,7 +4370,10 @@
           const eid = emp.eid;
           const effLimit = getEmployeeEffectiveLimit(emp);
 
-          // 1. Status Block: Disqualify Inactive, LOA, Locked Out, Bereavement
+          // 1. Strict Notes Disqualification: If officer has ANY notes in WW, PPA, or EMP, DISQUALIFY FROM AUTO-FILL!
+          if (hasEmployeeAnyNotes(emp)) return;
+
+          // 1b. Status Block: Disqualify Inactive, LOA, Locked Out, Bereavement
           const status = getEmployeeStatus(emp, dt);
           if (status.isBlocked) return;
 
@@ -4459,6 +4554,10 @@
                 <span class="font-bold text-slate-900">${escapeHtml(p.employee.name)}</span>
                 <span class="font-mono text-slate-500 text-[11px]">#${p.employee.eid}</span>
                 <span class="px-2 py-0.5 rounded text-[10px] border ${tierCls}">${p.tier}</span>
+                <!-- WW NOTES IN PROPOSAL -->
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold ${p.employee.notes ? 'bg-amber-100 text-amber-900 border border-amber-300' : 'bg-slate-100 text-slate-500'}">
+                  📝 WW: ${escapeHtml(p.employee.notes || 'None')}
+                </span>
                 <span class="px-1.5 py-0.5 rounded text-[9.5px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
                   <span class="w-1 h-1 rounded-full bg-emerald-500"></span>
                   ${p.restBufferLabel || '✓ Rest Validated'}
@@ -4523,7 +4622,7 @@
       if (state.sessionAssignments.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="10" class="p-8 text-center text-slate-400 font-sans">
+            <td colspan="11" class="p-8 text-center text-slate-400 font-sans">
               No shifts assigned in this session yet. As you assign shifts on the Working Weeks grid, they appear here for entry into WinTeam.
             </td>
           </tr>
@@ -4547,6 +4646,7 @@
               </div>
             </td>
             <td class="p-2 font-semibold text-slate-900 font-sans">${escapeHtml(sa.name)}</td>
+            <td class="p-2 text-[11px] font-sans font-medium text-amber-950 bg-amber-50/70 border-l border-r border-amber-200 max-w-[200px] truncate" title="${escapeHtml(sa.wwNotes || 'None')}">${escapeHtml(sa.wwNotes || 'None')}</td>
             <td class="p-2">${sa.workDateNorm}</td>
             <td class="p-2">${sa.inTime} - ${sa.outTime}</td>
             <td class="p-2 font-bold">${sa.countedHours.toFixed(2)}</td>
@@ -4586,10 +4686,11 @@
         showToast('No assignments to copy.');
         return;
       }
-      const headers = ['EID', 'Specialist Name', 'Work Date', 'In Time', 'Out Time', 'Hours', 'Job Number', 'Schedule Details ID', 'Post Description', 'Match Tier'];
+      const headers = ['EID', 'Specialist Name', 'WW Notes', 'Work Date', 'In Time', 'Out Time', 'Hours', 'Job Number', 'Schedule Details ID', 'Post Description', 'Match Tier'];
       const rows = state.sessionAssignments.map(sa => [
         sa.eid,
         sa.name,
+        (sa.wwNotes || 'None').replace(/\r?\n/g, ' '),
         sa.workDateNorm,
         sa.inTime,
         sa.outTime,
@@ -4608,12 +4709,13 @@
         showToast('No assignments in session to export.');
         return;
       }
-      const headers = ['EID', 'Specialist Name', 'WorkDate', 'InTime', 'OutTime', 'CountedHours', 'JobNumber', 'ScheduleDetailsID', 'JobDescription', 'PostDescription', 'MatchTier', 'Timestamp'];
+      const headers = ['EID', 'Specialist Name', 'WW Notes', 'WorkDate', 'InTime', 'OutTime', 'CountedHours', 'JobNumber', 'ScheduleDetailsID', 'JobDescription', 'PostDescription', 'MatchTier', 'Timestamp'];
       const csvRows = [headers.join(',')];
       state.sessionAssignments.forEach(sa => {
         csvRows.push([
           sa.eid,
           `"${sa.name.replace(/"/g, '""')}"`,
+          `"${(sa.wwNotes || 'None').replace(/"/g, '""').replace(/\r?\n/g, ' ')}"`,
           sa.workDateNorm,
           sa.inTime,
           sa.outTime,
