@@ -696,13 +696,13 @@
             <!-- Tier Filter -->
             <select id="selectShiftFirstTier" onchange="handleShiftFirstTierChange(this.value)"
               class="text-xs bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 focus:ring-1 focus:ring-blue-500 font-medium">
-              <option value="all">All Qualified Officers (Clean First, Notes Lowest)</option>
-              <option value="clean">Clean Officers Only (No Notes)</option>
-              <option value="tier1">1st Choice Officers Only</option>
-              <option value="tier2">2nd Choice Officers Only</option>
+              <option value="all">All Qualified Specialists</option>
+              <option value="clean">Specialists Without Notes Only</option>
+              <option value="tier1">1st Choice Specialists Only</option>
+              <option value="tier2">2nd Choice Specialists Only</option>
               <option value="under20">Priority: Under 20h Only</option>
               <option value="under45">Under 45h Cap Only</option>
-              <option value="notes">Lowest Tier: Officers with Notes Only</option>
+              <option value="notes">Specialists with Notes Only</option>
             </select>
 
             <!-- Sort By: Default to Start Time -->
@@ -1496,8 +1496,40 @@
       return (wwNote.length > 0 || ppaNote.length > 0 || cellNote.length > 0);
     }
 
+    function isDateInTorRange(targetDateStr, torStartStr, torEndStr, defaultYear) {
+      if (!targetDateStr || !torStartStr) return false;
+      try {
+        const tParts = normDate(targetDateStr).split('/');
+        if (tParts.length < 2) return false;
+        const tM = parseInt(tParts[0], 10);
+        const tD = parseInt(tParts[1], 10);
+        const tY = tParts[2] ? parseInt(tParts[2], 10) : parseInt(defaultYear, 10);
+        const targetTime = new Date(tY, tM - 1, tD).getTime();
+
+        const sParts = torStartStr.split('/');
+        const sM = parseInt(sParts[0], 10);
+        const sD = parseInt(sParts[1], 10);
+        const sY = sParts[2] ? parseInt(sParts[2], 10) : parseInt(defaultYear, 10);
+        const startTime = new Date(sY, sM - 1, sD).getTime();
+
+        if (!torEndStr) {
+          return targetTime === startTime;
+        }
+
+        const eParts = torEndStr.split('/');
+        const eM = parseInt(eParts[0], 10);
+        const eD = parseInt(eParts[1], 10);
+        const eY = eParts[2] ? parseInt(eParts[2], 10) : parseInt(defaultYear, 10);
+        const endTime = new Date(eY, eM - 1, eD).getTime();
+
+        return targetTime >= startTime && targetTime <= endTime;
+      } catch (e) {
+        return false;
+      }
+    }
+
     // Disqualifying notes detector:
-    // Only disqualify officers with: Locked out, Inactive, Dedicated, LOA, TOR, MVR, Transferred, Resigned, Bereavement, Hybrid
+    // Only disqualify officers with full-week blockers: Locked out, Inactive, Dedicated, LOA, Blanket TOR, MVR, Transferred, Resigned, Bereavement, Hybrid
     function getDisqualifyingNotesReason(notesStr) {
       if (!notesStr) return null;
       const s = notesStr.toString();
@@ -1511,8 +1543,13 @@
       if (/dedicat(ed|ion|ions)?|\bded\b/i.test(s)) return 'Dedicated Specialist';
       // 4. LOA / Leave of Absence / L.O.A.
       if (/\bloa\b|leave\s+of\s+absence|l\.o\.a\./i.test(s)) return 'Leave of Absence (LOA)';
-      // 5. TOR / Time Off Request / T.O.R.
-      if (/\btor\b|time[-_\s]?off[-_\s]?request|t\.o\.r\./i.test(s)) return 'Time Off Request (TOR)';
+      // 5. TOR / Time Off Request / T.O.R. (only if NOT date-specific; date-specific is checked in getEmployeeStatus per date)
+      if (/\b(?:tor|time[-_\s]?off[-_\s]?request|t\.o\.r\.)\b/i.test(s)) {
+        const hasSpecificDate = /(?:tor|time[-_\s]?off[-_\s]?request|t\.o\.r\.)\s*[:\s-]?\s*\d{1,2}[./]\d{1,2}/i.test(s);
+        if (!hasSpecificDate) {
+          return 'Time Off Request (TOR)';
+        }
+      }
       // 6. MVR / Driver Incompliant / MVR Incompliant / Motor Vehicle
       if (/\bmvr\b|driver\s+incompliant|motor\s+vehicle/i.test(s)) return 'MVR / Driver Incompliant';
       // 7. Transferred / transfer / transfers / transferring / transfered / trasnferred / trasnfer
@@ -1531,7 +1568,7 @@
       if (!emp) return { isBlocked: false, reason: '' };
       const fullNotes = [emp.notes, emp.ppaNotes, emp.cellNotes].filter(Boolean).join(' \n ');
 
-      // Check if employee has any disqualifying keywords anywhere in notes cell
+      // Check if employee has any full-week disqualifying keywords in notes
       const disqReason = getDisqualifyingNotesReason(fullNotes);
       if (disqReason) {
         return { isBlocked: true, reason: `Disqualified: ${disqReason} (in Notes)` };
@@ -1542,19 +1579,24 @@
         const targetDate = normDate(dateStr);
         const year = state.dates[0].split('/')[2] || '2026';
 
-        const torMatch = fullNotes.toLowerCase().match(/tor\s*(\d{1,2}\/\d{1,2})/);
-        if (torMatch) {
-          const torDate = normDate(torMatch[1] + '/' + year);
-          if (torDate === targetDate) {
-            return { isBlocked: true, reason: `TOR on ${torMatch[1]}` };
+        // Check for date-specific TOR
+        const torRegex = /(?:tor|time[-_\s]?off[-_\s]?request|t\.o\.r\.)\s*[:\s-]?\s*(\d{1,2}[./]\d{1,2})(?:\s*(?:-|–|—|to)\s*(\d{1,2}[./]\d{1,2}))?/gi;
+        let torM;
+        while ((torM = torRegex.exec(fullNotes)) !== null) {
+          const startStr = torM[1].replace('.', '/');
+          const endStr = torM[2] ? torM[2].replace('.', '/') : null;
+          if (isDateInTorRange(targetDate, startStr, endStr, year)) {
+            return { isBlocked: true, reason: `TOR on ${torM[1]}${torM[2] ? ' - ' + torM[2] : ''}` };
           }
         }
 
-        const cprMatch = fullNotes.toLowerCase().match(/cpr\s*(\d{1,2}\/\d{1,2})/);
-        if (cprMatch) {
-          const cprDate = normDate(cprMatch[1] + '/' + year);
-          if (cprDate === targetDate) {
-            return { isBlocked: true, reason: `CPR Training on ${cprMatch[1]}` };
+        // Check for date-specific CPR
+        const cprRegex = /cpr\s*[:\s-]?\s*(\d{1,2}[./]\d{1,2})/gi;
+        let cprM;
+        while ((cprM = cprRegex.exec(fullNotes)) !== null) {
+          const cprDateStr = cprM[1].replace('.', '/');
+          if (isDateInTorRange(targetDate, cprDateStr, null, year)) {
+            return { isBlocked: true, reason: `CPR Training on ${cprM[1]}` };
           }
         }
       }
@@ -2573,132 +2615,79 @@
         const isRolloverSamePost = existingShiftsOnDate.length > 0 && existingShiftsOnDate.every(es => (es.postDesc || es.jobPostDetailId || '').trim() === shiftPost);
         const rolloverNote = isRolloverSamePost ? ' (Same-Post Rollover)' : (existingShiftsOnDate.length > 0 ? ' (Split Shift \u22648h)' : '');
 
-        // 5. Check if officer has ANY notes in WW, PPA, or EMP:
-        // If they have a hair inside their notes column, put them at the lowest tier for manual assignment!
         const hasNotes = hasEmployeeAnyNotes(emp);
         const officerNotesText = (emp.notes || emp.ppaNotes || emp.cellNotes || '').trim();
 
-        // 5b. Check Preferences: Tier 1 (1st Choice)
+        // 5a. Check Preferences: Tier 1 (1st Choice)
         const p1W = parseTimeWindow(p1Val);
         if (p1W && p1W.start <= inT && inT < p1W.end) {
-          if (hasNotes) {
-            tierNotes.push({
-              emp,
-              tier: 'Lowest Tier (Has Notes - Manual Only)',
-              tierLabel: 'Lowest Tier: Has Notes (Manual Only)',
-              tierNum: 4,
-              matchLabel: '1st Choice [Has Notes: ' + officerNotesText + ']',
-              currentH,
-              projectedH: currentH + shHours,
-              willOvertime: (currentH + shHours) > effLimit,
-              effectiveLimit: effLimit,
-              isRollover: isRolloverSamePost,
-              priorityRank: 99,
-              hasNotes: true,
-              notesText: officerNotesText
-            });
-          } else {
-            const item = {
-              emp,
-              tier: 'Tier 1 (1st Choice)',
-              tierLabel: '1st Choice' + rolloverNote,
-              tierNum: 1,
-              matchLabel: '1st Choice: ' + p1Val + rolloverNote,
-              currentH,
-              projectedH: currentH + shHours,
-              willOvertime: (currentH + shHours) > effLimit,
-              effectiveLimit: effLimit,
-              isRollover: isRolloverSamePost,
-              priorityRank: (currentH < 20.0 ? 1 : 2),
-              hasNotes: false,
-              notesText: officerNotesText
-            };
-            tier1.push(item);
-            allMatchesMap[eid] = item;
-          }
+          const item = {
+            emp,
+            tier: 'Tier 1 (1st Choice)',
+            tierLabel: '1st Choice' + rolloverNote,
+            tierNum: 1,
+            matchLabel: '1st Choice: ' + p1Val + rolloverNote,
+            currentH,
+            projectedH: currentH + shHours,
+            willOvertime: (currentH + shHours) > effLimit,
+            effectiveLimit: effLimit,
+            isRollover: isRolloverSamePost,
+            priorityRank: (currentH < 20.0 ? 1 : 2),
+            hasNotes: hasNotes,
+            notesText: officerNotesText
+          };
+          tier1.push(item);
+          if (hasNotes) tierNotes.push(item);
+          allMatchesMap[eid] = item;
           return;
         }
 
-        // Check Preferences: Tier 2 (2nd Choice)
+        // 5b. Check Preferences: Tier 2 (2nd Choice)
         const p2W = parseTimeWindow(p2Val);
         if (p2W && p2W.start <= inT && inT < p2W.end) {
-          if (hasNotes) {
-            tierNotes.push({
-              emp,
-              tier: 'Lowest Tier (Has Notes - Manual Only)',
-              tierLabel: 'Lowest Tier: Has Notes (Manual Only)',
-              tierNum: 4,
-              matchLabel: '2nd Choice [Has Notes: ' + officerNotesText + ']',
-              currentH,
-              projectedH: currentH + shHours,
-              willOvertime: (currentH + shHours) > effLimit,
-              effectiveLimit: effLimit,
-              isRollover: isRolloverSamePost,
-              priorityRank: 99,
-              hasNotes: true,
-              notesText: officerNotesText
-            });
-          } else {
-            const item = {
-              emp,
-              tier: 'Tier 2 (2nd Choice)',
-              tierLabel: '2nd Choice' + rolloverNote,
-              tierNum: 2,
-              matchLabel: '2nd Choice: ' + p2Val + rolloverNote,
-              currentH,
-              projectedH: currentH + shHours,
-              willOvertime: (currentH + shHours) > effLimit,
-              effectiveLimit: effLimit,
-              isRollover: isRolloverSamePost,
-              priorityRank: (currentH < 20.0 ? 3 : 4),
-              hasNotes: false,
-              notesText: officerNotesText
-            };
-            tier2.push(item);
-            allMatchesMap[eid] = item;
-          }
+          const item = {
+            emp,
+            tier: 'Tier 2 (2nd Choice)',
+            tierLabel: '2nd Choice' + rolloverNote,
+            tierNum: 2,
+            matchLabel: '2nd Choice: ' + p2Val + rolloverNote,
+            currentH,
+            projectedH: currentH + shHours,
+            willOvertime: (currentH + shHours) > effLimit,
+            effectiveLimit: effLimit,
+            isRollover: isRolloverSamePost,
+            priorityRank: (currentH < 20.0 ? 3 : 4),
+            hasNotes: hasNotes,
+            notesText: officerNotesText
+          };
+          tier2.push(item);
+          if (hasNotes) tierNotes.push(item);
+          allMatchesMap[eid] = item;
           return;
         }
 
-        // Check Preferences: Tier 3 (Hired AV)
+        // 5c. Check Preferences: Tier 3 (Hired AV)
         const hWs = parseHiredWindows(hiredVal);
         for (const hw of hWs) {
           if (hw.start <= inT && inT < hw.end) {
-            if (hasNotes) {
-              tierNotes.push({
-                emp,
-                tier: 'Lowest Tier (Has Notes - Manual Only)',
-                tierLabel: 'Lowest Tier: Has Notes (Manual Only)',
-                tierNum: 4,
-                matchLabel: 'Hired AV [Has Notes: ' + officerNotesText + ']',
-                currentH,
-                projectedH: currentH + shHours,
-                willOvertime: (currentH + shHours) > effLimit,
-                effectiveLimit: effLimit,
-                isRollover: isRolloverSamePost,
-                priorityRank: 99,
-                hasNotes: true,
-                notesText: officerNotesText
-              });
-            } else {
-              const item = {
-                emp,
-                tier: 'Tier 3 (Hired AV)',
-                tierLabel: 'Hired AV' + rolloverNote,
-                tierNum: 3,
-                matchLabel: 'Hired AV: ' + hiredVal + rolloverNote,
-                currentH,
-                projectedH: currentH + shHours,
-                willOvertime: (currentH + shHours) > effLimit,
-                effectiveLimit: effLimit,
-                isRollover: isRolloverSamePost,
-                priorityRank: (currentH < 20.0 ? 5 : 6),
-                hasNotes: false,
-                notesText: officerNotesText
-              };
-              tier3.push(item);
-              allMatchesMap[eid] = item;
-            }
+            const item = {
+              emp,
+              tier: 'Tier 3 (Hired AV)',
+              tierLabel: 'Hired AV' + rolloverNote,
+              tierNum: 3,
+              matchLabel: 'Hired AV: ' + hiredVal + rolloverNote,
+              currentH,
+              projectedH: currentH + shHours,
+              willOvertime: (currentH + shHours) > effLimit,
+              effectiveLimit: effLimit,
+              isRollover: isRolloverSamePost,
+              priorityRank: (currentH < 20.0 ? 5 : 6),
+              hasNotes: hasNotes,
+              notesText: officerNotesText
+            };
+            tier3.push(item);
+            if (hasNotes) tierNotes.push(item);
+            allMatchesMap[eid] = item;
             break;
           }
         }
@@ -3108,7 +3097,7 @@
       }
       const openShifts = state.shifts.filter(s => s.isOpen && !s.assignedEmployee && s.workDateNorm === dt && isFillablePostDescription(s.postDesc));
       const dInfo = emp.daily[dt] || {};
-      const existingShifts = state.empDayWorkingShifts[emp.eid][dt] || [];
+      const existingShifts = (state.empDayWorkingShifts && state.empDayWorkingShifts[emp.eid] && state.empDayWorkingShifts[emp.eid][dt]) || [];
 
       if (['Dedication', 'TOR', 'Not Available', 'Opt Out'].includes(dInfo.p1)) {
         return { tier1: 0, tier2: 0, tier3: 0, total: 0 };
@@ -3181,7 +3170,7 @@
 
       const openShifts = state.shifts.filter(s => s.isOpen && !s.assignedEmployee && s.workDateNorm === dt && isFillablePostDescription(s.postDesc));
       const dInfo = emp.daily[dt] || {};
-      const existingShifts = state.empDayWorkingShifts[emp.eid][dt] || [];
+      const existingShifts = (state.empDayWorkingShifts && state.empDayWorkingShifts[emp.eid] && state.empDayWorkingShifts[emp.eid][dt]) || [];
       const dayExistingHours = existingShifts.reduce((acc, es) => acc + es.countedHours, 0.0);
 
       const p1W = parseTimeWindow(dInfo.p1);
@@ -3712,8 +3701,8 @@
         sorted.sort((a, b) => {
           const candA = getCandidateMatchesForShift(a);
           const candB = getCandidateMatchesForShift(b);
-          const countA = candA.tier1.length + candA.tier2.length + (candA.tierNotes ? candA.tierNotes.length : 0);
-          const countB = candB.tier1.length + candB.tier2.length + (candB.tierNotes ? candB.tierNotes.length : 0);
+          const countA = Object.keys(candA.allMatchesMap || {}).length;
+          const countB = Object.keys(candB.allMatchesMap || {}).length;
           return countA - countB || a.inTimeHours - b.inTimeHours;
         });
       }
@@ -3972,10 +3961,10 @@
       } else if (state.shiftFirstTierFilter === 'notes') {
         candidates = [...tierNotes];
       } else if (state.shiftFirstTierFilter === 'clean') {
-        candidates = avoidHired ? [...tier1, ...tier2] : [...tier1, ...tier2, ...tier3];
+        const pool = avoidHired ? [...tier1, ...tier2] : [...tier1, ...tier2, ...tier3];
+        candidates = pool.filter(c => !c.hasNotes);
       } else {
-        // 'all': clean candidates first, followed by tierNotes (lowest tier) at the bottom
-        candidates = avoidHired ? [...tier1, ...tier2, ...tierNotes] : [...tier1, ...tier2, ...tier3, ...tierNotes];
+        candidates = avoidHired ? [...tier1, ...tier2] : [...tier1, ...tier2, ...tier3];
       }
 
       // Sort candidates by priority hierarchy
@@ -4107,11 +4096,11 @@
             const tierLabel = cand.tierLabel || cand.tier || 'Matched';
 
             let tierCls = 'bg-blue-50 text-blue-800 border-blue-200';
-            if (cand.priorityRank === 99 || cand.hasNotes) tierCls = 'bg-rose-100 text-rose-900 border-rose-300 font-extrabold';
-            else if (cand.priorityRank === 1) tierCls = 'bg-emerald-50 text-emerald-800 border-emerald-300 font-bold';
+            if (cand.priorityRank === 1) tierCls = 'bg-emerald-50 text-emerald-800 border-emerald-300 font-bold';
             else if (cand.priorityRank === 2) tierCls = 'bg-blue-50 text-blue-800 border-blue-300 font-bold';
             else if (cand.priorityRank === 3) tierCls = 'bg-amber-50 text-amber-800 border-amber-300 font-bold';
             else if (cand.priorityRank === 4) tierCls = 'bg-orange-50 text-orange-800 border-orange-300 font-semibold';
+            else if (cand.priorityRank === 99) tierCls = 'bg-slate-100 text-slate-700 border-slate-300 font-bold';
             else tierCls = 'bg-slate-100 text-slate-700 border-slate-300 italic';
 
             let hourBadgeCls = 'bg-slate-100 text-slate-700';
@@ -4473,9 +4462,11 @@
       state.employees.forEach(emp => {
         simWorkingShifts[emp.eid] = {};
         state.dates.forEach(dt => {
-          simWorkingShifts[emp.eid][dt] = [...state.empDayWorkingShifts[emp.eid][dt]];
+          simWorkingShifts[emp.eid][dt] = (state.empDayWorkingShifts && state.empDayWorkingShifts[emp.eid] && state.empDayWorkingShifts[emp.eid][dt])
+            ? [...state.empDayWorkingShifts[emp.eid][dt]]
+            : [];
         });
-        simHours[emp.eid] = emp.actualHours;
+        simHours[emp.eid] = emp.actualHours || 0.0;
       });
 
       const proposed = [];
@@ -4493,10 +4484,7 @@
           const eid = emp.eid;
           const effLimit = getEmployeeEffectiveLimit(emp);
 
-          // 1. Strict Notes Disqualification: If officer has ANY notes in WW, PPA, or EMP, DISQUALIFY FROM AUTO-FILL!
-          if (hasEmployeeAnyNotes(emp)) return;
-
-          // 1b. Status Block: Disqualify Inactive, LOA, Locked Out, Bereavement
+          // 1. Status Block: Disqualify Inactive, LOA, Locked Out, Bereavement, or Date-Specific Conflict
           const status = getEmployeeStatus(emp, dt);
           if (status.isBlocked) return;
 
