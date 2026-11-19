@@ -1297,6 +1297,11 @@
                 class="rounded border-slate-300 text-amber-600 focus:ring-amber-500 w-4 h-4 cursor-pointer">
               <span>Utilize Approved Overtime <span class="text-[10px] text-amber-800 font-normal">(6th/7th Day &bull; 12h/16h Caps)</span></span>
             </label>
+            <label class="flex items-center gap-2 cursor-pointer font-bold text-slate-800" title="If there is an overtime approval, the smart filler is allowed to give SPs hours beyond hour 45 in the week, just so long as it is not possible to give it to an SP with less">
+              <input type="checkbox" id="chkAutoFillAllowOver45OT" checked onchange="state.autoFillAllowOver45OT = this.checked; runAutoFillSimulation();"
+                class="rounded border-slate-300 text-purple-600 focus:ring-purple-500 w-4 h-4 cursor-pointer">
+              <span>Allow &gt;45h Weekly When OT Approved <span class="text-[10px] text-purple-800 font-normal">(Only when no SP with less hours can take it)</span></span>
+            </label>
           </div>
           <button onclick="closeAutoFillModal(); openOTApprovalsModal();"
             class="text-[11px] text-amber-800 hover:text-amber-950 font-bold underline flex items-center gap-1 shrink-0">
@@ -1695,6 +1700,7 @@
       companyOT: { sixthDay: false, seventhDay: false, dailyCap: 8, weeklyCap: 40.0, notes: '', updatedAt: '' },
       autoFillAllowApprovedOT: true,
       autoFillPrioritizeNonOT: true,
+      autoFillAllowOver45OT: true,
       winteamFilter: 'all', // 'all' | 'ot' | 'regular'
       winteamSearch: '',
       filesStatus: {
@@ -2347,12 +2353,29 @@
     function getEmployeeEffectiveLimit(emp) {
       if (!emp) return 45.0;
       const lim = cleanFloat(emp.limit);
-      const baseLimit = (lim > 0) ? Math.min(lim, 45.0) : 45.0;
+      const isPartTime = (lim > 0 && lim < 40.0);
       const ot = getEmployeeOTApprovals(emp.eid);
-      if (ot && ot.weeklyCap && ot.weeklyCap > baseLimit) {
-        return ot.weeklyCap;
+
+      // Part-time specialists keep their contracted PT limit unless an explicit higher weeklyCap was authorized
+      if (isPartTime) {
+        if (ot && ot.weeklyCap && ot.weeklyCap > lim && ot.weeklyCap > 40.0) {
+          return ot.weeklyCap;
+        }
+        return lim;
       }
-      return baseLimit;
+
+      // Full-time specialists:
+      // If there is an overtime approval (6th day, 7th day, 12h/16h cap, or weekly cap > 40.0):
+      // The smart filler is allowed to give SPs hours beyond hour 45 in the week (up to 60.0h or custom weeklyCap).
+      if (ot && ot.hasAny) {
+        if (ot.weeklyCap && ot.weeklyCap > 45.0) {
+          return ot.weeklyCap;
+        }
+        return 60.0; // Standard operational overtime ceiling
+      }
+
+      // Standard policy without overtime approvals: strict target <= 45.0h
+      return (lim > 0) ? Math.min(lim, 45.0) : 45.0;
     }
 
     function getEmployeeAllScheduledShifts(eid, simShiftsMap = null) {
@@ -3417,13 +3440,15 @@
         const is7thDay = (projectedDaysWorked >= 7);
         const isDailyOT = (dayProjectedHours > 8.01);
         const isWeeklyOT = (currentH + shHours > 40.01);
-        const isOvertimeAssignment = is6thDay || is7thDay || isDailyOT || isWeeklyOT;
+        const isOver45h = (currentH + shHours > 45.01);
+        const isOvertimeAssignment = is6thDay || is7thDay || isDailyOT || isWeeklyOT || isOver45h;
 
         const otReasons = [];
         if (is6thDay) otReasons.push('6th Day');
         if (is7thDay) otReasons.push('7th Day');
         if (isDailyOT) otReasons.push(`${dayProjectedHours.toFixed(1)}h Daily (${maxDailyCap}h Cap)`);
-        if (isWeeklyOT) otReasons.push(`>${40}h Weekly (${(currentH + shHours).toFixed(1)}h)`);
+        if (isOver45h) otReasons.push(`>45h Weekly (${(currentH + shHours).toFixed(1)}h)`);
+        else if (isWeeklyOT) otReasons.push(`>${40}h Weekly (${(currentH + shHours).toFixed(1)}h)`);
 
         // 6a. Check Preferences: Tier 1 (1st Choice)
         const p1W = parseTimeWindow(p1Val);
@@ -3438,6 +3463,7 @@
             projectedH: currentH + shHours,
             willOvertime: isOvertimeAssignment,
             isOvertime: isOvertimeAssignment,
+            isOver45: isOver45h,
             otReasons: otReasons,
             otApprovals: approvals,
             projectedDayHours: dayProjectedHours,
@@ -3468,6 +3494,7 @@
             projectedH: currentH + shHours,
             willOvertime: isOvertimeAssignment,
             isOvertime: isOvertimeAssignment,
+            isOver45: isOver45h,
             otReasons: otReasons,
             otApprovals: approvals,
             projectedDayHours: dayProjectedHours,
@@ -3499,6 +3526,7 @@
               projectedH: currentH + shHours,
               willOvertime: isOvertimeAssignment,
               isOvertime: isOvertimeAssignment,
+              isOver45: isOver45h,
               otReasons: otReasons,
               otApprovals: approvals,
               projectedDayHours: dayProjectedHours,
@@ -3959,8 +3987,9 @@
           if (!isSamePostAll && (dayExistingHours + s.countedHours) > 8.01) return; // Non-billable OT rule
         }
 
-        // Weekly 45h target check
-        if (emp.actualHours + s.countedHours > 45.0) return;
+        // Weekly hours check (allows >45h if company overtime is approved)
+        const effLimit = getEmployeeEffectiveLimit(emp);
+        if (emp.actualHours + s.countedHours > effLimit + 0.01) return;
 
         const inT = s.inTimeHours;
         if (p1W && p1W.start <= inT && inT < p1W.end) t1++;
@@ -4198,7 +4227,7 @@
                 <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-100 text-slate-800">${s.countedHours.toFixed(1)} hrs</span>
                 <span class="px-1.5 py-0.2 rounded ${badgeCls} text-[10px] font-semibold">${label}</span>
                 ${isRollover ? '<span class="px-1.5 py-0.2 rounded badge-rollover-allowed text-[10px] font-bold">Rollover</span>' : ''}
-                ${isOT ? `<span class="px-1.5 py-0.2 rounded bg-rose-100 text-rose-700 font-bold text-[9.5px]">Will Overtime: ${projectedH.toFixed(1)}h (&gt;45h)</span>` : ''}
+                ${isOT ? `<span class="px-1.5 py-0.2 rounded ${approvals && approvals.hasAny ? 'bg-purple-100 text-purple-900 border border-purple-300' : 'bg-rose-100 text-rose-700'} font-bold text-[9.5px]">${approvals && approvals.hasAny ? '⚡ Approved OT' : 'Will Overtime'}: ${projectedH.toFixed(1)}h (&gt;45h)</span>` : ''}
               </div>
               <div class="text-[11px] text-slate-500 mt-0.5">
                 ${escapeHtml(s.jobDesc)} &bull; Job #${s.jobNumber} &bull; Post: ${escapeHtml(s.postDesc || s.jobPostDetailId || 'Standard')}
@@ -5027,11 +5056,14 @@
 
             let hourBadgeCls = 'bg-slate-100 text-slate-700';
             if (projectedH <= 40.0) hourBadgeCls = 'bg-emerald-100 text-emerald-800 font-bold';
-            else if (projectedH <= effLimit) hourBadgeCls = 'bg-amber-100 text-amber-800 font-bold';
+            else if (projectedH <= 45.0) hourBadgeCls = 'bg-amber-100 text-amber-800 font-bold';
+            else if (projectedH <= effLimit) hourBadgeCls = 'bg-purple-100 text-purple-900 border border-purple-300 font-black';
             else hourBadgeCls = 'bg-rose-100 text-rose-800 font-bold';
 
             const otBadge = cand.isOvertime
-              ? `<span class="px-1.5 py-0.2 rounded text-[9px] font-black bg-amber-100 text-amber-900 border border-amber-300">⚡ OT: ${(cand.otReasons || []).join(', ')}</span>`
+              ? (projectedH > 45.0
+                  ? `<span class="px-1.5 py-0.2 rounded text-[9px] font-black bg-purple-100 text-purple-950 border border-purple-400">⚡ OT (>45h): ${(cand.otReasons || []).join(', ')}</span>`
+                  : `<span class="px-1.5 py-0.2 rounded text-[9px] font-black bg-amber-100 text-amber-900 border border-amber-300">⚡ OT: ${(cand.otReasons || []).join(', ')}</span>`)
               : '<span class="px-1.5 py-0.2 rounded text-[9px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">No OT</span>';
 
             bodyHtml += `
@@ -5430,6 +5462,12 @@
 
     // --- SMART AUTO-FILL ENGINE (Strict 45h & Non-Billable OT Rules) ---
     function openAutoFillModal() {
+      const chkP = document.getElementById('chkAutoFillPrioritizeNonOT');
+      if (chkP) chkP.checked = (state.autoFillPrioritizeNonOT !== false);
+      const chkOT = document.getElementById('chkAutoFillAllowApprovedOT');
+      if (chkOT) chkOT.checked = (state.autoFillAllowApprovedOT !== false);
+      const chkOver45 = document.getElementById('chkAutoFillAllowOver45OT');
+      if (chkOver45) chkOver45.checked = (state.autoFillAllowOver45OT !== false);
       document.getElementById('modalAutoFill').classList.remove('hidden');
       runAutoFillSimulation();
     }
@@ -5461,11 +5499,15 @@
         const shHours = shift.countedHours;
         const shiftPost = (shift.postDesc || shift.jobPostDetailId || '').trim();
 
-        // Buckets for Regular (Non-OT) Candidates
+        // Buckets for Regular (Non-OT) Candidates (<=40h weekly, <=5 days, <=8h daily)
         const p1 = [], p2 = [], p3 = [], p4 = [], p5 = [], p6 = [];
 
-        // Buckets for Approved Overtime (OT) Candidates
+        // Buckets for Approved Overtime (OT) Candidates with projected weekly hours <= 45.0h
         const otP1 = [], otP2 = [], otP3 = [], otP4 = [], otP5 = [], otP6 = [];
+
+        // Buckets for Approved Overtime Candidates with projected weekly hours BEYOND 45.0h (>45.0h)
+        // Rule: "If there is an overtime approval, the smart filler is allowed to give SPs hours beyond hour 45 in the week, just so long as it is not possible to give it to an SP with less"
+        const otOver45_P1 = [], otOver45_P2 = [], otOver45_P3 = [];
 
         state.employees.forEach(emp => {
           const eid = emp.eid;
@@ -5488,8 +5530,8 @@
             return;
           }
 
-          // 3. Weekly Hours Limit Enforcement (PT Limits & <= 45h or custom approved weekly cap)
-          if (simHours[eid] + shHours > effLimit) return;
+          // 3. Weekly Hours Limit Enforcement (PT Limits & <= 45h standard or custom approved weekly cap)
+          if (simHours[eid] + shHours > effLimit + 0.01) return;
 
           // 4. Cross-Day Timeline Overlap & Minimum 8.0h Rest Turnaround Check (Always strictly enforced!)
           const allSimShifts = [];
@@ -5545,17 +5587,20 @@
 
           // 7. Determine Overtime Status for this Assignment
           const curH = simHours[eid];
+          const projH = curH + shHours;
           const is6thDay = (projectedDaysWorked === 6);
           const is7thDay = (projectedDaysWorked >= 7);
           const isDailyOT = (dayProjectedHours > 8.01);
-          const isWeeklyOT = (curH + shHours > 40.01);
-          const isOvertimeAssignment = is6thDay || is7thDay || isDailyOT || isWeeklyOT;
+          const isWeeklyOT = (projH > 40.01);
+          const isOver45h = (projH > 45.01);
+          const isOvertimeAssignment = is6thDay || is7thDay || isDailyOT || isWeeklyOT || isOver45h;
 
           const otReasons = [];
           if (is6thDay) otReasons.push('6th Day');
           if (is7thDay) otReasons.push('7th Day');
           if (isDailyOT) otReasons.push(`${dayProjectedHours.toFixed(1)}h Daily (${maxDailyCap}h Cap)`);
-          if (isWeeklyOT) otReasons.push(`>${40}h Weekly (${(curH + shHours).toFixed(1)}h)`);
+          if (isOver45h) otReasons.push(`>45h Weekly (${projH.toFixed(1)}h)`);
+          else if (isWeeklyOT) otReasons.push(`>${40}h Weekly (${projH.toFixed(1)}h)`);
 
           const restBufferLabel = minRestGap < 900 ? `+${minRestGap.toFixed(1)}h rest` : 'First shift of week';
 
@@ -5565,6 +5610,7 @@
             effLimit,
             restBufferLabel,
             isOvertime: isOvertimeAssignment,
+            isOver45: isOver45h,
             otReasons,
             projectedDayHours: dayProjectedHours,
             dailyCap: maxDailyCap,
@@ -5578,14 +5624,16 @@
               if (curH < 20.0) {
                 p1.push({ ...candInfo, tier: 'Priority 1: 1st Choice (<20h)', priorityRank: 1 });
               } else {
-                p2.push({ ...candInfo, tier: 'Priority 2: 1st Choice (\u226520h)', priorityRank: 2 });
+                p2.push({ ...candInfo, tier: 'Priority 2: 1st Choice (≥20h)', priorityRank: 2 });
+              }
+            } else if (!isOver45h) {
+              if (curH < 40.0) {
+                otP1.push({ ...candInfo, tier: 'Priority 7: Approved OT • 1st Choice (<40h, ≤45h)', priorityRank: 7 });
+              } else {
+                otP2.push({ ...candInfo, tier: 'Priority 8: Approved OT • 1st Choice (≥40h, ≤45h)', priorityRank: 8 });
               }
             } else {
-              if (curH < 40.0) {
-                otP1.push({ ...candInfo, tier: 'Priority 7: Approved OT &bull; 1st Choice (<40h)', priorityRank: 7 });
-              } else {
-                otP2.push({ ...candInfo, tier: 'Priority 8: Approved OT &bull; 1st Choice (\u226540h)', priorityRank: 8 });
-              }
+              otOver45_P1.push({ ...candInfo, tier: 'Priority 13: Approved OT • 1st Choice (>45h Week)', priorityRank: 13 });
             }
             return;
           }
@@ -5596,14 +5644,16 @@
               if (curH < 20.0) {
                 p3.push({ ...candInfo, tier: 'Priority 3: 2nd Choice (<20h)', priorityRank: 3 });
               } else {
-                p4.push({ ...candInfo, tier: 'Priority 4: 2nd Choice (\u226520h)', priorityRank: 4 });
+                p4.push({ ...candInfo, tier: 'Priority 4: 2nd Choice (≥20h)', priorityRank: 4 });
+              }
+            } else if (!isOver45h) {
+              if (curH < 40.0) {
+                otP3.push({ ...candInfo, tier: 'Priority 9: Approved OT • 2nd Choice (<40h, ≤45h)', priorityRank: 9 });
+              } else {
+                otP4.push({ ...candInfo, tier: 'Priority 10: Approved OT • 2nd Choice (≥40h, ≤45h)', priorityRank: 10 });
               }
             } else {
-              if (curH < 40.0) {
-                otP3.push({ ...candInfo, tier: 'Priority 9: Approved OT &bull; 2nd Choice (<40h)', priorityRank: 9 });
-              } else {
-                otP4.push({ ...candInfo, tier: 'Priority 10: Approved OT &bull; 2nd Choice (\u226540h)', priorityRank: 10 });
-              }
+              otOver45_P2.push({ ...candInfo, tier: 'Priority 14: Approved OT • 2nd Choice (>45h Week)', priorityRank: 14 });
             }
             return;
           }
@@ -5615,14 +5665,16 @@
                 if (curH < 20.0) {
                   p5.push({ ...candInfo, tier: 'Priority 5: Hired AV (<20h)', priorityRank: 5 });
                 } else {
-                  p6.push({ ...candInfo, tier: 'Priority 6: Hired AV (\u226520h)', priorityRank: 6 });
+                  p6.push({ ...candInfo, tier: 'Priority 6: Hired AV (≥20h)', priorityRank: 6 });
+                }
+              } else if (!isOver45h) {
+                if (curH < 40.0) {
+                  otP5.push({ ...candInfo, tier: 'Priority 11: Approved OT • Hired AV (<40h, ≤45h)', priorityRank: 11 });
+                } else {
+                  otP6.push({ ...candInfo, tier: 'Priority 12: Approved OT • Hired AV (≥40h, ≤45h)', priorityRank: 12 });
                 }
               } else {
-                if (curH < 40.0) {
-                  otP5.push({ ...candInfo, tier: 'Priority 11: Approved OT &bull; Hired AV (<40h)', priorityRank: 11 });
-                } else {
-                  otP6.push({ ...candInfo, tier: 'Priority 12: Approved OT &bull; Hired AV (\u226540h)', priorityRank: 12 });
-                }
+                otOver45_P3.push({ ...candInfo, tier: 'Priority 15: Approved OT • Hired AV (>45h Week)', priorityRank: 15 });
               }
               break;
             }
@@ -5645,8 +5697,13 @@
         otP5.sort(sortSim);
         otP6.sort(sortSim);
 
+        otOver45_P1.sort(sortSim);
+        otOver45_P2.sort(sortSim);
+        otOver45_P3.sort(sortSim);
+
         // SELECTION LOGIC:
         // Rule: "if there is an SP who doesn't have overtime, give them the shift first before you give someone OT."
+        // Rule: "If there is an overtime approval, the smart filler is allowed to give SPs hours beyond hour 45 in the week, just so long as it is not possible to give it to an SP with less"
         let best = null;
         if (p1.length > 0) { best = p1[0]; }
         else if (p2.length > 0) { best = p2[0]; }
@@ -5656,12 +5713,20 @@
         else if (!state.avoidHiredAV && p6.length > 0) { best = p6[0]; }
         // If no non-OT candidate can take the shift, evaluate Approved Overtime candidates!
         else if (state.autoFillAllowApprovedOT !== false) {
+          // Level 2: Approved OT candidates within standard <=45h target
           if (otP1.length > 0) { best = otP1[0]; }
           else if (otP2.length > 0) { best = otP2[0]; }
           else if (otP3.length > 0) { best = otP3[0]; }
           else if (otP4.length > 0) { best = otP4[0]; }
           else if (!state.avoidHiredAV && otP5.length > 0) { best = otP5[0]; }
           else if (!state.avoidHiredAV && otP6.length > 0) { best = otP6[0]; }
+          // Level 3: Approved OT candidates BEYOND hour 45 in the week!
+          // "just so long as it is not possible to give it to an SP with less"
+          else if (state.autoFillAllowOver45OT !== false) {
+            if (otOver45_P1.length > 0) { best = otOver45_P1[0]; }
+            else if (otOver45_P2.length > 0) { best = otOver45_P2[0]; }
+            else if (!state.avoidHiredAV && otOver45_P3.length > 0) { best = otOver45_P3[0]; }
+          }
         }
 
         if (best) {
@@ -5677,6 +5742,7 @@
             effLimit: best.effLimit,
             restBufferLabel: best.restBufferLabel,
             isOvertime: Boolean(best.isOvertime),
+            isOver45: Boolean(best.isOver45),
             otReasons: best.otReasons || [],
             projectedDayHours: best.projectedDayHours,
             dailyCap: best.dailyCap,
@@ -5694,15 +5760,21 @@
       const proposed = state.simProposal || [];
       const regularCount = proposed.filter(p => !p.isOvertime).length;
       const otCount = proposed.filter(p => p.isOvertime).length;
-      const p1Count = proposed.filter(p => p.priorityRank === 1 || p.priorityRank === 7).length;
+      const otOver45Count = proposed.filter(p => p.newHours > 45.0).length;
+      const otUnder45Count = otCount - otOver45Count;
+      const p1Count = proposed.filter(p => p.priorityRank === 1 || p.priorityRank === 7 || p.priorityRank === 13).length;
       const p2Count = proposed.filter(p => p.priorityRank === 2 || p.priorityRank === 8).length;
-      const p3Count = proposed.filter(p => p.priorityRank === 3 || p.priorityRank === 9).length;
+      const p3Count = proposed.filter(p => p.priorityRank === 3 || p.priorityRank === 9 || p.priorityRank === 14).length;
       const p4Count = proposed.filter(p => p.priorityRank === 4 || p.priorityRank === 10).length;
-      const hiredCount = proposed.filter(p => p.priorityRank === 5 || p.priorityRank === 6 || p.priorityRank === 11 || p.priorityRank === 12).length;
+      const hiredCount = proposed.filter(p => p.priorityRank === 5 || p.priorityRank === 6 || p.priorityRank === 11 || p.priorityRank === 12 || p.priorityRank === 15).length;
 
       document.getElementById('simFillableCount').textContent = proposed.length + ' / ' + openShifts.length;
       if (document.getElementById('simRegularCount')) document.getElementById('simRegularCount').textContent = regularCount;
-      if (document.getElementById('simApprovedOTCount')) document.getElementById('simApprovedOTCount').textContent = otCount;
+      if (document.getElementById('simApprovedOTCount')) {
+        document.getElementById('simApprovedOTCount').innerHTML = otCount > 0
+          ? `${otCount} <span class="text-[9.5px] font-medium text-amber-800 block">${otUnder45Count} &le;45h &bull; ${otOver45Count} &gt;45h</span>`
+          : '0';
+      }
       if (document.getElementById('simTier1Count')) document.getElementById('simTier1Count').textContent = p1Count;
       if (document.getElementById('simTier2Count')) document.getElementById('simTier2Count').textContent = p3Count + p4Count;
       if (document.getElementById('simTier3Count')) {
@@ -5729,15 +5801,18 @@
         else if (p.priorityRank === 2) tierCls = 'bg-sky-100 text-sky-800 border-sky-300 font-semibold';
         else if (p.priorityRank === 3) tierCls = 'bg-amber-100 text-amber-800 border-amber-300 font-bold';
         else if (p.priorityRank === 4) tierCls = 'bg-orange-100 text-orange-800 border-orange-300 font-semibold';
+        else if (p.newHours > 45.0) tierCls = 'bg-purple-100 text-purple-900 border-purple-400 font-bold';
         else if (p.isOvertime) tierCls = 'bg-amber-100 text-amber-900 border-amber-400 font-bold';
         else tierCls = 'bg-slate-100 text-slate-700 border-slate-300 italic';
 
         const otBadge = p.isOvertime
-          ? `<span class="px-2 py-0.5 rounded text-[10px] font-black bg-amber-100 text-amber-950 border border-amber-400 flex items-center gap-1 shadow-2xs">⚡ Approved OT: ${p.otReasons.join(' &bull; ')}</span>`
+          ? (p.newHours > 45.0
+              ? `<span class="px-2 py-0.5 rounded text-[10px] font-black bg-purple-100 text-purple-950 border border-purple-400 flex items-center gap-1 shadow-2xs">⚡ Approved OT (>45h): ${p.otReasons.join(' &bull; ')}</span>`
+              : `<span class="px-2 py-0.5 rounded text-[10px] font-black bg-amber-100 text-amber-950 border border-amber-400 flex items-center gap-1 shadow-2xs">⚡ Approved OT: ${p.otReasons.join(' &bull; ')}</span>`)
           : '<span class="px-1.5 py-0.5 rounded text-[9.5px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">No Overtime</span>';
 
         html += `
-          <div class="p-3 flex items-center justify-between text-xs hover:bg-slate-50 gap-3 transition-colors ${p.isOvertime ? 'bg-amber-50/20' : ''}">
+          <div class="p-3 flex items-center justify-between text-xs hover:bg-slate-50 gap-3 transition-colors ${p.newHours > 45.0 ? 'bg-purple-50/25' : (p.isOvertime ? 'bg-amber-50/20' : '')}">
             <div class="min-w-0 flex-1">
               <div class="flex items-center gap-2 flex-wrap">
                 <span class="font-bold text-slate-900">${escapeHtml(p.employee.name)}</span>
@@ -5761,7 +5836,7 @@
             </div>
             <div class="flex items-center gap-3 shrink-0">
               <div class="text-right font-mono text-[11px]">
-                <div class="text-slate-500">${p.oldHours.toFixed(1)}h &rarr; <strong class="${p.isOvertime ? 'text-amber-700' : 'text-emerald-700'}">${p.newHours.toFixed(1)}h</strong></div>
+                <div class="text-slate-500">${p.oldHours.toFixed(1)}h &rarr; <strong class="${p.newHours > 45.0 ? 'text-purple-700 font-black' : (p.isOvertime ? 'text-amber-700' : 'text-emerald-700')}">${p.newHours.toFixed(1)}h</strong></div>
                 <div class="text-[10px] text-slate-400">Limit: ${p.effLimit.toFixed(1)}h</div>
               </div>
               <button onclick="excludeSimProposalItem(${idx})" title="Exclude this shift from batch" class="p-1 text-slate-400 hover:text-rose-600 rounded">
