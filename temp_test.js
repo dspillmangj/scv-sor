@@ -646,7 +646,7 @@
     }
 
     // Disqualifying notes detector:
-    // Only disqualify officers with full-week blockers: Locked out, Inactive, Dedicated, LOA, Blanket TOR, MVR, Transferred, Resigned, Bereavement, Hybrid
+    // Only disqualify officers with full-week blockers: Locked out, Inactive, Dedicated, LOA, Blanket TOR, MVR, Transferred, Resigned, Bereavement, Hybrid, Removed from schedule
     function getDisqualifyingNotesReason(notesStr) {
       if (!notesStr) return null;
       const s = notesStr.toString();
@@ -677,6 +677,10 @@
       if (/bereavement/i.test(s)) return 'Bereavement Leave';
       // 10. Hybrid
       if (/\bhybrid\b/i.test(s)) return 'Hybrid';
+      // 11. Removed from schedule
+      if (/\bremov(?:ed|e|ing)?\b[-_\s]+(?:from|off)\b[-_\s]+(?:the\b[-_\s]+)?(?:wt\b[-_\s]+|winteam\b[-_\s]+|master\b[-_\s]+)?sched(?:ule|uling|uled)?\b/i.test(s)) {
+        return 'Removed from Schedule';
+      }
 
       return null;
     }
@@ -1234,6 +1238,9 @@
         const noteLower = notes.toLowerCase();
         const tags = [];
         if (noteLower.includes('resigned')) tags.push({ text: 'Resigned', cls: 'bg-rose-100 text-rose-800 border-rose-300' });
+        if (/\bremov(?:ed|e|ing)?\b[-_\s]+(?:from|off)\b[-_\s]+(?:the\b[-_\s]+)?(?:wt\b[-_\s]+|winteam\b[-_\s]+|master\b[-_\s]+)?sched(?:ule|uling|uled)?\b/i.test(notes)) {
+          tags.push({ text: 'Removed From Schedule', cls: 'bg-rose-100 text-rose-800 border-rose-300 font-bold' });
+        }
         if (noteLower.includes('locked out')) tags.push({ text: 'Locked Out', cls: 'bg-slate-200 text-slate-800 border-slate-300' });
         if (noteLower.includes('hybrid')) tags.push({ text: 'Hybrid', cls: 'bg-teal-100 text-teal-800 border-teal-200' });
         if (noteLower.includes('dedicated') || noteLower.includes('dedication')) tags.push({ text: 'Dedicated', cls: 'bg-blue-100 text-blue-800 border-blue-200' });
