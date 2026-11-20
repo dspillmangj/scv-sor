@@ -225,32 +225,25 @@
               Ending: No CSV Loaded</span>
             <!-- 3-File Status Indicators -->
             <div id="headerFileStatusBadges" class="flex items-center gap-1.5 flex-wrap">
-              <button onclick="openUploadModal()" id="badgeStatusPPA"
-                class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1 hover:bg-amber-500/30 transition-colors">
+              <button onclick="openUploadModal()" id="badgeStatusPPA" class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1 hover:bg-amber-500/30 transition-colors">
                 <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> PPA: Missing
               </button>
-              <button onclick="openUploadModal()" id="badgeStatusEMP"
-                class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1 hover:bg-amber-500/30 transition-colors">
+              <button onclick="openUploadModal()" id="badgeStatusEMP" class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1 hover:bg-amber-500/30 transition-colors">
                 <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> EMP: Missing
               </button>
-              <button onclick="openUploadModal()" id="badgeStatusWW"
-                class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1 hover:bg-amber-500/30 transition-colors">
+              <button onclick="openUploadModal()" id="badgeStatusWW" class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1 hover:bg-amber-500/30 transition-colors">
                 <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> WW: Missing
               </button>
             </div>
             <span id="badgeGroundTruth"
               class="hidden px-2.5 py-0.5 rounded text-[11px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> EMP = Schedule Law &bull; WW =
-              Pure Availability &bull; PPA = Open Shifts
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> EMP = Schedule Law &bull; WW = Pure Availability &bull; PPA = Open Shifts
             </span>
           </div>
           <p class="text-[11px] text-slate-400 mt-0.5">
-            <strong class="text-emerald-400">EMP.csv = MASTER SCHEDULE LAW:</strong> Dictates all specialist scheduled
-            shifts, true hours &amp; cross-contract conflict checking. &bull;
-            <strong class="text-blue-300">Working Weeks = PURE AVAILABILITY:</strong> Shift preferences (1st/2nd Choice,
-            Hired AV), seniority &amp; notes. &bull;
-            <strong class="text-amber-300">PPA.csv = EXCLUSIVELY OPEN SHIFTS:</strong> Open post shifts across 4 jobs
-            needing assignment.
+            <strong class="text-emerald-400">EMP.csv = MASTER SCHEDULE LAW:</strong> Dictates all specialist scheduled shifts, true hours &amp; cross-contract conflict checking. &bull;
+            <strong class="text-blue-300">Working Weeks = PURE AVAILABILITY:</strong> Shift preferences (1st/2nd Choice, Hired AV), seniority &amp; notes. &bull;
+            <strong class="text-amber-300">PPA.csv = EXCLUSIVELY OPEN SHIFTS:</strong> Open post shifts across 4 jobs needing assignment.
           </p>
         </div>
       </div>
@@ -268,8 +261,7 @@
             </svg>
             <div class="text-left">
               <span class="block font-bold leading-tight">Open Shifts &amp; WinTeam Allocator</span>
-              <span class="block text-[10px] font-normal text-blue-200 leading-tight">4 Job Codes &bull; WinTeam Sorted
-                &bull; Fast Assign</span>
+              <span class="block text-[10px] font-normal text-blue-200 leading-tight">4 Job Codes &bull; WinTeam Sorted &bull; Fast Assign</span>
             </div>
           </button>
           <button id="modeBtnPeople" onclick="switchMainTab('people')"
@@ -280,8 +272,7 @@
             </svg>
             <div class="text-left">
               <span class="block font-bold leading-tight">Specialist Roster Grid</span>
-              <span class="block text-[10px] font-normal text-slate-400 leading-tight">WW Seniority &bull; All
-                Specialists</span>
+              <span class="block text-[10px] font-normal text-slate-400 leading-tight">WW Seniority &bull; All Specialists</span>
             </div>
           </button>
         </div>
@@ -315,8 +306,7 @@
         <button onclick="openOTApprovalsModal()"
           class="relative inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold shadow-sm transition-all"
           title="Manage Overtime Approvals (6th Day, 7th Day, 12h/16h Daily Caps)">
-          <svg class="w-3.5 h-3.5 text-amber-200" fill="none" stroke="currentColor" stroke-width="2"
-            viewBox="0 0 24 24">
+          <svg class="w-3.5 h-3.5 text-amber-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
           </svg>
           <span>OT Approvals</span>
@@ -527,28 +517,18 @@
   <main class="flex-1 max-w-[1920px] w-full mx-auto p-3 flex flex-col gap-3">
 
     <!-- EMP Warning Banner when EMP.csv is not loaded -->
-    <div id="empWarningBanner"
-      class="hidden p-3.5 bg-amber-500/10 border-2 border-amber-500/40 rounded-xl text-amber-900 text-xs flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-xs">
+    <div id="empWarningBanner" class="hidden p-3.5 bg-amber-500/10 border-2 border-amber-500/40 rounded-xl text-amber-900 text-xs flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-xs">
       <div class="flex items-center gap-2.5">
         <div class="w-8 h-8 rounded-lg bg-amber-500 text-white flex items-center justify-center shrink-0">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-          </svg>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
         </div>
         <div>
           <div class="font-extrabold text-amber-950 text-sm">EMP.csv Master Schedule Not Loaded</div>
-          <div class="text-[11px] text-amber-800">Specialists working shifts outside of WW or PPA (other job sites or
-            non-PPA contracts) cannot be checked for conflicts until <strong>EMP.csv</strong> is uploaded. Please load
-            EMP.csv to ensure no specialists are double-booked.</div>
+          <div class="text-[11px] text-amber-800">Specialists working shifts outside of WW or PPA (other job sites or non-PPA contracts) cannot be checked for conflicts until <strong>EMP.csv</strong> is uploaded. Please load EMP.csv to ensure no specialists are double-booked.</div>
         </div>
       </div>
-      <button onclick="openUploadModal()"
-        class="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs rounded-lg shadow-sm shrink-0 flex items-center gap-1.5 transition-all">
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-        </svg>
+      <button onclick="openUploadModal()" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs rounded-lg shadow-sm shrink-0 flex items-center gap-1.5 transition-all">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
         <span>Upload EMP.csv</span>
       </button>
     </div>
@@ -665,8 +645,7 @@
 
       <!-- Grid Footer Summary -->
       <div class="p-3 bg-slate-50 border-t border-slate-200 text-xs text-slate-600 flex items-center justify-between">
-        <span id="gridFooterSummary">Please upload PPA.csv, EMP.csv (WinTeam Master), and Working Weeks CSV to begin
-          &bull; Real-time conflict protection active</span>
+        <span id="gridFooterSummary">Please upload PPA.csv, EMP.csv (WinTeam Master), and Working Weeks CSV to begin &bull; Real-time conflict protection active</span>
         <span class="text-[11px] text-slate-500">Weekly Target: &lt;45h &bull; Same Post Rollover Allowed &bull;
           Different Posts Max 8h Daily</span>
       </div>
@@ -694,8 +673,7 @@
             </div>
           </div>
           <div class="text-[11px] text-slate-500 font-medium hidden lg:flex items-center gap-2">
-            <span class="px-2 py-0.5 rounded bg-blue-50 text-blue-700 font-bold border border-blue-200">Day-by-Day
-              Acceptance Mode</span>
+            <span class="px-2 py-0.5 rounded bg-blue-50 text-blue-700 font-bold border border-blue-200">Day-by-Day Acceptance Mode</span>
             <span>Target &lt;45.0h &bull; Min 8h Rest Enforced</span>
           </div>
         </div>
@@ -704,10 +682,8 @@
         <div class="flex items-center justify-between gap-2 flex-wrap pb-2.5 border-b border-slate-100">
           <div class="flex items-center gap-2.5 flex-wrap">
             <span class="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5 shrink-0">
-              <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" stroke-width="2"
-                viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                  d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
               </svg>
               <span>2. Job Codes:</span>
             </span>
@@ -716,8 +692,7 @@
             </div>
           </div>
           <div class="text-[11px] text-slate-500 font-medium hidden lg:flex items-center gap-2">
-            <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-semibold border border-slate-200">WinTeam
-              Law + WW Reference</span>
+            <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-semibold border border-slate-200">WinTeam Law + WW Reference</span>
             <span>Target &lt;45.0h &bull; 8h Rest Rule Enforced</span>
           </div>
         </div>
@@ -898,67 +873,49 @@
         <div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-300 rounded-xl p-3.5 shadow-2xs">
           <div class="flex items-center justify-between pb-2 mb-2.5 border-b border-amber-200 flex-wrap gap-2">
             <div class="flex items-center gap-2">
-              <div
-                class="w-6 h-6 rounded-md bg-amber-600 text-white flex items-center justify-center font-bold text-xs shadow-2xs">
-                ⚡</div>
+              <div class="w-6 h-6 rounded-md bg-amber-600 text-white flex items-center justify-center font-bold text-xs shadow-2xs">⚡</div>
               <div>
-                <div class="font-bold text-xs text-amber-950">Company-Wide Overtime Policy (Applies to all Specialists)
-                </div>
-                <div class="text-[10.5px] text-amber-800">A single overtime approval covers every SP in the company.
-                  Changes update company-wide rules.</div>
+                <div class="font-bold text-xs text-amber-950">Company-Wide Overtime Policy (Applies to all Specialists)</div>
+                <div class="text-[10.5px] text-amber-800">A single overtime approval covers every SP in the company. Changes update company-wide rules.</div>
               </div>
             </div>
-            <span id="officerDetailOTStatusBadge"
-              class="px-2 py-0.5 rounded text-[10px] font-bold bg-white text-slate-700 border border-amber-200">Standard
-              Limits</span>
+            <span id="officerDetailOTStatusBadge" class="px-2 py-0.5 rounded text-[10px] font-bold bg-white text-slate-700 border border-amber-200">Standard Limits</span>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <!-- Day-per-week Approvals -->
             <div class="bg-white/95 p-2.5 rounded-lg border border-amber-200 flex flex-col gap-2">
-              <div
-                class="text-[10.5px] font-bold text-amber-900 uppercase tracking-wider flex items-center justify-between">
+              <div class="text-[10.5px] font-bold text-amber-900 uppercase tracking-wider flex items-center justify-between">
                 <span>Working Days Per Week:</span>
                 <span class="text-[9.5px] text-slate-400 font-normal">Standard: max 5</span>
               </div>
-              <label
-                class="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-800 hover:text-amber-900">
-                <input type="checkbox" id="chkOfficer6thDay"
-                  class="rounded border-slate-300 text-amber-600 focus:ring-amber-500 w-4 h-4 cursor-pointer">
-                <span>Allow 6th Working Day <span class="text-[10px] text-slate-500 font-normal">(&ge;8h rest turnaround
-                    guaranteed)</span></span>
+              <label class="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-800 hover:text-amber-900">
+                <input type="checkbox" id="chkOfficer6thDay" class="rounded border-slate-300 text-amber-600 focus:ring-amber-500 w-4 h-4 cursor-pointer">
+                <span>Allow 6th Working Day <span class="text-[10px] text-slate-500 font-normal">(&ge;8h rest turnaround guaranteed)</span></span>
               </label>
-              <label
-                class="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-800 hover:text-amber-900">
-                <input type="checkbox" id="chkOfficer7thDay"
-                  class="rounded border-slate-300 text-amber-600 focus:ring-amber-500 w-4 h-4 cursor-pointer">
-                <span>Allow 7th Working Day <span class="text-[10px] text-slate-500 font-normal">(&ge;8h rest turnaround
-                    guaranteed)</span></span>
+              <label class="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-800 hover:text-amber-900">
+                <input type="checkbox" id="chkOfficer7thDay" class="rounded border-slate-300 text-amber-600 focus:ring-amber-500 w-4 h-4 cursor-pointer">
+                <span>Allow 7th Working Day <span class="text-[10px] text-slate-500 font-normal">(&ge;8h rest turnaround guaranteed)</span></span>
               </label>
-              <div id="officerDetailDaysScheduledNotice" class="text-[10.5px] text-slate-500 font-mono mt-0.5">Currently
-                scheduled: 0 days</div>
+              <div id="officerDetailDaysScheduledNotice" class="text-[10.5px] text-slate-500 font-mono mt-0.5">Currently scheduled: 0 days</div>
             </div>
 
             <!-- Daily Hour Cap -->
             <div class="bg-white/95 p-2.5 rounded-lg border border-amber-200 flex flex-col gap-2">
-              <div
-                class="text-[10.5px] font-bold text-amber-900 uppercase tracking-wider flex items-center justify-between">
+              <div class="text-[10.5px] font-bold text-amber-900 uppercase tracking-wider flex items-center justify-between">
                 <span>Calendar Day Hour Cap:</span>
                 <span class="text-[9.5px] text-slate-400 font-normal">Single date total</span>
               </div>
               <div class="grid grid-cols-3 gap-1.5">
-                <label
-                  class="text-center py-1.5 px-1 rounded-lg border border-slate-200 cursor-pointer text-[11px] font-semibold hover:bg-slate-50 transition-all has-[:checked]:border-amber-500 has-[:checked]:bg-amber-100 has-[:checked]:text-amber-950 has-[:checked]:font-bold">
+                <label class="text-center py-1.5 px-1 rounded-lg border border-slate-200 cursor-pointer text-[11px] font-semibold hover:bg-slate-50 transition-all has-[:checked]:border-amber-500 has-[:checked]:bg-amber-100 has-[:checked]:text-amber-950 has-[:checked]:font-bold">
                   <input type="radio" name="radOfficerDailyCap" value="8" class="hidden" checked>
                   <span>Standard (8h)</span>
                 </label>
-                <label
-                  class="text-center py-1.5 px-1 rounded-lg border border-slate-200 cursor-pointer text-[11px] font-semibold hover:bg-slate-50 transition-all has-[:checked]:border-amber-500 has-[:checked]:bg-amber-100 has-[:checked]:text-amber-950 has-[:checked]:font-bold">
+                <label class="text-center py-1.5 px-1 rounded-lg border border-slate-200 cursor-pointer text-[11px] font-semibold hover:bg-slate-50 transition-all has-[:checked]:border-amber-500 has-[:checked]:bg-amber-100 has-[:checked]:text-amber-950 has-[:checked]:font-bold">
                   <input type="radio" name="radOfficerDailyCap" value="12" class="hidden">
                   <span>12-Hour Cap</span>
                 </label>
-                <label
-                  class="text-center py-1.5 px-1 rounded-lg border border-slate-200 cursor-pointer text-[11px] font-semibold hover:bg-slate-50 transition-all has-[:checked]:border-amber-500 has-[:checked]:bg-amber-100 has-[:checked]:text-amber-950 has-[:checked]:font-bold">
+                <label class="text-center py-1.5 px-1 rounded-lg border border-slate-200 cursor-pointer text-[11px] font-semibold hover:bg-slate-50 transition-all has-[:checked]:border-amber-500 has-[:checked]:bg-amber-100 has-[:checked]:text-amber-950 has-[:checked]:font-bold">
                   <input type="radio" name="radOfficerDailyCap" value="16" class="hidden">
                   <span>16-Hour Cap</span>
                 </label>
@@ -966,8 +923,7 @@
               <div class="flex items-center justify-between gap-2 mt-0.5">
                 <span class="text-[10.5px] text-slate-600 font-medium">Approved Weekly Limit:</span>
                 <div class="flex items-center gap-1">
-                  <input type="number" id="numOfficerWeeklyCap" step="0.5" value="40.0" min="20" max="80"
-                    class="w-16 px-1.5 py-0.5 text-xs font-mono font-bold text-right border border-slate-300 rounded bg-white">
+                  <input type="number" id="numOfficerWeeklyCap" step="0.5" value="40.0" min="20" max="80" class="w-16 px-1.5 py-0.5 text-xs font-mono font-bold text-right border border-slate-300 rounded bg-white">
                   <span class="text-[10px] text-slate-500 font-mono">hrs</span>
                 </div>
               </div>
@@ -977,20 +933,14 @@
           <div class="flex items-center justify-between gap-2 mt-2.5 pt-2 border-t border-amber-200 text-xs flex-wrap">
             <div class="flex items-center gap-2 flex-1 min-w-[200px]">
               <span class="text-[10.5px] font-bold text-amber-900 shrink-0">Authorization Note:</span>
-              <input type="text" id="txtOfficerOTNote"
-                placeholder="e.g. Approved by Operations Lead for weekend overtime"
-                class="flex-1 text-[11px] px-2 py-1 bg-white border border-amber-200 rounded text-slate-800 placeholder-slate-400">
+              <input type="text" id="txtOfficerOTNote" placeholder="e.g. Approved by Operations Lead for weekend overtime" class="flex-1 text-[11px] px-2 py-1 bg-white border border-amber-200 rounded text-slate-800 placeholder-slate-400">
             </div>
             <div class="flex items-center gap-2 shrink-0">
-              <button onclick="saveOfficerDetailOTApprovals()"
-                class="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-lg shadow-2xs text-xs flex items-center gap-1.5 transition-all">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
+              <button onclick="saveOfficerDetailOTApprovals()" class="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-lg shadow-2xs text-xs flex items-center gap-1.5 transition-all">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
                 <span>Save Company Policy</span>
               </button>
-              <button onclick="clearOfficerDetailOTApprovals()"
-                class="px-2.5 py-1.5 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 font-semibold rounded-lg text-xs transition-all">
+              <button onclick="clearOfficerDetailOTApprovals()" class="px-2.5 py-1.5 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 font-semibold rounded-lg text-xs transition-all">
                 <span>Reset</span>
               </button>
             </div>
@@ -1053,22 +1003,18 @@
       <!-- Modal Header -->
       <div class="p-4 border-b border-slate-200 bg-slate-900 text-white flex items-center justify-between">
         <div class="flex items-center gap-3">
-          <div
-            class="w-9 h-9 rounded-lg bg-amber-600 flex items-center justify-center font-black text-white text-base shadow-xs">
+          <div class="w-9 h-9 rounded-lg bg-amber-600 flex items-center justify-center font-black text-white text-base shadow-xs">
             ⚡
           </div>
           <div>
             <h3 class="font-bold text-sm text-white flex items-center gap-2">
               <span>Company-Wide Overtime &amp; Daily Cap Policy</span>
-              <span id="otHeaderBadgeCount"
-                class="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 font-mono px-2 py-0.5 rounded-full">Standard</span>
+              <span id="otHeaderBadgeCount" class="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 font-mono px-2 py-0.5 rounded-full">Standard</span>
             </h3>
-            <p class="text-xs text-slate-400">Overtime authorizations are set at the company level. A single approval
-              covers every Specialist in the company.</p>
+            <p class="text-xs text-slate-400">Overtime authorizations are set at the company level. A single approval covers every Specialist in the company.</p>
           </div>
         </div>
-        <button onclick="closeOTApprovalsModal()"
-          class="text-slate-400 hover:text-white p-1 rounded-md transition-colors">
+        <button onclick="closeOTApprovalsModal()" class="text-slate-400 hover:text-white p-1 rounded-md transition-colors">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
           </svg>
@@ -1079,24 +1025,17 @@
 
         <!-- Informational Banner -->
         <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-amber-900 text-xs flex items-start gap-2.5">
-          <svg class="w-5 h-5 text-amber-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2"
-            viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          <svg class="w-5 h-5 text-amber-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <div class="flex-1 leading-relaxed">
             <strong class="font-bold text-amber-950">Company-Level Overtime Rules &amp; Non-OT Safeguards:</strong>
             <ul class="list-disc ml-4 mt-1 space-y-0.5 text-[11px] text-amber-900">
-              <li><strong>Company-Wide Scope:</strong> Overtime approvals are authorized at the company level. A single
-                approval covers <strong>every Security Specialist in the company</strong>.</li>
-              <li><strong>Strict Non-Overtime Priority:</strong> Specialists who do NOT incur overtime are
-                <strong>ALWAYS assigned first</strong> before any specialist who requires overtime.</li>
-              <li><strong>6th Day Approval:</strong> Authorizes Specialists across the company to work on a 6th calendar
-                day in the schedule week, <em>provided they still get &ge;8.0h rest turnaround</em>.</li>
-              <li><strong>7th Day Approval:</strong> Authorizes Specialists across the company to work on a 7th calendar
-                day, <em>provided they still get &ge;8.0h rest turnaround</em>.</li>
-              <li><strong>12-Hour Cap:</strong> Authorizes Specialists to work up to 12.0 hours in a calendar day (e.g.
-                multi-post rollovers or split shifts).</li>
+              <li><strong>Company-Wide Scope:</strong> Overtime approvals are authorized at the company level. A single approval covers <strong>every Security Specialist in the company</strong>.</li>
+              <li><strong>Strict Non-Overtime Priority:</strong> Specialists who do NOT incur overtime are <strong>ALWAYS assigned first</strong> before any specialist who requires overtime.</li>
+              <li><strong>6th Day Approval:</strong> Authorizes Specialists across the company to work on a 6th calendar day in the schedule week, <em>provided they still get &ge;8.0h rest turnaround</em>.</li>
+              <li><strong>7th Day Approval:</strong> Authorizes Specialists across the company to work on a 7th calendar day, <em>provided they still get &ge;8.0h rest turnaround</em>.</li>
+              <li><strong>12-Hour Cap:</strong> Authorizes Specialists to work up to 12.0 hours in a calendar day (e.g. multi-post rollovers or split shifts).</li>
               <li><strong>16-Hour Cap:</strong> Authorizes Specialists to work up to 16.0 hours in a calendar day.</li>
             </ul>
           </div>
@@ -1104,43 +1043,34 @@
 
         <!-- Section 1: Company Policy Configuration Card -->
         <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 flex flex-col gap-3 shadow-2xs">
-          <div
-            class="font-bold text-slate-800 text-xs flex items-center justify-between pb-2 border-b border-slate-200">
+          <div class="font-bold text-slate-800 text-xs flex items-center justify-between pb-2 border-b border-slate-200">
             <span class="flex items-center gap-1.5">
               <span class="w-2 h-2 rounded-full bg-amber-500"></span>
               <span>Company Overtime Authorizations (Applies to all Specialists)</span>
             </span>
-            <span id="companyOTPolicySummary" class="text-[10px] text-slate-500 font-mono">Standard (5-Day / 8h / 40h
-              Max)</span>
+            <span id="companyOTPolicySummary" class="text-[10px] text-slate-500 font-mono">Standard (5-Day / 8h / 40h Max)</span>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3 items-stretch">
             <!-- Days-per-week Approvals -->
             <div class="bg-white p-3 rounded-lg border border-slate-200 flex flex-col justify-between gap-2">
-              <div
-                class="text-[10.5px] font-bold text-slate-700 uppercase tracking-wider flex items-center justify-between">
+              <div class="text-[10.5px] font-bold text-slate-700 uppercase tracking-wider flex items-center justify-between">
                 <span>Working Days Per Week:</span>
                 <span class="text-[9.5px] text-slate-400 font-normal">Standard: max 5 days</span>
               </div>
               <div class="space-y-2">
-                <label
-                  class="flex items-start gap-2.5 cursor-pointer text-xs font-semibold text-slate-800 hover:text-amber-800 p-1.5 rounded hover:bg-slate-50 transition-colors">
-                  <input type="checkbox" id="companyFormSixthDay"
-                    class="rounded border-slate-300 text-amber-600 focus:ring-amber-500 w-4 h-4 mt-0.5 cursor-pointer">
+                <label class="flex items-start gap-2.5 cursor-pointer text-xs font-semibold text-slate-800 hover:text-amber-800 p-1.5 rounded hover:bg-slate-50 transition-colors">
+                  <input type="checkbox" id="companyFormSixthDay" class="rounded border-slate-300 text-amber-600 focus:ring-amber-500 w-4 h-4 mt-0.5 cursor-pointer">
                   <div>
                     <span class="font-bold text-slate-900">Authorize 6th Working Day Company-Wide</span>
-                    <div class="text-[10.5px] text-slate-500 font-normal">Allows any qualified SP to work a 6th calendar
-                      day (mandatory &ge;8.0h rest turnaround strictly maintained).</div>
+                    <div class="text-[10.5px] text-slate-500 font-normal">Allows any qualified SP to work a 6th calendar day (mandatory &ge;8.0h rest turnaround strictly maintained).</div>
                   </div>
                 </label>
-                <label
-                  class="flex items-start gap-2.5 cursor-pointer text-xs font-semibold text-slate-800 hover:text-amber-800 p-1.5 rounded hover:bg-slate-50 transition-colors">
-                  <input type="checkbox" id="companyFormSeventhDay"
-                    class="rounded border-slate-300 text-amber-600 focus:ring-amber-500 w-4 h-4 mt-0.5 cursor-pointer">
+                <label class="flex items-start gap-2.5 cursor-pointer text-xs font-semibold text-slate-800 hover:text-amber-800 p-1.5 rounded hover:bg-slate-50 transition-colors">
+                  <input type="checkbox" id="companyFormSeventhDay" class="rounded border-slate-300 text-amber-600 focus:ring-amber-500 w-4 h-4 mt-0.5 cursor-pointer">
                   <div>
                     <span class="font-bold text-slate-900">Authorize 7th Working Day Company-Wide</span>
-                    <div class="text-[10.5px] text-slate-500 font-normal">Allows any qualified SP to work a 7th calendar
-                      day (mandatory &ge;8.0h rest turnaround strictly maintained).</div>
+                    <div class="text-[10.5px] text-slate-500 font-normal">Allows any qualified SP to work a 7th calendar day (mandatory &ge;8.0h rest turnaround strictly maintained).</div>
                   </div>
                 </label>
               </div>
@@ -1148,34 +1078,29 @@
 
             <!-- Daily Cap Selection -->
             <div class="bg-white p-3 rounded-lg border border-slate-200 flex flex-col justify-between gap-2">
-              <div
-                class="text-[10.5px] font-bold text-slate-700 uppercase tracking-wider flex items-center justify-between">
+              <div class="text-[10.5px] font-bold text-slate-700 uppercase tracking-wider flex items-center justify-between">
                 <span>Calendar Day Hour Cap:</span>
                 <span class="text-[9.5px] text-slate-400 font-normal">Max hours in a single date</span>
               </div>
               <div class="grid grid-cols-3 gap-2">
-                <label
-                  class="text-center py-2 px-1.5 rounded-lg border border-slate-200 cursor-pointer text-xs font-semibold hover:bg-slate-50 transition-all has-[:checked]:border-amber-500 has-[:checked]:bg-amber-100 has-[:checked]:text-amber-950 has-[:checked]:font-bold flex flex-col items-center gap-1">
+                <label class="text-center py-2 px-1.5 rounded-lg border border-slate-200 cursor-pointer text-xs font-semibold hover:bg-slate-50 transition-all has-[:checked]:border-amber-500 has-[:checked]:bg-amber-100 has-[:checked]:text-amber-950 has-[:checked]:font-bold flex flex-col items-center gap-1">
                   <input type="radio" name="radCompanyFormDailyCap" value="8" class="hidden" checked>
                   <span class="font-bold">Standard</span>
                   <span class="text-[9.5px] text-slate-500 font-normal font-mono">8.0h Max</span>
                 </label>
-                <label
-                  class="text-center py-2 px-1.5 rounded-lg border border-slate-200 cursor-pointer text-xs font-semibold hover:bg-slate-50 transition-all has-[:checked]:border-amber-500 has-[:checked]:bg-amber-100 has-[:checked]:text-amber-950 has-[:checked]:font-bold flex flex-col items-center gap-1">
+                <label class="text-center py-2 px-1.5 rounded-lg border border-slate-200 cursor-pointer text-xs font-semibold hover:bg-slate-50 transition-all has-[:checked]:border-amber-500 has-[:checked]:bg-amber-100 has-[:checked]:text-amber-950 has-[:checked]:font-bold flex flex-col items-center gap-1">
                   <input type="radio" name="radCompanyFormDailyCap" value="12" class="hidden">
                   <span class="font-bold">12-Hour Cap</span>
                   <span class="text-[9.5px] text-slate-500 font-normal font-mono">12.0h Max</span>
                 </label>
-                <label
-                  class="text-center py-2 px-1.5 rounded-lg border border-slate-200 cursor-pointer text-xs font-semibold hover:bg-slate-50 transition-all has-[:checked]:border-amber-500 has-[:checked]:bg-amber-100 has-[:checked]:text-amber-950 has-[:checked]:font-bold flex flex-col items-center gap-1">
+                <label class="text-center py-2 px-1.5 rounded-lg border border-slate-200 cursor-pointer text-xs font-semibold hover:bg-slate-50 transition-all has-[:checked]:border-amber-500 has-[:checked]:bg-amber-100 has-[:checked]:text-amber-950 has-[:checked]:font-bold flex flex-col items-center gap-1">
                   <input type="radio" name="radCompanyFormDailyCap" value="16" class="hidden">
                   <span class="font-bold">16-Hour Cap</span>
                   <span class="text-[9.5px] text-slate-500 font-normal font-mono">16.0h Max</span>
                 </label>
               </div>
               <div class="text-[10.5px] text-slate-500 font-normal">
-                Applies to all Specialists in the company. Double shifts &amp; multi-post rollovers require 12h or 16h
-                cap.
+                Applies to all Specialists in the company. Double shifts &amp; multi-post rollovers require 12h or 16h cap.
               </div>
             </div>
           </div>
@@ -1183,8 +1108,7 @@
           <div class="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2 border-t border-slate-200 items-center">
             <!-- Weekly Cap -->
             <div>
-              <label class="block text-[10px] font-bold text-slate-600 uppercase mb-0.5">Approved Weekly Hour
-                Limit:</label>
+              <label class="block text-[10px] font-bold text-slate-600 uppercase mb-0.5">Approved Weekly Hour Limit:</label>
               <div class="flex items-center gap-1.5">
                 <input type="number" id="companyFormWeeklyCap" step="0.5" value="40.0" min="20" max="80"
                   class="w-24 px-2 py-1 text-xs font-mono font-bold border border-slate-300 rounded bg-white focus:ring-1 focus:ring-amber-500">
@@ -1194,10 +1118,8 @@
 
             <!-- Notes -->
             <div class="md:col-span-1">
-              <label class="block text-[10px] font-bold text-slate-600 uppercase mb-0.5">Approval Note /
-                Sign-off:</label>
-              <input type="text" id="companyFormNotes"
-                placeholder="e.g. Authorized by Operations Management for WE 11/19"
+              <label class="block text-[10px] font-bold text-slate-600 uppercase mb-0.5">Approval Note / Sign-off:</label>
+              <input type="text" id="companyFormNotes" placeholder="e.g. Authorized by Operations Management for WE 11/19"
                 class="w-full text-xs px-2 py-1 border border-slate-300 rounded bg-white placeholder-slate-400">
             </div>
 
@@ -1205,9 +1127,7 @@
             <div class="flex items-center justify-end gap-2 pt-2 md:pt-0">
               <button onclick="saveCompanyOTFromModal()"
                 class="px-4 py-1.5 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-lg shadow-sm text-xs flex items-center gap-1.5 transition-all">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
                 <span>Save Company Policy</span>
               </button>
               <button onclick="resetCompanyOTPolicy()"
@@ -1255,8 +1175,7 @@
 
           <div class="border border-slate-200 rounded-xl max-h-60 overflow-y-auto bg-white shadow-2xs">
             <table class="w-full text-left text-xs border-collapse">
-              <thead
-                class="bg-slate-100 text-slate-700 sticky top-0 z-10 font-bold uppercase text-[10px] tracking-wider border-b border-slate-200">
+              <thead class="bg-slate-100 text-slate-700 sticky top-0 z-10 font-bold uppercase text-[10px] tracking-wider border-b border-slate-200">
                 <tr>
                   <th class="py-2 px-3">Specialist</th>
                   <th class="py-2 px-2">Work Date</th>
@@ -1331,12 +1250,8 @@
               Pre-Flight Safety Audit
             </span>
             <div class="flex items-center gap-2">
-              <span id="simAuditOTCount"
-                class="text-[10px] bg-amber-500/20 text-amber-300 font-mono px-2 py-0.5 rounded-full border border-amber-500/30">0
-                Active OT Approvals</span>
-              <span
-                class="text-[10px] bg-emerald-500/20 text-emerald-300 font-semibold px-2 py-0.5 rounded-full border border-emerald-500/30">100%
-                Guardrails Active</span>
+              <span id="simAuditOTCount" class="text-[10px] bg-amber-500/20 text-amber-300 font-mono px-2 py-0.5 rounded-full border border-amber-500/30">0 Active OT Approvals</span>
+              <span class="text-[10px] bg-emerald-500/20 text-emerald-300 font-semibold px-2 py-0.5 rounded-full border border-emerald-500/30">100% Guardrails Active</span>
             </div>
           </div>
           <div class="grid grid-cols-2 sm:grid-cols-6 gap-2 text-[11px]">
@@ -1373,8 +1288,7 @@
             <div class="bg-slate-900/90 rounded-lg p-2 border border-slate-800">
               <div class="text-slate-400 text-[10px]">OT Approvals</div>
               <div class="font-bold text-amber-300 mt-0.5">
-                <a href="javascript:void(0)" onclick="closeAutoFillModal(); openOTApprovalsModal();"
-                  class="hover:underline flex items-center gap-1">
+                <a href="javascript:void(0)" onclick="closeAutoFillModal(); openOTApprovalsModal();" class="hover:underline flex items-center gap-1">
                   <span>Manage</span>
                   <span>&rarr;</span>
                 </a>
@@ -1384,32 +1298,22 @@
         </div>
 
         <!-- OVERTIME SCHEDULING OPTIONS STRIP -->
-        <div
-          class="bg-amber-50/70 border border-amber-200 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs">
+        <div class="bg-amber-50/70 border border-amber-200 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs">
           <div class="flex items-center gap-3 flex-wrap">
-            <label class="flex items-center gap-2 cursor-pointer font-bold text-slate-800"
-              title="Specialists who do not incur overtime are strictly given priority over specialists with overtime">
-              <input type="checkbox" id="chkAutoFillPrioritizeNonOT" checked
-                onchange="state.autoFillPrioritizeNonOT = this.checked; runAutoFillSimulation();"
+            <label class="flex items-center gap-2 cursor-pointer font-bold text-slate-800" title="Specialists who do not incur overtime are strictly given priority over specialists with overtime">
+              <input type="checkbox" id="chkAutoFillPrioritizeNonOT" checked onchange="state.autoFillPrioritizeNonOT = this.checked; runAutoFillSimulation();"
                 class="rounded border-slate-300 text-amber-600 focus:ring-amber-500 w-4 h-4 cursor-pointer">
-              <span>Prioritize Non-Overtime Specialists First <span
-                  class="text-[10px] text-amber-800 font-normal">(Non-OT &rarr; Approved OT)</span></span>
+              <span>Prioritize Non-Overtime Specialists First <span class="text-[10px] text-amber-800 font-normal">(Non-OT &rarr; Approved OT)</span></span>
             </label>
-            <label class="flex items-center gap-2 cursor-pointer font-bold text-slate-800"
-              title="Allow specialists with manual 6th Day, 7th Day, 12h Cap, or 16h Cap approvals to fill remaining shifts">
-              <input type="checkbox" id="chkAutoFillAllowApprovedOT" checked
-                onchange="state.autoFillAllowApprovedOT = this.checked; runAutoFillSimulation();"
+            <label class="flex items-center gap-2 cursor-pointer font-bold text-slate-800" title="Allow specialists with manual 6th Day, 7th Day, 12h Cap, or 16h Cap approvals to fill remaining shifts">
+              <input type="checkbox" id="chkAutoFillAllowApprovedOT" checked onchange="state.autoFillAllowApprovedOT = this.checked; runAutoFillSimulation();"
                 class="rounded border-slate-300 text-amber-600 focus:ring-amber-500 w-4 h-4 cursor-pointer">
-              <span>Utilize Approved Overtime <span class="text-[10px] text-amber-800 font-normal">(6th/7th Day &bull;
-                  12h/16h Caps)</span></span>
+              <span>Utilize Approved Overtime <span class="text-[10px] text-amber-800 font-normal">(6th/7th Day &bull; 12h/16h Caps)</span></span>
             </label>
-            <label class="flex items-center gap-2 cursor-pointer font-bold text-slate-800"
-              title="If there is an overtime approval, the smart filler is allowed to give SPs hours beyond hour 45 in the week, just so long as it is not possible to give it to an SP with less">
-              <input type="checkbox" id="chkAutoFillAllowOver45OT" checked
-                onchange="state.autoFillAllowOver45OT = this.checked; runAutoFillSimulation();"
+            <label class="flex items-center gap-2 cursor-pointer font-bold text-slate-800" title="If there is an overtime approval, the smart filler is allowed to give SPs hours beyond hour 45 in the week, just so long as it is not possible to give it to an SP with less">
+              <input type="checkbox" id="chkAutoFillAllowOver45OT" checked onchange="state.autoFillAllowOver45OT = this.checked; runAutoFillSimulation();"
                 class="rounded border-slate-300 text-purple-600 focus:ring-purple-500 w-4 h-4 cursor-pointer">
-              <span>Allow &gt;45h Weekly When OT Approved <span class="text-[10px] text-purple-800 font-normal">(Only
-                  when no SP with less hours can take it)</span></span>
+              <span>Allow &gt;45h Weekly When OT Approved <span class="text-[10px] text-purple-800 font-normal">(Only when no SP with less hours can take it)</span></span>
             </label>
           </div>
           <button onclick="closeAutoFillModal(); openOTApprovalsModal();"
@@ -1491,8 +1395,7 @@
           </div>
           <div>
             <h3 class="font-bold text-sm text-white">WinTeam Manual Entry Queue</h3>
-            <p class="text-xs text-slate-400">Copy EIDs, double-check expected overtime &amp; root causes, and check off
-              assignments as you enter them into WinTeam</p>
+            <p class="text-xs text-slate-400">Copy EIDs, double-check expected overtime &amp; root causes, and check off assignments as you enter them into WinTeam</p>
           </div>
         </div>
         <button onclick="closeWinTeamDrawer()" class="text-slate-400 hover:text-white p-1 rounded-md">
@@ -1503,27 +1406,21 @@
       </div>
 
       <!-- Overtime Double-Check Alert Banner -->
-      <div
-        class="px-4 py-2.5 bg-gradient-to-r from-amber-50 via-amber-100/60 to-slate-50 border-b border-amber-200/80 text-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-amber-950">
+      <div class="px-4 py-2.5 bg-gradient-to-r from-amber-50 via-amber-100/60 to-slate-50 border-b border-amber-200/80 text-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-amber-950">
         <div class="flex items-center gap-2.5">
-          <span
-            class="w-6 h-6 rounded-full bg-amber-500 text-white flex items-center justify-center font-black text-xs shrink-0 shadow-xs">
+          <span class="w-6 h-6 rounded-full bg-amber-500 text-white flex items-center justify-center font-black text-xs shrink-0 shadow-xs">
             ⚡
           </span>
           <div>
             <span class="font-extrabold text-amber-950">WinTeam Overtime Double-Check:</span>
             <span class="text-amber-900 ml-1">
-              When WinTeam displays an Overtime warning during entry, reference the <strong>Expected Overtime &amp; WT
-                Audit</strong> column to confirm whether the OT was anticipated, what caused it (Shift &gt;8h, Day
-              &gt;8h, Week &gt;40h, 6th/7th Day), and verify authorization.
+              When WinTeam displays an Overtime warning during entry, reference the <strong>Expected Overtime &amp; WT Audit</strong> column to confirm whether the OT was anticipated, what caused it (Shift &gt;8h, Day &gt;8h, Week &gt;40h, 6th/7th Day), and verify authorization.
             </span>
           </div>
         </div>
         <div class="flex items-center gap-2 text-[11px] shrink-0 font-medium">
-          <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold">✓
-            Regular = 0h OT</span>
-          <span class="px-2 py-0.5 rounded bg-amber-200 text-amber-950 border border-amber-400 font-bold">⚡ OT =
-            Anticipated</span>
+          <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold">✓ Regular = 0h OT</span>
+          <span class="px-2 py-0.5 rounded bg-amber-200 text-amber-950 border border-amber-400 font-bold">⚡ OT = Anticipated</span>
         </div>
       </div>
 
@@ -1532,22 +1429,18 @@
         <div class="flex items-center gap-2 flex-wrap">
           <div class="flex items-center gap-1.5 mr-1 font-sans">
             <span class="font-bold text-slate-700">Assignments:</span>
-            <span id="winteamAssignedBadge"
-              class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-mono font-bold text-[11px]">0</span>
+            <span id="winteamAssignedBadge" class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-mono font-bold text-[11px]">0</span>
           </div>
 
           <!-- Filter Tabs -->
           <div class="flex items-center gap-1 bg-slate-200/80 p-0.5 rounded-lg text-xs">
-            <button id="btnWTFilterAll" onclick="setWinTeamFilter('all')"
-              class="px-2.5 py-1 rounded-md font-bold text-xs bg-white text-slate-900 shadow-2xs">
+            <button id="btnWTFilterAll" onclick="setWinTeamFilter('all')" class="px-2.5 py-1 rounded-md font-bold text-xs bg-white text-slate-900 shadow-2xs">
               All (<span id="wtCountAll">0</span>)
             </button>
-            <button id="btnWTFilterOT" onclick="setWinTeamFilter('ot')"
-              class="px-2.5 py-1 rounded-md font-bold text-xs text-amber-900 hover:bg-white/80 transition-colors">
+            <button id="btnWTFilterOT" onclick="setWinTeamFilter('ot')" class="px-2.5 py-1 rounded-md font-bold text-xs text-amber-900 hover:bg-white/80 transition-colors">
               ⚡ Expected OT (<span id="wtCountOT">0</span>)
             </button>
-            <button id="btnWTFilterReg" onclick="setWinTeamFilter('regular')"
-              class="px-2.5 py-1 rounded-md font-bold text-xs text-emerald-800 hover:bg-white/80 transition-colors">
+            <button id="btnWTFilterReg" onclick="setWinTeamFilter('regular')" class="px-2.5 py-1 rounded-md font-bold text-xs text-emerald-800 hover:bg-white/80 transition-colors">
               ✓ Regular Only (<span id="wtCountReg">0</span>)
             </button>
           </div>
@@ -1556,34 +1449,25 @@
 
           <!-- 4 Job Codes Color-Coded Filter Chips -->
           <div class="flex items-center gap-1 bg-slate-200/80 p-0.5 rounded-lg text-xs">
-            <button id="btnWTJobAll" onclick="setWinTeamJobFilter('all')"
-              class="px-2 py-1 rounded-md font-bold text-[11px] bg-white text-slate-900 shadow-2xs">
+            <button id="btnWTJobAll" onclick="setWinTeamJobFilter('all')" class="px-2 py-1 rounded-md font-bold text-[11px] bg-white text-slate-900 shadow-2xs">
               All Jobs (<span id="wtJobCountAll">0</span>)
             </button>
-            <button id="btnWTJob233265" onclick="setWinTeamJobFilter('233265')"
-              class="px-2 py-1 rounded-md font-bold text-[11px] text-blue-900 hover:bg-white/80 transition-colors flex items-center gap-1"
-              title="Job Code 233265: Apple - SCV SOR (Core Posts)">
+            <button id="btnWTJob233265" onclick="setWinTeamJobFilter('233265')" class="px-2 py-1 rounded-md font-bold text-[11px] text-blue-900 hover:bg-white/80 transition-colors flex items-center gap-1" title="Job Code 233265: Apple - SCV SOR (Core Posts)">
               <span class="w-2 h-2 rounded-full bg-blue-500"></span>
               <span>CUP SOR</span>
               <span class="font-mono text-[10px] text-blue-700">(<span id="wtJobCount233265">0</span>)</span>
             </button>
-            <button id="btnWTJob235144" onclick="setWinTeamJobFilter('235144')"
-              class="px-2 py-1 rounded-md font-bold text-[11px] text-indigo-900 hover:bg-white/80 transition-colors flex items-center gap-1"
-              title="Job Code 235144: Apple - SCV SOR Break Relief">
+            <button id="btnWTJob235144" onclick="setWinTeamJobFilter('235144')" class="px-2 py-1 rounded-md font-bold text-[11px] text-indigo-900 hover:bg-white/80 transition-colors flex items-center gap-1" title="Job Code 235144: Apple - SCV SOR Break Relief">
               <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
               <span>CUP BRE</span>
               <span class="font-mono text-[10px] text-indigo-700">(<span id="wtJobCount235144">0</span>)</span>
             </button>
-            <button id="btnWTJob266778" onclick="setWinTeamJobFilter('266778')"
-              class="px-2 py-1 rounded-md font-bold text-[11px] text-emerald-900 hover:bg-white/80 transition-colors flex items-center gap-1"
-              title="Job Code 266778: Apple - SCV SOR (Sunnyvale)">
+            <button id="btnWTJob266778" onclick="setWinTeamJobFilter('266778')" class="px-2 py-1 rounded-md font-bold text-[11px] text-emerald-900 hover:bg-white/80 transition-colors flex items-center gap-1" title="Job Code 266778: Apple - SCV SOR (Sunnyvale)">
               <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
               <span>SV SOR</span>
               <span class="font-mono text-[10px] text-emerald-700">(<span id="wtJobCount266778">0</span>)</span>
             </button>
-            <button id="btnWTJob267588" onclick="setWinTeamJobFilter('267588')"
-              class="px-2 py-1 rounded-md font-bold text-[11px] text-amber-900 hover:bg-white/80 transition-colors flex items-center gap-1"
-              title="Job Code 267588: Apple - SCV SOR Break Relief (Sunnyvale)">
+            <button id="btnWTJob267588" onclick="setWinTeamJobFilter('267588')" class="px-2 py-1 rounded-md font-bold text-[11px] text-amber-900 hover:bg-white/80 transition-colors flex items-center gap-1" title="Job Code 267588: Apple - SCV SOR Break Relief (Sunnyvale)">
               <span class="w-2 h-2 rounded-full bg-amber-500"></span>
               <span>SV BRE</span>
               <span class="font-mono text-[10px] text-amber-700">(<span id="wtJobCount267588">0</span>)</span>
@@ -1592,25 +1476,20 @@
 
           <!-- Live Search Input -->
           <div class="relative">
-            <input type="text" id="txtWTSearch" oninput="setWinTeamSearch(this.value)"
-              placeholder="Search name, EID, post..."
+            <input type="text" id="txtWTSearch" oninput="setWinTeamSearch(this.value)" placeholder="Search name, EID, post..."
               class="w-36 pl-7 pr-2 py-1 rounded-lg border border-slate-300 text-xs bg-white focus:outline-none focus:ring-1 focus:ring-blue-500" />
-            <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2 top-2" fill="none" stroke="currentColor"
-              stroke-width="2" viewBox="0 0 24 24">
+            <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2 top-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </div>
         </div>
 
         <div class="flex items-center gap-2 flex-wrap">
-          <button
-            onclick="sortWinTeamQueue(); renderWinTeamTable(); showToast('WinTeam queue sorted by date and start time.');"
+          <button onclick="sortWinTeamQueue(); renderWinTeamTable(); showToast('WinTeam queue sorted by date and start time.');"
             class="px-2.5 py-1.5 rounded-lg bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 font-semibold text-xs flex items-center gap-1"
             title="Re-sort queue by soonest day and earliest shift start time">
-            <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" stroke-width="2"
-              viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
             <span>Re-Sort</span>
           </button>
@@ -1662,17 +1541,13 @@
               <th class="p-2.5 text-center w-12">Done</th>
               <th class="p-2.5">EID</th>
               <th class="p-2.5">Specialist Name</th>
-              <th
-                class="p-2.5 bg-amber-100/80 text-amber-950 font-extrabold border-l border-r border-amber-300 min-w-[140px]">
-                WW Notes</th>
+              <th class="p-2.5 bg-amber-100/80 text-amber-950 font-extrabold border-l border-r border-amber-300 min-w-[140px]">WW Notes</th>
               <th class="p-2.5">Date</th>
               <th class="p-2.5">Shift Time</th>
               <th class="p-2.5">Hours</th>
               <th class="p-2.5">Job &amp; Post</th>
               <th class="p-2.5">Schedule ID</th>
-              <th
-                class="p-2.5 bg-amber-100/90 text-amber-950 font-extrabold border-l border-r border-amber-300 min-w-[260px]">
-                Expected Overtime &amp; WT Audit</th>
+              <th class="p-2.5 bg-amber-100/90 text-amber-950 font-extrabold border-l border-r border-amber-300 min-w-[260px]">Expected Overtime &amp; WT Audit</th>
               <th class="p-2.5">Match Tier</th>
               <th class="p-2.5 text-center w-14">Undo</th>
             </tr>
@@ -1696,8 +1571,7 @@
         <div class="flex items-center gap-2.5">
           <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
             </svg>
           </div>
           <div>
@@ -1720,33 +1594,23 @@
           ondragleave="this.classList.remove('border-blue-500', 'bg-blue-50/60');"
           ondrop="event.preventDefault(); this.classList.remove('border-blue-500', 'bg-blue-50/60'); handleFiles(event.dataTransfer.files);"
           class="border-2 border-dashed border-blue-300 rounded-xl p-5 text-center bg-blue-50/30 transition-all cursor-pointer hover:border-blue-500 hover:bg-blue-50/50">
-          <svg class="w-10 h-10 text-blue-500 mx-auto mb-2" fill="none" stroke="currentColor" stroke-width="1.5"
-            viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+          <svg class="w-10 h-10 text-blue-500 mx-auto mb-2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
           </svg>
           <div class="font-bold text-slate-900 text-sm">Drop All 3 Files Here (or click to select)</div>
           <p class="text-[11px] text-slate-600 mt-1 max-w-md mx-auto">
-            Select or drag <strong>PPA.csv</strong>, <strong>EMP.csv</strong>, and <strong>Working Weeks CSV</strong>
-            all at once. The system automatically inspects headers and routes each file!
+            Select or drag <strong>PPA.csv</strong>, <strong>EMP.csv</strong>, and <strong>Working Weeks CSV</strong> all at once. The system automatically inspects headers and routes each file!
           </p>
           <div class="mt-3 flex items-center justify-center gap-2">
-            <label
-              class="cursor-pointer px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-2">
+            <label class="cursor-pointer px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-2">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
               </svg>
               <span>Select CSV Files (Multiple Allowed)</span>
-              <input type="file" id="inputMultiFiles" accept=".csv" multiple class="hidden"
-                onchange="handleMultiFileInput(event)" />
+              <input type="file" id="inputMultiFiles" accept=".csv" multiple class="hidden" onchange="handleMultiFileInput(event)" />
             </label>
-            <button onclick="quickLoadWorkspaceFiles()"
-              class="px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-semibold text-xs transition-all flex items-center gap-1.5"
-              title="Attempt auto-loading from server workspace">
-              <svg class="w-3.5 h-3.5 text-blue-300" fill="none" stroke="currentColor" stroke-width="2"
-                viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
+            <button onclick="quickLoadWorkspaceFiles()" class="px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-semibold text-xs transition-all flex items-center gap-1.5" title="Attempt auto-loading from server workspace">
+              <svg class="w-3.5 h-3.5 text-blue-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
               <span>Quick Auto-Load</span>
             </button>
           </div>
@@ -1756,14 +1620,11 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
 
           <!-- 1. PPA File Card -->
-          <div id="cardStatusPPA"
-            class="p-3.5 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between gap-2.5">
+          <div id="cardStatusPPA" class="p-3.5 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between gap-2.5">
             <div>
               <div class="flex items-center justify-between gap-1 mb-1">
                 <span class="font-extrabold text-slate-900 text-xs">1. PPA.csv</span>
-                <span
-                  class="px-1.5 py-0.2 rounded text-[9.5px] font-bold bg-blue-100 text-blue-800 border border-blue-200">Open
-                  Shifts Exclusively</span>
+                <span class="px-1.5 py-0.2 rounded text-[9.5px] font-bold bg-blue-100 text-blue-800 border border-blue-200">Open Shifts Exclusively</span>
               </div>
               <p class="text-[10.5px] text-slate-600 leading-tight">
                 Used exclusively for open post shifts to fill across 4 job codes. Never used for schedules.
@@ -1772,47 +1633,38 @@
                 Not loaded yet
               </div>
             </div>
-            <label
-              class="cursor-pointer w-full text-center py-1.5 px-2 rounded-lg bg-white border border-slate-300 hover:border-blue-500 text-slate-700 font-bold text-[11px] shadow-2xs transition-all block">
+            <label class="cursor-pointer w-full text-center py-1.5 px-2 rounded-lg bg-white border border-slate-300 hover:border-blue-500 text-slate-700 font-bold text-[11px] shadow-2xs transition-all block">
               <span>Choose PPA.csv</span>
               <input type="file" accept=".csv" class="hidden" onchange="handleSingleFileUpload(event, 'ppa')" />
             </label>
           </div>
 
           <!-- 2. EMP File Card -->
-          <div id="cardStatusEMP"
-            class="p-3.5 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between gap-2.5">
+          <div id="cardStatusEMP" class="p-3.5 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between gap-2.5">
             <div>
               <div class="flex items-center justify-between gap-1 mb-1">
                 <span class="font-extrabold text-slate-900 text-xs">2. EMP.csv</span>
-                <span
-                  class="px-1.5 py-0.2 rounded text-[9.5px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">Master
-                  Schedule Law</span>
+                <span class="px-1.5 py-0.2 rounded text-[9.5px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">Master Schedule Law</span>
               </div>
               <p class="text-[10.5px] text-slate-600 leading-tight">
-                Calculates all employee schedules &amp; hours across all company contracts, preventing conflicting
-                assignments.
+                Calculates all employee schedules &amp; hours across all company contracts, preventing conflicting assignments.
               </p>
               <div id="uploadStatusEMP" class="text-[11px] text-amber-700 font-semibold mt-2">
                 Not loaded yet
               </div>
             </div>
-            <label
-              class="cursor-pointer w-full text-center py-1.5 px-2 rounded-lg bg-white border border-slate-300 hover:border-emerald-500 text-slate-700 font-bold text-[11px] shadow-2xs transition-all block">
+            <label class="cursor-pointer w-full text-center py-1.5 px-2 rounded-lg bg-white border border-slate-300 hover:border-emerald-500 text-slate-700 font-bold text-[11px] shadow-2xs transition-all block">
               <span>Choose EMP.csv</span>
               <input type="file" accept=".csv" class="hidden" onchange="handleSingleFileUpload(event, 'emp')" />
             </label>
           </div>
 
           <!-- 3. WW File Card -->
-          <div id="cardStatusWW"
-            class="p-3.5 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between gap-2.5">
+          <div id="cardStatusWW" class="p-3.5 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between gap-2.5">
             <div>
               <div class="flex items-center justify-between gap-1 mb-1">
                 <span class="font-extrabold text-slate-900 text-xs">3. Working Weeks</span>
-                <span
-                  class="px-1.5 py-0.2 rounded text-[9.5px] font-bold bg-indigo-100 text-indigo-800 border border-indigo-200">Pure
-                  Availability</span>
+                <span class="px-1.5 py-0.2 rounded text-[9.5px] font-bold bg-indigo-100 text-indigo-800 border border-indigo-200">Pure Availability</span>
               </div>
               <p class="text-[10.5px] text-slate-600 leading-tight">
                 Purely availability: 1st/2nd choice windows, hired availability, seniority ranking &amp; notes.
@@ -1821,8 +1673,7 @@
                 Not loaded yet
               </div>
             </div>
-            <label
-              class="cursor-pointer w-full text-center py-1.5 px-2 rounded-lg bg-white border border-slate-300 hover:border-indigo-500 text-slate-700 font-bold text-[11px] shadow-2xs transition-all block">
+            <label class="cursor-pointer w-full text-center py-1.5 px-2 rounded-lg bg-white border border-slate-300 hover:border-indigo-500 text-slate-700 font-bold text-[11px] shadow-2xs transition-all block">
               <span>Choose WW CSV</span>
               <input type="file" accept=".csv" class="hidden" onchange="handleSingleFileUpload(event, 'ww')" />
             </label>
@@ -2662,8 +2513,8 @@
       // WW has Acting Supervisor, Logistics Hybrid, Day 1, Preferred 1st Choice, Hired AV, or EID in first few lines
       for (let i = 0; i < Math.min(5, lines.length); i++) {
         const l = lines[i];
-        if (l.includes('Acting Supervisor') || l.includes('Logistics Hybrid') || l.includes('Day 1') ||
-          l.includes('Preferred 1st Choice') || l.includes('Hired AV') || l.includes('EID') || l.includes('Scheduled in WT')) {
+        if (l.includes('Acting Supervisor') || l.includes('Logistics Hybrid') || l.includes('Day 1') || 
+            l.includes('Preferred 1st Choice') || l.includes('Hired AV') || l.includes('EID') || l.includes('Scheduled in WT')) {
           return 'ww';
         }
       }
@@ -2678,7 +2529,7 @@
 
       files.forEach(file => {
         const reader = new FileReader();
-        reader.onload = function (e) {
+        reader.onload = function(e) {
           const content = e.target.result;
           let kind = detectCSVType(content);
           if (kind === 'unknown') {
@@ -2730,7 +2581,7 @@
       const file = evt.target.files[0];
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = function (e) {
+      reader.onload = function(e) {
         const content = e.target.result;
         if (type === 'ppa') loadPPA(content, file.name);
         else if (type === 'emp') loadEMP(content, file.name);
@@ -2759,7 +2610,7 @@
       const stPPA = document.getElementById('uploadStatusPPA');
       const ppaLoaded = state.shifts && state.shifts.length > 0;
       const openCount = ppaLoaded ? state.shifts.filter(s => s.isOpen && !s.assignedEmployee && isFillablePostDescription(s.postDesc)).length : 0;
-
+      
       if (bPPA) {
         if (ppaLoaded) {
           bPPA.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1 hover:bg-emerald-500/30 transition-colors';
@@ -3398,14 +3249,14 @@
 
       const addShiftToEmployee = (s) => {
         if (!s || !s.eid || state.empActualHours[s.eid] === undefined) return;
-
+        
         if (!registeredIntervals[s.eid]) registeredIntervals[s.eid] = [];
         const interval = getShiftAbsoluteInterval(s);
-
+        
         const isDuplicate = registeredIntervals[s.eid].some(existing => {
           return existing.workDateNorm === s.workDateNorm &&
-            Math.abs(existing.start - interval.start) < 0.25 &&
-            Math.abs(existing.end - interval.end) < 0.25;
+                 Math.abs(existing.start - interval.start) < 0.25 &&
+                 Math.abs(existing.end - interval.end) < 0.25;
         });
 
         if (isDuplicate) return;
@@ -4544,7 +4395,7 @@
         shiftId: shift.id,
         eid: employee.eid,
         name: employee.name,
-        wwNotes: employee.notes || '',
+        wwNotes: employee.notes || '', 
         workDateNorm: shift.workDateNorm,
         inTime: shift.inTime,
         outTime: shift.outTime,
@@ -5312,11 +5163,11 @@
 
             const otBadge = cand.isOvertime
               ? (projectedH > 45.0
-                ? `<span class="px-1.5 py-0.2 rounded text-[9px] font-black bg-purple-100 text-purple-950 border border-purple-400">⚡ OT (>45h): ${(cand.otReasons || []).join(', ')}</span>`
-                : `<span class="px-1.5 py-0.2 rounded text-[9px] font-black bg-amber-100 text-amber-900 border border-amber-300">⚡ OT: ${(cand.otReasons || []).join(', ')}</span>`)
+                  ? `<span class="px-1.5 py-0.2 rounded text-[9px] font-black bg-purple-100 text-purple-950 border border-purple-400">⚡ OT (>45h): ${(cand.otReasons || []).join(', ')}</span>`
+                  : `<span class="px-1.5 py-0.2 rounded text-[9px] font-black bg-amber-100 text-amber-900 border border-amber-300">⚡ OT: ${(cand.otReasons || []).join(', ')}</span>`)
               : (cand.isBillableOT
-                ? `<span class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300" title="Through-and-through SOR shift >8h is contracted billable OT (always OK)">Billable OT (${shift.countedHours.toFixed(1)}h)</span>`
-                : '<span class="px-1.5 py-0.2 rounded text-[9px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">No OT</span>');
+                  ? `<span class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300" title="Through-and-through SOR shift >8h is contracted billable OT (always OK)">Billable OT (${shift.countedHours.toFixed(1)}h)</span>`
+                  : '<span class="px-1.5 py-0.2 rounded text-[9px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">No OT</span>');
 
             bodyHtml += `
               <div class="p-2.5 rounded-lg border ${cand.isOvertime ? 'border-amber-300 bg-amber-50/20' : 'border-slate-200 bg-slate-50/70'} hover:bg-white hover:border-blue-400 hover:shadow-xs transition-all flex flex-col justify-between text-xs gap-2">
@@ -5997,7 +5848,7 @@
           // up to 45.0h weekly without 6th/7th day or non-billable OT are always OK to fill!
           const billableEligible = (list) => list.find(c => c.isThroughAndThrough && !c.is6thDay && !c.is7thDay && !c.isDailyNonBillableOT);
           best = billableEligible(otP1) || billableEligible(otP2) || billableEligible(otP3) || billableEligible(otP4) ||
-            (!state.avoidHiredAV ? (billableEligible(otP5) || billableEligible(otP6)) : null);
+                 (!state.avoidHiredAV ? (billableEligible(otP5) || billableEligible(otP6)) : null);
         }
 
         if (best) {
@@ -6084,11 +5935,11 @@
 
         const otBadge = p.isOvertime
           ? (p.newHours > 45.0
-            ? `<span class="px-2 py-0.5 rounded text-[10px] font-black bg-purple-100 text-purple-950 border border-purple-400 flex items-center gap-1 shadow-2xs">⚡ Approved OT (>45h): ${p.otReasons.join(' &bull; ')}</span>`
-            : `<span class="px-2 py-0.5 rounded text-[10px] font-black bg-amber-100 text-amber-950 border border-amber-400 flex items-center gap-1 shadow-2xs">⚡ Approved OT: ${p.otReasons.join(' &bull; ')}</span>`)
+              ? `<span class="px-2 py-0.5 rounded text-[10px] font-black bg-purple-100 text-purple-950 border border-purple-400 flex items-center gap-1 shadow-2xs">⚡ Approved OT (>45h): ${p.otReasons.join(' &bull; ')}</span>`
+              : `<span class="px-2 py-0.5 rounded text-[10px] font-black bg-amber-100 text-amber-950 border border-amber-400 flex items-center gap-1 shadow-2xs">⚡ Approved OT: ${p.otReasons.join(' &bull; ')}</span>`)
           : (p.isBillableOT
-            ? `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-900 border border-emerald-300 flex items-center gap-1 shadow-2xs" title="Through-and-through SOR shift >8h is contracted billable OT to Apple (always OK)">✓ Billable OT (${p.shift.countedHours.toFixed(1)}h)</span>`
-            : '<span class="px-1.5 py-0.5 rounded text-[9.5px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">No Overtime</span>');
+              ? `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-900 border border-emerald-300 flex items-center gap-1 shadow-2xs" title="Through-and-through SOR shift >8h is contracted billable OT to Apple (always OK)">✓ Billable OT (${p.shift.countedHours.toFixed(1)}h)</span>`
+              : '<span class="px-1.5 py-0.5 rounded text-[9.5px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">No Overtime</span>');
 
         html += `
           <div class="p-3 flex items-center justify-between text-xs hover:bg-slate-50 gap-3 transition-colors ${p.newHours > 45.0 ? 'bg-purple-50/25' : (p.isOvertime ? 'bg-amber-50/20' : '')}">
@@ -7278,7 +7129,7 @@
       }, 3000);
     }
 
-
+    
     // --- GLOBAL DRAG AND DROP FILE LISTENER ---
     window.addEventListener('dragover', (e) => {
       e.preventDefault();
