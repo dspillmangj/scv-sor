@@ -25,6 +25,8 @@ const state = {
   rawPPA: '',
   rawEMP: '',
   rawWW: '',
+  rawSEN: '',
+  senData: null,
   wwEmployeeEids: null,
   empReportRecords: [],
   empHoursFromEMP: {},
@@ -64,7 +66,8 @@ const state = {
   filesStatus: {
     ppa: { loaded: false, filename: '', count: 0, openCount: 0 },
     emp: { loaded: false, filename: '', count: 0, specialistCount: 0 },
-    ww: { loaded: false, filename: '', count: 0 }
+    ww: { loaded: false, filename: '', count: 0 },
+    sen: { loaded: false, filename: '', count: 0 }
   }
 };
 
@@ -540,13 +543,135 @@ function isBreShift(shift) {
 }
 
 // The bottom 75 people in Working Weeks (least senior by row position)
-// are not eligible to work BRE shifts under JC 235144 or 267588.
+// are not eligible to work BRE shifts under JC 235144 or 267588 (fallback if SEN file omitted).
 function isEmployeeBottom75(emp) {
   if (!emp || emp.isFromWinTeamOnly) return false;
   if (emp.isBottom75 !== undefined) return emp.isBottom75;
   const totalWW = state.wwEmployeeCount || state.employees.filter(e => !e.isFromWinTeamOnly).length;
   if (totalWW <= 0) return false;
   return emp.wwIndex > Math.max(0, totalWW - 75);
+}
+
+// Seniority reference date: shift work date if provided, else schedule week ending, else today
+function getSeniorityRefDate(customDateStr) {
+  if (customDateStr) {
+    const d = new Date(customDateStr.includes('T') ? customDateStr : customDateStr + 'T00:00:00');
+    if (!isNaN(d.getTime())) return d;
+  }
+  if (state.lastDateOfWeek) {
+    const d = new Date(state.lastDateOfWeek.includes('T') ? state.lastDateOfWeek : state.lastDateOfWeek + 'T00:00:00');
+    if (!isNaN(d.getTime())) return d;
+  }
+  if (state.dates && state.dates.length > 0) {
+    const lastDt = state.dates[state.dates.length - 1];
+    const d = new Date(lastDt.includes('T') ? lastDt : lastDt + 'T00:00:00');
+    if (!isNaN(d.getTime())) return d;
+  }
+  return new Date();
+}
+
+function getEmployeeSeniorityRecord(emp) {
+  if (!emp || !state.senData) return null;
+  const eid = String(emp.eid || '').trim();
+  if (state.senData[eid]) return state.senData[eid];
+  const numEid = String(parseInt(eid, 10));
+  if (state.senData[numEid]) return state.senData[numEid];
+  return null;
+}
+
+// Determines employee's BRE eligibility using optional SEN file:
+// - If SEN file is loaded: finds earliest date worked. If in last 90 days (<90d tenure), cannot work BREs.
+//   If beyond that (>=90d tenure), eligible. If not found in SEN file, falls back to Bottom 75 of WW.
+// - If SEN file is not loaded: falls back to Bottom 75 of WW.
+function isEmployeeBreRestricted(emp, shiftDateStr) {
+  if (!emp || emp.isFromWinTeamOnly) return false;
+  const hasSen = state.filesStatus.sen && state.filesStatus.sen.loaded && state.senData;
+  if (hasSen) {
+    const senRec = getEmployeeSeniorityRecord(emp);
+    if (senRec && senRec.earliestDate) {
+      const refDate = getSeniorityRefDate(shiftDateStr);
+      const diffMs = refDate.getTime() - senRec.earliestDate.getTime();
+      const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+      return diffDays < 90;
+    }
+    // Fall back to Bottom 75 of WW if not found in SEN
+    return isEmployeeBottom75(emp);
+  }
+  // Fall back to Bottom 75 of WW if SEN not uploaded
+  return isEmployeeBottom75(emp);
+}
+
+function getBreRestrictionReason(emp, shiftDateStr, jobNumber) {
+  const jCode = jobNumber || '235144 / 267588';
+  const hasSen = state.filesStatus.sen && state.filesStatus.sen.loaded && state.senData;
+  if (hasSen) {
+    const senRec = getEmployeeSeniorityRecord(emp);
+    if (senRec && senRec.earliestDate) {
+      const refDate = getSeniorityRefDate(shiftDateStr);
+      const diffMs = refDate.getTime() - senRec.earliestDate.getTime();
+      const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+      if (diffDays < 90) {
+        return `Seniority restriction: Earliest worked date is ${senRec.earliestDateStr} (${diffDays} days ago < 90-day threshold). Ineligible for BRE shifts (JC ${jCode}).`;
+      }
+    } else {
+      return `Seniority restriction: Specialist not found in SEN file; fell back to Working Weeks seniority (Bottom 75 ineligible for BRE shifts JC ${jCode}).`;
+    }
+  }
+  return `Seniority restriction: Bottom 75 in Working Weeks are not eligible for BRE shifts (JC ${jCode})`;
+}
+
+function updateAllEmployeesBreEligibility() {
+  if (!state.employees || state.employees.length === 0) return;
+  const hasSen = state.filesStatus.sen && state.filesStatus.sen.loaded && state.senData;
+  const totalWW = state.wwEmployeeCount || state.employees.filter(e => !e.isFromWinTeamOnly).length;
+  const bottom75CutoffIndex = Math.max(0, totalWW - 75);
+
+  state.employees.forEach((emp, idx) => {
+    if (emp.isFromWinTeamOnly) return;
+    emp.isBottom75 = (idx >= bottom75CutoffIndex);
+    emp.tags = (emp.tags || []).filter(t => !t.text.includes('(No BRE)'));
+
+    if (hasSen) {
+      const senRec = getEmployeeSeniorityRecord(emp);
+      if (senRec && senRec.earliestDate) {
+        const refDate = getSeniorityRefDate();
+        const diffMs = refDate.getTime() - senRec.earliestDate.getTime();
+        const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+        emp.senEarliestDateStr = senRec.earliestDateStr;
+        emp.senDaysTenure = diffDays;
+        emp.isBreEligible = (diffDays >= 90);
+
+        if (diffDays < 90) {
+          emp.tags.push({
+            text: 'SEN <90d (No BRE)',
+            cls: 'bg-rose-100 text-rose-800 border-rose-300 font-bold',
+            title: `Started ${senRec.earliestDateStr} (${diffDays} days ago). Ineligible for BRE shifts.`
+          });
+        }
+      } else {
+        emp.senEarliestDateStr = null;
+        emp.senDaysTenure = null;
+        emp.isBreEligible = !emp.isBottom75;
+        if (emp.isBottom75) {
+          emp.tags.push({
+            text: 'Bottom 75 (No BRE)',
+            cls: 'bg-rose-100 text-rose-800 border-rose-300 font-bold',
+            title: 'Not found in SEN file; fell back to Working Weeks Bottom 75.'
+          });
+        }
+      }
+    } else {
+      emp.senEarliestDateStr = null;
+      emp.senDaysTenure = null;
+      emp.isBreEligible = !emp.isBottom75;
+      if (emp.isBottom75) {
+        emp.tags.push({
+          text: 'Bottom 75 (No BRE)',
+          cls: 'bg-rose-100 text-rose-800 border-rose-300 font-bold'
+        });
+      }
+    }
+  });
 }
 
 // --- ABSOLUTE INTERVAL & SHIFT OVERLAP / REST LOGIC ---
@@ -817,6 +942,10 @@ function detectCSVType(csvText) {
   if (lines.length === 0) return 'unknown';
 
   const h = lines[0];
+  // SEN has EmployeeNumber and DateFirstWorked (or DateLastWorked, JobPostID, ExperienceTypeID)
+  if (h.includes('DateFirstWorked') || (h.includes('EmployeeNumber') && (h.includes('DateLastWorked') || h.includes('JobPostID')) && !h.includes('JobPostDetailID') && !h.includes('WorkDate'))) {
+    return 'sen';
+  }
   // PPA has JobPostDetailID or ScheduleDetailsID or shifthours or RecordTypeID with PostDescription
   if (h.includes('JobPostDetailID') || h.includes('ScheduleDetailsID') || h.includes('shifthours') || (h.includes('RecordTypeID') && h.includes('PostDescription') && !h.includes('RolloverDescription'))) {
     return 'ppa';
@@ -851,6 +980,7 @@ function handleFiles(fileList) {
         const lower = file.name.toLowerCase();
         if (lower.includes('ppa')) kind = 'ppa';
         else if (lower.includes('emp')) kind = 'emp';
+        else if (lower.includes('sen') || lower.includes('seniority')) kind = 'sen';
         else if (lower.includes('working') || lower.includes('availability') || lower.includes('ww')) kind = 'ww';
       }
 
@@ -860,6 +990,9 @@ function handleFiles(fileList) {
       } else if (kind === 'emp') {
         loadEMP(content, file.name);
         results.push(`EMP (${file.name})`);
+      } else if (kind === 'sen') {
+        loadSEN(content, file.name);
+        results.push(`SEN (${file.name})`);
       } else if (kind === 'ww') {
         loadWorkingWeeks(content, file.name);
         results.push(`Working Weeks (${file.name})`);
@@ -901,6 +1034,7 @@ function handleSingleFileUpload(evt, type) {
     if (type === 'ppa') loadPPA(content, file.name);
     else if (type === 'emp') loadEMP(content, file.name);
     else if (type === 'ww') loadWorkingWeeks(content, file.name);
+    else if (type === 'sen') loadSEN(content, file.name);
 
     renderDayHeaders();
     calculateAllHours();
@@ -989,10 +1123,35 @@ function updateFileStatusBadges() {
     stWW.className = wwLoaded ? 'text-[11px] text-emerald-700 font-semibold mt-2' : 'text-[11px] text-amber-700 font-semibold mt-2';
   }
 
+  // 4. SEN status (Optional Seniority for BRE shifts)
+  const bSEN = document.getElementById('badgeStatusSEN');
+  const stSEN = document.getElementById('uploadStatusSEN');
+  const senLoaded = state.filesStatus.sen && state.filesStatus.sen.loaded && state.senData;
+  const senCount = senLoaded ? Object.keys(state.senData).length : 0;
+
+  if (bSEN) {
+    if (senLoaded) {
+      bSEN.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1 hover:bg-emerald-500/30 transition-colors';
+      bSEN.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> SEN: ${senCount} specs (90d Law Active)`;
+    } else {
+      bSEN.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-slate-700/60 text-slate-300 border border-slate-600/50 flex items-center gap-1 hover:bg-slate-700 transition-colors';
+      bSEN.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span> SEN: Optional (Bottom 75 WW fallback)`;
+    }
+  }
+  if (stSEN) {
+    stSEN.textContent = senLoaded ? `Loaded (${senCount} specialist seniority records • Earliest Date <90d blocks BRE)` : 'Not loaded (Optional — Falls back to Bottom 75 WW)';
+    stSEN.className = senLoaded ? 'text-[11px] text-emerald-700 font-semibold mt-2' : 'text-[11px] text-slate-600 font-semibold mt-2';
+  }
+
+  const optBreFilter = document.getElementById('optBreFilter');
+  if (optBreFilter) {
+    optBreFilter.textContent = senLoaded ? 'BRE Ineligible (SEN < 90 Days Seniority)' : 'Bottom 75 in Working Weeks (BRE Ineligible)';
+  }
+
   const summaryText = document.getElementById('modalFilesSummaryText');
   if (summaryText) {
     const loadedCount = (ppaLoaded ? 1 : 0) + (empLoaded ? 1 : 0) + (wwLoaded ? 1 : 0);
-    summaryText.textContent = `${loadedCount} of 3 files loaded`;
+    summaryText.textContent = `${loadedCount} of 3 core files loaded${senLoaded ? ` • SEN Seniority active (${senCount} records)` : ''}`;
   }
 }
 
@@ -1005,10 +1164,11 @@ async function quickLoadWorkspaceFiles() {
   }
 
   try {
-    showToast('Auto-loading workspace CSV files (PPA, EMP, Working Weeks)...');
+    showToast('Auto-loading workspace CSV files (PPA, EMP, Working Weeks, SEN)...');
     let ppaLoaded = false;
     let empLoaded = false;
     let wwLoaded = false;
+    let senLoaded = false;
 
     // Try fetching Working Weeks CSV first (establishes the master specialist roster)
     const wwFileNames = [
@@ -1056,6 +1216,18 @@ async function quickLoadWorkspaceFiles() {
       console.warn('Could not auto-fetch EMP.csv:', e);
     }
 
+    // Try fetching optional SEN.csv (determines BRE eligibility by earliest date worked)
+    try {
+      const resSEN = await fetch('SEN.csv');
+      if (resSEN.ok) {
+        const textSEN = await resSEN.text();
+        loadSEN(textSEN, 'SEN.csv');
+        senLoaded = true;
+      }
+    } catch (e) {
+      console.warn('Could not auto-fetch SEN.csv:', e);
+    }
+
     renderDayHeaders();
     calculateAllHours();
     populateLinkingShiftDropdown();
@@ -1065,9 +1237,9 @@ async function quickLoadWorkspaceFiles() {
     renderShiftFirstView();
     renderWinTeamTable();
 
-    if (ppaLoaded || empLoaded || wwLoaded) {
+    if (ppaLoaded || empLoaded || wwLoaded || senLoaded) {
       closeUploadModal();
-      showToast(`Loaded: ${ppaLoaded ? 'PPA ' : ''}${empLoaded ? 'EMP ' : ''}${wwLoaded ? 'WW' : ''}`);
+      showToast(`Loaded: ${ppaLoaded ? 'PPA ' : ''}${empLoaded ? 'EMP ' : ''}${wwLoaded ? 'WW ' : ''}${senLoaded ? 'SEN' : ''}`);
     } else {
       openUploadModal();
     }
@@ -1086,6 +1258,8 @@ function initData() {
   state.rawPPA = '';
   state.rawEMP = '';
   state.rawWW = '';
+  state.rawSEN = '';
+  state.senData = null;
   state.empReportRecords = [];
   state.empHoursFromEMP = {};
   state.empShiftsFromEMP = {};
@@ -1297,10 +1471,143 @@ function loadWorkingWeeks(csvText, fileName = 'WorkingWeeks.csv') {
     count: wwEmployees.length
   };
 
+  // Evaluate BRE eligibility based on SEN file if loaded, or Bottom 75 WW fallback
+  updateAllEmployeesBreEligibility();
+
   // If EMP was loaded before WW, re-filter EMP now that WW roster is known
   if (state.rawEMP) {
     loadEMP(state.rawEMP, state.filesStatus.emp ? state.filesStatus.emp.filename : 'EMP.csv');
   }
+}
+
+// --- SEN (SENIORITY) FILE LOADER ---
+// Determines employee's BRE eligibility using optional SEN file.
+// Maps EmployeeNumber -> earliest date worked (DateFirstWorked or DateLastWorked).
+// If earliest date is in last 90 days (<90d), ineligible for BRE. If beyond that (>=90d), eligible.
+function loadSEN(csvText, fileName = 'SEN.csv') {
+  if (!csvText) return;
+  state.rawSEN = csvText;
+
+  const rawLines = csvText.split(/\r?\n/);
+  if (rawLines.length < 2) return;
+
+  const headerParts = rawLines[0].split(',').map(h => h.replace(/^["'\s]+|["'\s]+$/g, ''));
+  const eidIdx = headerParts.indexOf('EmployeeNumber');
+  const dfwIdx = headerParts.indexOf('DateFirstWorked');
+  const dlwIdx = headerParts.indexOf('DateLastWorked');
+
+  if (eidIdx === -1) {
+    console.error('SEN.csv missing EmployeeNumber column');
+    return;
+  }
+
+  const senMap = {};
+
+  function recordDate(eid, dStr) {
+    if (!eid || !dStr) return;
+    const parts = dStr.split('/');
+    if (parts.length === 3) {
+      const m = parseInt(parts[0], 10);
+      const day = parseInt(parts[1], 10);
+      const yr = parseInt(parts[2], 10);
+      if (!isNaN(m) && !isNaN(day) && !isNaN(yr)) {
+        const ts = new Date(yr, m - 1, day).getTime();
+        if (!isNaN(ts)) {
+          if (!senMap[eid] || ts < senMap[eid].timestamp) {
+            senMap[eid] = {
+              earliestDate: new Date(yr, m - 1, day),
+              earliestDateStr: `${m}/${day}/${yr}`,
+              timestamp: ts
+            };
+          }
+        }
+      }
+    }
+  }
+
+  function parseRow(buf) {
+    if (!buf) return;
+    if (!buf.includes('"')) {
+      const cols = buf.split(',');
+      if (cols.length > eidIdx) {
+        const eid = cols[eidIdx].trim();
+        if (eid) {
+          if (dfwIdx !== -1 && cols.length > dfwIdx) recordDate(eid, cols[dfwIdx].trim());
+          if (dlwIdx !== -1 && cols.length > dlwIdx) recordDate(eid, cols[dlwIdx].trim());
+        }
+      }
+      return;
+    }
+    const cols = [];
+    let cur = '';
+    let inQ = false;
+    const len = buf.length;
+    for (let i = 0; i < len; i++) {
+      const c = buf[i];
+      if (c === '"') {
+        if (inQ && i + 1 < len && buf[i + 1] === '"') {
+          cur += '"';
+          i++;
+        } else {
+          inQ = !inQ;
+        }
+      } else if (c === ',' && !inQ) {
+        cols.push(cur);
+        cur = '';
+      } else {
+        cur += c;
+      }
+    }
+    cols.push(cur);
+    if (cols.length > eidIdx) {
+      const eid = cols[eidIdx].trim();
+      if (eid) {
+        if (dfwIdx !== -1 && cols.length > dfwIdx) recordDate(eid, cols[dfwIdx].trim());
+        if (dlwIdx !== -1 && cols.length > dlwIdx) recordDate(eid, cols[dlwIdx].trim());
+      }
+    }
+  }
+
+  let inQuotes = false;
+  let lineBuf = '';
+
+  for (let i = 1; i < rawLines.length; i++) {
+    const line = rawLines[i];
+    if (!line && !inQuotes) continue;
+
+    let qCount = 0;
+    for (let c = 0; c < line.length; c++) {
+      if (line.charCodeAt(c) === 34) qCount++;
+    }
+
+    if (!inQuotes) {
+      if (qCount % 2 === 1) {
+        inQuotes = true;
+        lineBuf = line;
+      } else {
+        parseRow(line);
+      }
+    } else {
+      lineBuf += '\n' + line;
+      if (qCount % 2 === 1) {
+        inQuotes = false;
+        parseRow(lineBuf);
+        lineBuf = '';
+      }
+    }
+  }
+  if (lineBuf) {
+    parseRow(lineBuf);
+  }
+
+  state.senData = senMap;
+  state.filesStatus.sen = {
+    loaded: true,
+    filename: fileName,
+    count: Object.keys(senMap).length
+  };
+
+  updateAllEmployeesBreEligibility();
 }
 
 function loadPPA(csvText, fileName = 'PPA.csv') {
@@ -1670,11 +1977,11 @@ function getCandidateMatchesForShift(shift) {
       return;
     }
 
-    // 1b. Check Bottom 75 Working Weeks Seniority Restriction for BRE Shifts (JC 235144 or 267588)
-    if (isBreShift(shift) && isEmployeeBottom75(emp)) {
+    // 1b. Check Seniority Restriction for BRE Shifts (JC 235144 or 267588): SEN <90d or WW Bottom 75 fallback
+    if (isBreShift(shift) && isEmployeeBreRestricted(emp, shift.workDateNorm)) {
       conflicted.push({
         emp,
-        reason: `Seniority restriction: Bottom 75 in Working Weeks are not eligible for BRE shifts (JC ${shift.jobNumber || '235144 / 267588'})`,
+        reason: getBreRestrictionReason(emp, shift.workDateNorm, shift.jobNumber),
         currentH,
         projectedH: currentH + shHours,
         willOvertime: (currentH + shHours) > effLimit
@@ -2031,7 +2338,7 @@ function renderWorkingWeeksGrid() {
     if (filter === 'under45' && emp.actualHours >= 45.0) return false;
     if (filter === 'overtime' && emp.actualHours <= 45.0) return false;
     if (filter === 'ot_approved' && !getEmployeeOTApprovals(emp.eid).hasAny) return false;
-    if (filter === 'bottom75' && !isEmployeeBottom75(emp)) return false;
+    if (filter === 'bottom75' && !isEmployeeBreRestricted(emp)) return false;
     if (filter === 'dedicated' && !emp.notes.toLowerCase().includes('dedicated') && !Object.values(emp.daily).some(d => d.p1 === 'Dedication')) return false;
     if (filter === 'supervisor' && !emp.notes.toLowerCase().includes('acting supervisor')) return false;
 
@@ -2360,8 +2667,8 @@ function countOpenMatchesForSpecialist(emp, dt) {
   const dayExistingHours = existingShifts.reduce((acc, es) => acc + es.countedHours, 0.0);
 
   openShifts.forEach(s => {
-    // Bottom 75 Working Weeks seniority restriction for BRE shifts (JC 235144 / 267588)
-    if (isEmployeeBottom75(emp) && isBreShift(s)) return;
+    // Seniority restriction for BRE shifts (JC 235144 / 267588): SEN <90d or WW Bottom 75 fallback
+    if (isEmployeeBreRestricted(emp, s.workDateNorm) && isBreShift(s)) return;
 
     // Overlap check
     if (existingShifts.length > 0) {
@@ -2472,11 +2779,11 @@ function openCellShiftChooser(eid, dt) {
   const blockedBre = [];
 
   openShifts.forEach(s => {
-    // Bottom 75 Working Weeks seniority restriction for BRE shifts (JC 235144 / 267588)
-    if (isEmployeeBottom75(emp) && isBreShift(s)) {
+    // Seniority restriction for BRE shifts (JC 235144 / 267588): SEN <90d or WW Bottom 75 fallback
+    if (isBreShift(s) && isEmployeeBreRestricted(emp, s.workDateNorm)) {
       blockedBre.push({
         shift: s,
-        reason: `Seniority restriction: Bottom 75 in Working Weeks are not eligible for BRE shifts (JC ${s.jobNumber || '235144 / 267588'})`
+        reason: getBreRestrictionReason(emp, s.workDateNorm, s.jobNumber)
       });
       return;
     }
@@ -2671,8 +2978,8 @@ function assignCandidate(shiftId, eid, tierLabel) {
     return;
   }
 
-  if (isBreShift(shift) && isEmployeeBottom75(employee)) {
-    alert(`Cannot assign shift: ${employee.name} is in the bottom 75 of Working Weeks and is not eligible to work BRE shifts (Anything under JC 235144 or 267588).`);
+  if (isBreShift(shift) && isEmployeeBreRestricted(employee, shift.workDateNorm)) {
+    alert(`Cannot assign shift: ${employee.name} is ineligible to work BRE shifts (${getBreRestrictionReason(employee, shift.workDateNorm, shift.jobNumber)}).`);
     return;
   }
 
@@ -3738,15 +4045,60 @@ function openOfficerDetailModal(eid) {
             </div>
             ${tagsHtml}
           </div>
-          ${isEmployeeBottom75(emp) ? `
-            <div class="bg-rose-50 border border-rose-200 rounded-lg p-3 flex items-start gap-2.5 text-rose-900 mt-2">
-              <svg class="w-4 h-4 text-rose-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-              <div>
-                <div class="text-[10px] uppercase font-bold text-rose-800 tracking-wider">Working Weeks Seniority Notice:</div>
-                <div class="text-xs font-semibold text-rose-950 mt-0.5">Bottom 75 in Working Weeks (Row #${emp.wwIndex}) &mdash; Ineligible to work BRE shifts (Anything under JC 235144 or 267588).</div>
-              </div>
-            </div>
-          ` : ''}
+          ${(() => {
+            const hasSen = state.filesStatus.sen && state.filesStatus.sen.loaded && state.senData;
+            if (hasSen) {
+              const senRec = getEmployeeSeniorityRecord(emp);
+              if (senRec && senRec.earliestDate) {
+                const isRestricted = isEmployeeBreRestricted(emp);
+                const daysTenure = emp.senDaysTenure !== undefined ? emp.senDaysTenure : Math.floor((getSeniorityRefDate().getTime() - senRec.earliestDate.getTime()) / (1000 * 60 * 60 * 24));
+                if (isRestricted) {
+                  return `
+                    <div class="bg-rose-50 border border-rose-200 rounded-lg p-3 flex items-start gap-2.5 text-rose-900 mt-2">
+                      <svg class="w-4 h-4 text-rose-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                      <div>
+                        <div class="text-[10px] uppercase font-bold text-rose-800 tracking-wider">SEN Seniority Notice (&lt;90 Days):</div>
+                        <div class="text-xs font-semibold text-rose-950 mt-0.5">Earliest Date Worked: <strong>${senRec.earliestDateStr}</strong> (${daysTenure} days ago) &mdash; Ineligible to work BRE shifts (Anything under JC 235144 or 267588).</div>
+                      </div>
+                    </div>
+                  `;
+                } else {
+                  return `
+                    <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-2.5 flex items-start gap-2 text-emerald-900 mt-2">
+                      <svg class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                      <div class="text-xs">
+                        <span class="font-bold">SEN Seniority Verified:</span> Earliest worked date <strong>${senRec.earliestDateStr}</strong> (${daysTenure} days tenure) &mdash; <strong class="text-emerald-800">Eligible for BRE shifts</strong>.
+                      </div>
+                    </div>
+                  `;
+                }
+              } else {
+                return isEmployeeBottom75(emp) ? `
+                  <div class="bg-rose-50 border border-rose-200 rounded-lg p-3 flex items-start gap-2.5 text-rose-900 mt-2">
+                    <svg class="w-4 h-4 text-rose-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    <div>
+                      <div class="text-[10px] uppercase font-bold text-rose-800 tracking-wider">Working Weeks Seniority Notice (SEN Fallback):</div>
+                      <div class="text-xs font-semibold text-rose-950 mt-0.5">Not found in SEN file &bull; Bottom 75 in Working Weeks (Row #${emp.wwIndex}) &mdash; Ineligible to work BRE shifts (Anything under JC 235144 or 267588).</div>
+                    </div>
+                  </div>
+                ` : `
+                  <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5 flex items-start gap-2 text-slate-700 mt-2 text-xs">
+                    <span>Not in SEN file &bull; Eligible for BRE shifts based on Working Weeks seniority.</span>
+                  </div>
+                `;
+              }
+            } else {
+              return isEmployeeBottom75(emp) ? `
+                <div class="bg-rose-50 border border-rose-200 rounded-lg p-3 flex items-start gap-2.5 text-rose-900 mt-2">
+                  <svg class="w-4 h-4 text-rose-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                  <div>
+                    <div class="text-[10px] uppercase font-bold text-rose-800 tracking-wider">Working Weeks Seniority Notice:</div>
+                    <div class="text-xs font-semibold text-rose-950 mt-0.5">Bottom 75 in Working Weeks (Row #${emp.wwIndex}) &mdash; Ineligible to work BRE shifts (Anything under JC 235144 or 267588).</div>
+                  </div>
+                </div>
+              ` : '';
+            }
+          })()}
           ${notesHtml}
         `;
   }
@@ -3953,8 +4305,8 @@ function runAutoFillSimulation() {
       const status = getEmployeeStatus(emp, dt);
       if (status.isBlocked) return;
 
-      // 1b. Bottom 75 Working Weeks Seniority Restriction for BRE Shifts (JC 235144 or 267588)
-      if (isBreShift(shift) && isEmployeeBottom75(emp)) return;
+      // 1b. Seniority Restriction for BRE Shifts (JC 235144 or 267588): SEN <90d or WW Bottom 75 fallback
+      if (isBreShift(shift) && isEmployeeBreRestricted(emp, dt)) return;
 
       // 2. Cell Hard Locks: Dedication, TOR, Not Available, Opt Out
       const dInfo = emp.daily[dt] || {};
