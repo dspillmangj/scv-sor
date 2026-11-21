@@ -2918,6 +2918,9 @@
           const bTimeRange = (b._startTime && bShiftEndTime) ? `${b._startTime}–${bShiftEndTime}` : (b._startTime || '');
 
           let badge = `<span class="px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-emerald-200 text-emerald-950 border border-emerald-400">Assigned</span>`;
+          let surplusBadgeHtml = '';
+          let surplusActionBtnsHtml = '';
+
           if (isSurplusRow) {
             const shortDate = formatShortDate(rawWd);
             const shiftSpan = getShiftSpan(b._startTime);
@@ -2928,31 +2931,26 @@
             const ignoreMsg = `Left ${shortDate} ${shiftSpan} (Dedication)`;
 
             if (isIgnored) {
-              badge = `
-                <div class="flex items-center gap-1.5 shrink-0">
-                  ${handledType === 'resolve'
-                  ? `<span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-200 text-emerald-950 border border-emerald-400">RESOLVED</span>`
-                  : `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-200 text-slate-700 border border-slate-300">IGNORED</span>`
-                }
-                  <button type="button" class="px-2 py-0.5 rounded bg-slate-700 hover:bg-slate-900 text-white font-mono text-[10px] font-bold shadow-xs transition-all" onclick="handleIssueUndo('${line.issueKey}')" title="Undo and reactivate issue">
-                    Undo
-                  </button>
-                  <button type="button" class="px-1.5 py-0.5 rounded bg-slate-200 hover:bg-slate-300 text-slate-800 border border-slate-300 font-mono text-[10px] font-bold shadow-xs transition-all" onclick="copyToClipboard('${escapeQuotes(handledType === 'resolve' ? resolveMsg : ignoreMsg)}', this)" title="Copy: &quot;${escapeQuotes(handledType === 'resolve' ? resolveMsg : ignoreMsg)}&quot;">
-                    Copy
-                  </button>
-                </div>
+              surplusBadgeHtml = (handledType === 'resolve')
+                ? `<span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-200 text-emerald-950 border border-emerald-400">RESOLVED</span>`
+                : `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-200 text-slate-700 border border-slate-300">IGNORED</span>`;
+              surplusActionBtnsHtml = `
+                <button type="button" class="px-2 py-0.5 rounded bg-slate-700 hover:bg-slate-900 text-white font-mono text-[10px] font-bold shadow-xs transition-all whitespace-nowrap" onclick="handleIssueUndo('${line.issueKey}')" title="Undo and reactivate issue">
+                  Undo
+                </button>
+                <button type="button" class="px-1.5 py-0.5 rounded bg-slate-200 hover:bg-slate-300 text-slate-800 border border-slate-300 font-mono text-[10px] font-bold shadow-xs transition-all whitespace-nowrap" onclick="copyToClipboard('${escapeQuotes(handledType === 'resolve' ? resolveMsg : ignoreMsg)}', this)" title="Copy: &quot;${escapeQuotes(handledType === 'resolve' ? resolveMsg : ignoreMsg)}&quot;">
+                  Copy
+                </button>
               `;
             } else {
-              badge = `
-                <div class="flex items-center gap-1.5 shrink-0">
-                  <span class="px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-amber-300 text-amber-950 border border-amber-500 shadow-2xs">OVERSTAFF</span>
-                  <button type="button" class="btn-resolve px-2.5 py-0.5 rounded bg-emerald-700 hover:bg-emerald-800 text-white font-mono text-[10px] font-bold shadow-xs transition-all whitespace-nowrap" onclick="handleIssueAction('${line.issueKey}', 'resolve', '${escapeQuotes(resolveMsg)}', this)" title="Resolve & Copy: ${escapeQuotes(resolveMsg)}">
-                    Resolve
-                  </button>
-                  <button type="button" class="btn-ignore px-2 py-0.5 rounded bg-amber-100 hover:bg-amber-200 text-amber-950 border border-amber-400 font-mono text-[10px] font-bold shadow-xs transition-all whitespace-nowrap" onclick="handleIssueAction('${line.issueKey}', 'ignore', '${escapeQuotes(ignoreMsg)}', this)" title="Ignore & Copy: ${escapeQuotes(ignoreMsg)}">
-                    Ignore
-                  </button>
-                </div>
+              surplusBadgeHtml = `<span class="px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-amber-300 text-amber-950 border border-amber-500 shadow-2xs">OVERSTAFF</span>`;
+              surplusActionBtnsHtml = `
+                <button type="button" class="btn-resolve px-2.5 py-0.5 rounded bg-emerald-700 hover:bg-emerald-800 text-white font-mono text-[10px] font-bold shadow-xs transition-all whitespace-nowrap" onclick="handleIssueAction('${line.issueKey}', 'resolve', '${escapeQuotes(resolveMsg)}', this)" title="Resolve & Copy: ${escapeQuotes(resolveMsg)}">
+                  Resolve
+                </button>
+                <button type="button" class="btn-ignore px-2 py-0.5 rounded bg-amber-100 hover:bg-amber-200 text-amber-950 border border-amber-400 font-mono text-[10px] font-bold shadow-xs transition-all whitespace-nowrap" onclick="handleIssueAction('${line.issueKey}', 'ignore', '${escapeQuotes(ignoreMsg)}', this)" title="Ignore & Copy: ${escapeQuotes(ignoreMsg)}">
+                  Ignore
+                </button>
               `;
             }
           } else if (isWrongTime) {
@@ -3033,14 +3031,11 @@
           const bDlBadge = b._isDL ? `<span class="px-1.5 py-0.2 rounded font-extrabold text-[9px] bg-indigo-100 text-indigo-900 border border-indigo-300 font-mono shadow-2xs shrink-0" title="Dedication Likely (4+ same shifts this week)">DL</span>` : '';
           const switchBadge = isBreakerSwitched(b._uid) ? `<span class="px-1.5 py-0.2 rounded text-[9px] font-extrabold bg-indigo-100 text-indigo-900 border border-indigo-300 font-mono shadow-2xs shrink-0" title="Manually switched breaker">SWITCHED</span>` : '';
 
-          let switchDropdownHtml = '';
-          const surplusBreakersInCard = (h.lines || []).filter(l => l.status === 'SURPLUS_BREAKER' && l.bre);
-
           if (isSurplusRow) {
             const cardBreakers = (h.allCardBreakers || []).filter(other => other && other._uid !== b._uid);
             const otherDayBreakers = (h.facilityDateBreakers || []).filter(other => other && other._uid !== b._uid && !cardBreakers.some(cb => cb._uid === other._uid));
 
-            let optionsHtml = `<option value="${b._uid}" selected>&#10003; ${escapeHtml(b.EmpName || 'Unassigned')} (${bTimeRange}) &bull; Current Overstaff</option>`;
+            let optionsHtml = `<option value="${b._uid}" selected>&#10003; Keep ${escapeHtml(b.EmpName || 'Current')}</option>`;
 
             if (cardBreakers.length > 0) {
               optionsHtml += `<optgroup label="Switch with Breaker in this Hour:">`;
@@ -3081,48 +3076,64 @@
               ? 'border-indigo-400 bg-indigo-50 text-indigo-950 ring-1 ring-indigo-400'
               : 'border-amber-400 bg-white text-slate-900 hover:border-amber-600';
 
-            switchDropdownHtml = `
-              <div class="inline-flex items-center gap-1 font-sans shrink-0">
-                <span class="text-[10px] font-extrabold text-amber-900 uppercase tracking-tight flex items-center gap-0.5 shrink-0" title="Switch this overstaff breaker with someone else">
+            const switchDropdownHtml = `
+              <div class="flex items-center gap-1 font-sans min-w-0 flex-1">
+                <span class="text-[10px] font-extrabold text-amber-950 uppercase tracking-tight shrink-0 flex items-center gap-0.5" title="Switch this overstaff breaker with someone else">
                   &#8644; Switch:
                 </span>
-                <select class="text-[11px] font-bold ${borderCls} rounded px-1.5 py-0.5 shadow-2xs focus:outline-none focus:ring-1 focus:ring-amber-500 cursor-pointer max-w-[170px] sm:max-w-[210px] truncate" onchange="switchOverstaffBreaker(${b._uid}, this.value)" title="Choose a breaker to switch with this overstaff slot">
+                <select class="text-[11px] font-bold ${borderCls} rounded px-1.5 py-0.5 shadow-2xs focus:outline-none focus:ring-1 focus:ring-amber-500 cursor-pointer w-full max-w-[210px] sm:max-w-[250px] truncate" onchange="switchOverstaffBreaker(${b._uid}, this.value)" title="Choose a breaker to switch with this overstaff slot">
                   ${optionsHtml}
                 </select>
               </div>
             `;
-          } else if (surplusBreakersInCard.length > 0) {
-            let optHtml = `<option value="${b._uid}" selected>&#10003; Keep Assigned</option>`;
-            optHtml += `<optgroup label="Switch with Overstaff Breaker:">`;
-            surplusBreakersInCard.forEach(sl => {
-              optHtml += `<option value="${sl.bre._uid}">&#8644; Make Overstaff: ${escapeHtml(sl.bre.EmpName || 'Unassigned')}</option>`;
-            });
-            optHtml += `</optgroup>`;
-            switchDropdownHtml = `
-              <div class="inline-flex items-center gap-1 font-sans shrink-0">
-                <select class="text-[10.5px] font-semibold bg-white border border-slate-300 rounded px-1.5 py-0.5 text-slate-700 shadow-2xs hover:border-slate-400 focus:outline-none cursor-pointer max-w-[130px] truncate" onchange="switchOverstaffBreaker(${b._uid}, this.value)" title="Switch this assigned breaker into overstaff">
-                  ${optHtml}
-                </select>
+
+            right.innerHTML = `
+              <div class="p-2 rounded-lg ${breCardClass} text-xs shadow-2xs space-y-1.5 min-w-0">
+                <!-- Top Row: Employee Name given maximum space on left, Time & Badge on right -->
+                <div class="flex items-center justify-between gap-2 min-w-0">
+                  <div class="flex items-center gap-1.5 min-w-0 flex-1">
+                    <span class="px-1.5 py-0.5 rounded ${brePillClass} shrink-0">BRE</span>
+                    <span class="font-extrabold ${isIgnored ? 'text-slate-600 line-through' : 'text-slate-950'} truncate text-xs" title="${escapeHtml(b.EmpName || 'Unassigned Breaker')}">
+                      ${escapeHtml(b.EmpName || 'Unassigned Breaker')}
+                    </span>
+                    ${bDlBadge}
+                    ${switchBadge}
+                  </div>
+                  <div class="flex items-center gap-1.5 shrink-0 font-mono">
+                    ${timeDisplayHtml}
+                    ${dateBadge}
+                    ${surplusBadgeHtml}
+                  </div>
+                </div>
+
+                <!-- Bottom Row: Switch Dropdown on left, Action buttons on right -->
+                <div class="flex items-center justify-between gap-2 pt-1 border-t border-amber-300/70 font-sans">
+                  ${switchDropdownHtml}
+                  <div class="flex items-center gap-1.5 shrink-0 font-mono">
+                    ${surplusActionBtnsHtml}
+                  </div>
+                </div>
+              </div>
+            `;
+          } else {
+            right.innerHTML = `
+              <div class="flex items-center justify-between p-2 rounded-lg ${breCardClass} text-xs shadow-2xs gap-2 min-w-0">
+                <div class="flex items-center gap-1.5 min-w-0 flex-1">
+                  <span class="px-1.5 py-0.5 rounded ${brePillClass} shrink-0">BRE</span>
+                  <span class="font-extrabold ${isIgnored ? 'text-slate-600 line-through' : 'text-slate-950'} truncate text-xs" title="${escapeHtml(b.EmpName || 'Unassigned Breaker')}">
+                    ${escapeHtml(b.EmpName || 'Unassigned Breaker')}
+                  </span>
+                  ${bDlBadge}
+                  ${switchBadge}
+                </div>
+                <div class="flex items-center gap-2 shrink-0 font-mono">
+                  ${timeDisplayHtml}
+                  ${dateBadge}
+                  ${badge}
+                </div>
               </div>
             `;
           }
-
-          right.innerHTML = `
-            <div class="flex items-center justify-between p-2 rounded-lg ${breCardClass} text-xs shadow-2xs gap-2 min-w-0 flex-wrap sm:flex-nowrap">
-              <div class="flex items-center gap-1.5 min-w-0 flex-1">
-                <span class="px-1.5 py-0.5 rounded ${brePillClass} shrink-0">BRE</span>
-                <span class="font-extrabold ${isIgnored ? 'text-slate-600 line-through' : 'text-slate-950'} truncate text-xs" title="${b.EmpName || 'Unassigned Breaker'}">${b.EmpName || 'Unassigned Breaker'}</span>
-                ${bDlBadge}
-                ${switchBadge}
-              </div>
-              <div class="flex items-center gap-2 shrink-0 font-mono flex-wrap sm:flex-nowrap">
-                ${switchDropdownHtml}
-                ${timeDisplayHtml}
-                ${dateBadge}
-                ${badge}
-              </div>
-            </div>
-          `;
         } else {
           const targetDateForBre = line.targetBreDate || h.targetBreDate || h.date;
           const targetTimeForBre = line.expTime || h.targetBreTime;
