@@ -566,12 +566,12 @@
     };
 
     function getShiftHours(r) {
-      const hVal = (r.shifthours !== undefined && r.shifthours !== '') ? r.shifthours : r.Hours;
+      const hVal = (r.Hours !== undefined && r.Hours !== '') ? r.Hours : r.shifthours;
       const parsed = parseFloat(hVal);
       if (!isNaN(parsed) && parsed > 0) return parsed;
 
-      const start = String(r.ShiftStartTime || r.InTime || '').trim();
-      const end = String(r.ShiftEndTime || r.OutTime || '').trim();
+      const start = String(r.InTime || r.ShiftStartTime || '').trim();
+      const end = String(r.OutTime || r.ShiftEndTime || '').trim();
       if (start && end) {
         const [sh, sm] = start.split(':').map(Number);
         const [eh, em] = end.split(':').map(Number);
@@ -717,14 +717,14 @@
 
     function getShiftEndTime(record, defaultHours = 8, defaultLunch = 0.75) {
       if (!record) return '';
-      const rawEnd = String(record.ShiftEndTime || record.OutTime || '').trim();
+      const rawEnd = String(record.OutTime || record.ShiftEndTime || '').trim();
       if (rawEnd) {
         return normalizeTime(rawEnd);
       }
-      const rawStart = String(record.ShiftStartTime || record.InTime || '').trim();
+      const rawStart = String(record.InTime || record.ShiftStartTime || '').trim();
       if (!rawStart) return '';
       const hrs = getShiftHours(record) || defaultHours;
-      const lunch = parseFloat(record.SHIFTLUNCH !== undefined && record.SHIFTLUNCH !== '' ? record.SHIFTLUNCH : (record.Lunch || defaultLunch)) || 0;
+      const lunch = parseFloat(record.Lunch !== undefined && record.Lunch !== '' ? record.Lunch : (record.SHIFTLUNCH || defaultLunch)) || 0;
       return computeShiftEndTime(rawStart, hrs, lunch);
     }
 
@@ -779,8 +779,8 @@
         const empId = String(r.EmployeeNumber || r.EmpName || '').trim();
         if (!empId || empId.toLowerCase() === 'open shift' || empId.toLowerCase() === 'unassigned') return;
 
-        const start = String(r.ShiftStartTime || r.InTime || '').trim();
-        const end = String(r.ShiftEndTime || r.OutTime || '').trim();
+        const start = String(r.InTime || r.ShiftStartTime || '').trim();
+        const end = String(r.OutTime || r.ShiftEndTime || '').trim();
         const post = String(r.PostDescription || '').trim().toLowerCase();
         if (!start) return;
 
@@ -1029,16 +1029,16 @@
       // Sort SORs strictly chronologically so within every hour block,
       // earlier shifts (e.g. 6:15) always appear before later shifts (e.g. 6:30)
       sors.sort((a, b) => {
-        const tA = normalizeTime(String(a.ShiftStartTime || a.InTime || '').trim());
-        const tB = normalizeTime(String(b.ShiftStartTime || b.InTime || '').trim());
+        const tA = normalizeTime(String(a.InTime || a.ShiftStartTime || '').trim());
+        const tB = normalizeTime(String(b.InTime || b.ShiftStartTime || '').trim());
         if (tA !== tB) return tA.localeCompare(tB);
         return String(a.EmpName || '').localeCompare(String(b.EmpName || ''));
       });
 
       const mapBreaker = (r) => {
-        const t = normalizeTime(String(r.ShiftStartTime || r.InTime || '').trim());
+        const t = normalizeTime(String(r.InTime || r.ShiftStartTime || '').trim());
         const hrs = getShiftHours(r) || 8.0;
-        const lunch = parseFloat(r.SHIFTLUNCH !== undefined && r.SHIFTLUNCH !== '' ? r.SHIFTLUNCH : (r.Lunch || 0.75)) || 0.75;
+        const lunch = parseFloat(r.Lunch !== undefined && r.Lunch !== '' ? r.Lunch : (r.SHIFTLUNCH || 0.75)) || 0.75;
         const endT = getShiftEndTime(r, hrs, lunch);
         return { ...r, _startTime: t, _endTime: endT };
       };
@@ -1055,7 +1055,7 @@
       // and should not be flagged as a surplus overage on this date.
       const prevSors = prevDayRows.filter(isSor);
       const prev23Sors = prevSors.filter(s => {
-        const t = String(s.ShiftStartTime || s.InTime || '').trim();
+        const t = String(s.InTime || s.ShiftStartTime || '').trim();
         return (parseInt(t.split(':')[0], 10) || 0) >= 23;
       });
       const prevReqBres = prev23Sors.length > 0 ? Math.max(1, Math.round(prev23Sors.length / 3)) : 0;
@@ -1075,8 +1075,8 @@
       const sorsByHour = {};
       const twoLunches = [];
       sors.forEach(r => {
-        const t = normalizeTime(String(r.ShiftStartTime || r.InTime || '').trim());
-        const lunch = parseFloat(r.SHIFTLUNCH !== undefined && r.SHIFTLUNCH !== '' ? r.SHIFTLUNCH : (r.Lunch || 0)) || 0;
+        const t = normalizeTime(String(r.InTime || r.ShiftStartTime || '').trim());
+        const lunch = parseFloat(r.Lunch !== undefined && r.Lunch !== '' ? r.Lunch : (r.SHIFTLUNCH || 0)) || 0;
         const hrs = getShiftHours(r);
         const endT = getShiftEndTime(r, hrs, lunch);
         const h = parseInt(t.split(':')[0], 10) || 0;
@@ -1153,7 +1153,7 @@
 
           // Candidate 12pm breakers
           const candidate12Bres = sameDayBres.filter(b => {
-            const t = String(b._startTime || b.ShiftStartTime || b.InTime || '').trim();
+            const t = String(b._startTime || b.InTime || b.ShiftStartTime || '').trim();
             if (!t) return false;
             return parseInt(t.split(':')[0], 10) === 12;
           });
@@ -1573,7 +1573,7 @@
         // For shifts 23:00 and later, breakers start at midnight or later on the FOLLOWING DAY.
         const sourceBres = isNextDayBre ? nextDayBres : sameDayBres;
         let candidateBres = sourceBres.filter(b => {
-          const t = String(b._startTime || b.ShiftStartTime || b.InTime || '').trim();
+          const t = String(b._startTime || b.InTime || b.ShiftStartTime || '').trim();
           if (!t) return false;
           const bh = parseInt(t.split(':')[0], 10);
           return bh === targetBreHour;
@@ -2982,8 +2982,8 @@
         const dateB = parseDateToKey(String(b.WorkDate || '').trim());
         if (dateA !== dateB) return dateA - dateB;
 
-        const timeA = String(a.ShiftStartTime || a.InTime || '').trim();
-        const timeB = String(b.ShiftStartTime || b.InTime || '').trim();
+        const timeA = String(a.InTime || a.ShiftStartTime || '').trim();
+        const timeB = String(b.InTime || b.ShiftStartTime || '').trim();
         return timeA.localeCompare(timeB);
       });
 
@@ -2996,7 +2996,7 @@
         return str;
       };
 
-      let csvContent = 'WorkDate,ShiftStartTime,ShiftEndTime,SHIFTLUNCH,shifthours,\r\n';
+      let csvContent = 'WorkDate,InTime,OutTime,Lunch,Hours,\r\n';
 
       let lastDate = null;
       matchingShifts.forEach(r => {
@@ -3005,10 +3005,10 @@
         lastDate = currentDate;
 
         const wDate = escapeVal(currentDate);
-        const sStart = escapeVal(r.ShiftStartTime || r.InTime || '');
-        const sEnd = escapeVal(r.ShiftEndTime || r.OutTime || '');
-        const sLunch = escapeVal(r.SHIFTLUNCH !== undefined && r.SHIFTLUNCH !== '' ? r.SHIFTLUNCH : r.Lunch);
-        const sHours = escapeVal(r.shifthours !== undefined && r.shifthours !== '' ? r.shifthours : r.Hours);
+        const sStart = escapeVal(r.InTime || r.ShiftStartTime || '');
+        const sEnd = escapeVal(r.OutTime || r.ShiftEndTime || '');
+        const sLunch = escapeVal(r.Lunch !== undefined && r.Lunch !== '' ? r.Lunch : r.SHIFTLUNCH);
+        const sHours = escapeVal(r.Hours !== undefined && r.Hours !== '' ? r.Hours : r.shifthours);
         const newTag = isNewDate ? 'NEW' : '';
 
         csvContent += `${wDate},${sStart},${sEnd},${sLunch},${sHours},${newTag}\r\n`;
