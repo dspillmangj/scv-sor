@@ -250,6 +250,10 @@
           <span id="ignoredStatusPill"
             class="hidden text-[11px] font-mono px-2.5 py-1 rounded-md bg-slate-200 text-slate-800 border border-slate-300 font-bold flex items-center gap-1.5">
           </span>
+
+          <span id="swappedStatusPill"
+            class="hidden text-[11px] font-mono px-2.5 py-1 rounded-md bg-indigo-100 text-indigo-900 border border-indigo-300 font-bold flex items-center gap-1.5 shadow-2xs">
+          </span>
         </div>
 
         <!-- Center: Facility Selector -->
@@ -484,6 +488,7 @@
     let onlyIssues = false;
     let handledIssues = new Map(); // issueKey -> 'resolve' | 'ignore'
     let ignoredIssues = new Set();
+    let customBreakerSwaps = []; // array of { uid1, uid2 } for manual overstaff/breaker swaps
 
     function showToast(msg) {
       if (typeof document === 'undefined') return;
@@ -542,11 +547,113 @@
       renderAudit();
     }
 
+    function switchOverstaffBreaker(uidFrom, uidTo) {
+      const u1 = parseInt(uidFrom, 10);
+      const u2 = parseInt(uidTo, 10);
+      if (isNaN(u1) || isNaN(u2) || u1 === u2) return;
+
+      // If the last recorded swap was between these exact two UIDs, pop it (clean toggle/undo)
+      if (customBreakerSwaps.length > 0) {
+        const last = customBreakerSwaps[customBreakerSwaps.length - 1];
+        if ((last.uid1 === u1 && last.uid2 === u2) || (last.uid1 === u2 && last.uid2 === u1)) {
+          customBreakerSwaps.pop();
+          const scrollY = window.scrollY;
+          renderAudit();
+          window.scrollTo(0, scrollY);
+          return;
+        }
+      }
+
+      customBreakerSwaps.push({ uid1: u1, uid2: u2 });
+      const scrollY = window.scrollY;
+      renderAudit();
+      window.scrollTo(0, scrollY);
+    }
+
+    function resetBreakerSwaps() {
+      customBreakerSwaps = [];
+      const scrollY = window.scrollY;
+      renderAudit();
+      window.scrollTo(0, scrollY);
+    }
+
+    function isBreakerSwitched(uid) {
+      if (!customBreakerSwaps || customBreakerSwaps.length === 0) return false;
+      return customBreakerSwaps.some(s => s.uid1 === uid || s.uid2 === uid);
+    }
+
+    function applySwapsToList(list, swaps) {
+      if (!list || list.length < 2 || !swaps || swaps.length === 0) return list;
+      const res = [...list];
+      swaps.forEach(sw => {
+        const i1 = res.findIndex(b => b && b._uid === sw.uid1);
+        const i2 = res.findIndex(b => b && b._uid === sw.uid2);
+        if (i1 !== -1 && i2 !== -1 && i1 !== i2) {
+          const temp = res[i1];
+          res[i1] = res[i2];
+          res[i2] = temp;
+        }
+      });
+      return res;
+    }
+
+    function applySwapsToHour11(assignedNoon, assignedReg, surplusNoon, surplusReg, swaps) {
+      if (!swaps || swaps.length === 0) return;
+      const containers = [
+        assignedNoon,
+        assignedReg,
+        surplusNoon,
+        surplusReg
+      ];
+
+      swaps.forEach(sw => {
+        let loc1 = null;
+        let loc2 = null;
+
+        containers.forEach(arr => {
+          const i1 = arr.findIndex(b => b && b._uid === sw.uid1);
+          if (i1 !== -1) loc1 = { arr, idx: i1 };
+          const i2 = arr.findIndex(b => b && b._uid === sw.uid2);
+          if (i2 !== -1) loc2 = { arr, idx: i2 };
+        });
+
+        if (loc1 && loc2 && (loc1.arr !== loc2.arr || loc1.idx !== loc2.idx)) {
+          const temp = loc1.arr[loc1.idx];
+          loc1.arr[loc1.idx] = loc2.arr[loc2.idx];
+          loc2.arr[loc2.idx] = temp;
+        }
+      });
+    }
+
+    function applySwapsToDayRecords(sameDayBres, nextDayBres, swaps) {
+      if (!swaps || swaps.length === 0) return;
+      const allBres = [...(sameDayBres || []), ...(nextDayBres || [])];
+      swaps.forEach(sw => {
+        const b1 = allBres.find(b => b && b._uid === sw.uid1);
+        const b2 = allBres.find(b => b && b._uid === sw.uid2);
+        if (b1 && b2) {
+          const h1 = parseInt((b1._startTime || '').split(':')[0], 10);
+          const h2 = parseInt((b2._startTime || '').split(':')[0], 10);
+          if (h1 !== h2) {
+            const empFields = ['EmpName', 'EmpId', '_isDL', 'Employee', 'EmployeeName'];
+            empFields.forEach(f => {
+              const tmp = b1[f];
+              b1[f] = b2[f];
+              b2[f] = tmp;
+            });
+          }
+        }
+      });
+    }
+
     window.showToast = showToast;
     window.handleIssueAction = handleIssueAction;
     window.handleIssueUndo = handleIssueUndo;
     window.toggleIgnoreIssue = toggleIgnoreIssue;
     window.clearAllIgnored = clearAllIgnored;
+    window.switchOverstaffBreaker = switchOverstaffBreaker;
+    window.resetBreakerSwaps = resetBreakerSwaps;
+    window.isBreakerSwitched = isBreakerSwitched;
 
     const FACILITY_CONFIG = {
       '233265': {
@@ -900,6 +1007,7 @@
       rawRecords = parsedRecords.map(r => ({ ...r, _isDL: dlSet.has(r._uid) }));
       handledIssues.clear();
       ignoredIssues.clear();
+      customBreakerSwaps = [];
       const datesSet = new Set();
       records.forEach(r => {
         const d = String(r.WorkDate || '').trim();
@@ -1048,6 +1156,9 @@
 
       const nextDayBres = nextDayRows.filter(isBre).map(mapBreaker);
       nextDayBres.sort((a, b) => a._startTime.localeCompare(b._startTime));
+
+      // Apply cross-hour swaps across day records if any
+      applySwapsToDayRecords(sameDayBres, nextDayBres, customBreakerSwaps);
 
       // Determine if previous day had 23:00 or later SORs that claimed 00:xx BREs on this date.
       // If previous day exists in data, its 23:xx SORs required 00:xx BREs on this date.
@@ -1247,6 +1358,9 @@
           surplusNoonBres.sort(sortSurplus);
           surplusRegBres.sort(sortSurplus);
 
+          // Apply manual switches to Hour 11 pool (assigned & surplus across reg 11 and 2nd lunch)
+          applySwapsToHour11(assignedNoonBres, assignedRegBres, surplusNoonBres, surplusRegBres, customBreakerSwaps);
+
           // -------------------------------------------------------------
           // POD 1: Normal 11:00 Hour Pod (timed normally like all other pods)
           // -------------------------------------------------------------
@@ -1387,7 +1501,9 @@
               hasIssue: (activeMissing > 0 || activeSurplus > 0 || regTimeDiscrepancies > 0),
               timeDiscrepancies: regTimeDiscrepancies,
               isStandaloneOverageHour: false,
-              is11Hour: false
+              is11Hour: false,
+              allCardBreakers: [...assignedRegBres.filter(Boolean), ...surplusRegBres, ...assignedNoonBres.filter(Boolean), ...surplusNoonBres],
+              facilityDateBreakers: sameDayBres
             });
           }
 
@@ -1534,7 +1650,9 @@
               hasIssue: (activeMissing > 0 || activeSurplus > 0 || noonTimeDiscrepancies > 0),
               timeDiscrepancies: noonTimeDiscrepancies,
               isStandaloneOverageHour: false,
-              is11Hour: false
+              is11Hour: false,
+              allCardBreakers: [...assignedNoonBres.filter(Boolean), ...surplusNoonBres, ...assignedRegBres.filter(Boolean), ...surplusRegBres],
+              facilityDateBreakers: sameDayBres
             });
           }
 
@@ -1619,6 +1737,8 @@
         });
 
         candidateBres = [...keepers, ...surplus];
+        // Apply manual overstaff/breaker switches within candidate group
+        candidateBres = applySwapsToList(candidateBres, customBreakerSwaps);
 
         const targetLabel = hourTargetTime;
         const actualBresCount = candidateBres.length;
@@ -1800,7 +1920,9 @@
           hasIssue: (activeMissing > 0 || activeSurplus > 0 || timeDiscrepancies > 0),
           timeDiscrepancies: timeDiscrepancies,
           isStandaloneOverageHour: false,
-          is11Hour: false
+          is11Hour: false,
+          allCardBreakers: candidateBres,
+          facilityDateBreakers: sameDayBres
         });
       });
 
@@ -1828,7 +1950,7 @@
       });
 
       Object.keys(standaloneBySorHour).map(Number).sort((a, b) => a - b).forEach(sorHour => {
-        const surplusList = standaloneBySorHour[sorHour];
+        let surplusList = standaloneBySorHour[sorHour];
         surplusList.sort((a, b) => a._startTime.localeCompare(b._startTime));
         surplusList.sort((a, b) => {
           const aAssigned = hasAssignedEmployee(a) ? 1 : 0;
@@ -1836,6 +1958,7 @@
           if (aAssigned !== bAssigned) return aAssigned - bAssigned; // unassigned (0) first
           return a._startTime.localeCompare(b._startTime);
         });
+        surplusList = applySwapsToList(surplusList, customBreakerSwaps);
         const isMidnightSurplus = (sorHour === 23);
 
         const lines = surplusList.map((b, sIdx) => {
@@ -1887,7 +2010,9 @@
           lines: lines,
           hasIssue: (activeSurplus > 0),
           isStandaloneOverageHour: true,
-          overageTime: breTimes
+          overageTime: breTimes,
+          allCardBreakers: surplusList,
+          facilityDateBreakers: sameDayBres
         });
       });
 
@@ -2028,6 +2153,21 @@
           `;
         } else {
           ignoredPill.classList.add('hidden');
+        }
+      }
+
+      const swappedPill = document.getElementById('swappedStatusPill');
+      if (swappedPill) {
+        if (customBreakerSwaps.length > 0) {
+          swappedPill.classList.remove('hidden');
+          swappedPill.innerHTML = `
+            <span>${customBreakerSwaps.length} Swapped</span>
+            <button type="button" onclick="resetBreakerSwaps()" class="text-indigo-700 hover:text-indigo-950 underline text-[10px] font-bold" title="Reset all manual breaker switches">
+              Reset Swaps
+            </button>
+          `;
+        } else {
+          swappedPill.classList.add('hidden');
         }
       }
 
@@ -2881,15 +3021,92 @@
 
           const brePillClass = isIgnored ? 'bg-slate-500 text-white font-mono text-[10px] font-extrabold' : (isBlueBreaker ? 'bg-blue-600 text-white font-mono text-[10px] font-extrabold' : 'bg-purple-700 text-white font-mono text-[10px] font-extrabold');
           const bDlBadge = b._isDL ? `<span class="px-1.5 py-0.2 rounded font-extrabold text-[9px] bg-indigo-100 text-indigo-900 border border-indigo-300 font-mono shadow-2xs shrink-0" title="Dedication Likely (4+ same shifts this week)">DL</span>` : '';
+          const switchBadge = isBreakerSwitched(b._uid) ? `<span class="px-1.5 py-0.2 rounded text-[9px] font-extrabold bg-indigo-100 text-indigo-900 border border-indigo-300 font-mono shadow-2xs shrink-0" title="Manually switched breaker">SWITCHED</span>` : '';
+
+          let switchDropdownHtml = '';
+          const surplusBreakersInCard = (h.lines || []).filter(l => l.status === 'SURPLUS_BREAKER' && l.bre);
+
+          if (isSurplusRow) {
+            const cardBreakers = (h.allCardBreakers || []).filter(other => other && other._uid !== b._uid);
+            const otherDayBreakers = (h.facilityDateBreakers || []).filter(other => other && other._uid !== b._uid && !cardBreakers.some(cb => cb._uid === other._uid));
+
+            let optionsHtml = `<option value="${b._uid}" selected>&#10003; ${escapeHtml(b.EmpName || 'Unassigned')} (${bTimeRange}) &bull; Current Overstaff</option>`;
+
+            if (cardBreakers.length > 0) {
+              optionsHtml += `<optgroup label="Switch with Breaker in this Hour:">`;
+              cardBreakers.forEach(other => {
+                let role = 'Assigned';
+                const matchingLine = (h.lines || []).find(l => l.bre && l.bre._uid === other._uid);
+                if (matchingLine) {
+                  if (matchingLine.status === 'SURPLUS_BREAKER') {
+                    role = 'Overstaff';
+                  } else if (matchingLine.is5amExtra) {
+                    role = '5AM Extra';
+                  } else if (matchingLine.isSecondLunch) {
+                    role = '2nd Lunch';
+                  } else {
+                    const podIdx = (h.lines || []).filter(l => l.podSors && l.podSors.length > 0).indexOf(matchingLine);
+                    role = (podIdx !== -1) ? `Pod #${podIdx + 1}` : 'Assigned';
+                  }
+                }
+                const otherEnd = other._endTime || computeShiftEndTime(other._startTime, 8, 0.75);
+                const otherRange = (other._startTime && otherEnd) ? `${other._startTime}–${otherEnd}` : (other._startTime || '');
+                optionsHtml += `<option value="${other._uid}">&#8644; Switch: ${escapeHtml(other.EmpName || 'Unassigned')} (${otherRange} &bull; ${role})</option>`;
+              });
+              optionsHtml += `</optgroup>`;
+            }
+
+            if (otherDayBreakers.length > 0) {
+              optionsHtml += `<optgroup label="Other Breakers Today (${formatShortDate(rawWd)}):">`;
+              otherDayBreakers.forEach(other => {
+                const otherEnd = other._endTime || computeShiftEndTime(other._startTime, 8, 0.75);
+                const otherRange = (other._startTime && otherEnd) ? `${other._startTime}–${otherEnd}` : (other._startTime || '');
+                optionsHtml += `<option value="${other._uid}">&#8644; Switch: ${escapeHtml(other.EmpName || 'Unassigned')} (${otherRange})</option>`;
+              });
+              optionsHtml += `</optgroup>`;
+            }
+
+            const isSwitched = isBreakerSwitched(b._uid);
+            const borderCls = isSwitched
+              ? 'border-indigo-400 bg-indigo-50 text-indigo-950 ring-1 ring-indigo-400'
+              : 'border-amber-400 bg-white text-slate-900 hover:border-amber-600';
+
+            switchDropdownHtml = `
+              <div class="inline-flex items-center gap-1 font-sans shrink-0">
+                <span class="text-[10px] font-extrabold text-amber-900 uppercase tracking-tight flex items-center gap-0.5 shrink-0" title="Switch this overstaff breaker with someone else">
+                  &#8644; Switch:
+                </span>
+                <select class="text-[11px] font-bold ${borderCls} rounded px-1.5 py-0.5 shadow-2xs focus:outline-none focus:ring-1 focus:ring-amber-500 cursor-pointer max-w-[170px] sm:max-w-[210px] truncate" onchange="switchOverstaffBreaker(${b._uid}, this.value)" title="Choose a breaker to switch with this overstaff slot">
+                  ${optionsHtml}
+                </select>
+              </div>
+            `;
+          } else if (surplusBreakersInCard.length > 0) {
+            let optHtml = `<option value="${b._uid}" selected>&#10003; Keep Assigned</option>`;
+            optHtml += `<optgroup label="Switch with Overstaff Breaker:">`;
+            surplusBreakersInCard.forEach(sl => {
+              optHtml += `<option value="${sl.bre._uid}">&#8644; Make Overstaff: ${escapeHtml(sl.bre.EmpName || 'Unassigned')}</option>`;
+            });
+            optHtml += `</optgroup>`;
+            switchDropdownHtml = `
+              <div class="inline-flex items-center gap-1 font-sans shrink-0">
+                <select class="text-[10.5px] font-semibold bg-white border border-slate-300 rounded px-1.5 py-0.5 text-slate-700 shadow-2xs hover:border-slate-400 focus:outline-none cursor-pointer max-w-[130px] truncate" onchange="switchOverstaffBreaker(${b._uid}, this.value)" title="Switch this assigned breaker into overstaff">
+                  ${optHtml}
+                </select>
+              </div>
+            `;
+          }
 
           right.innerHTML = `
-            <div class="flex items-center justify-between p-2 rounded-lg ${breCardClass} text-xs shadow-2xs gap-2 min-w-0">
+            <div class="flex items-center justify-between p-2 rounded-lg ${breCardClass} text-xs shadow-2xs gap-2 min-w-0 flex-wrap sm:flex-nowrap">
               <div class="flex items-center gap-1.5 min-w-0 flex-1">
                 <span class="px-1.5 py-0.5 rounded ${brePillClass} shrink-0">BRE</span>
                 <span class="font-extrabold ${isIgnored ? 'text-slate-600 line-through' : 'text-slate-950'} truncate text-xs" title="${b.EmpName || 'Unassigned Breaker'}">${b.EmpName || 'Unassigned Breaker'}</span>
                 ${bDlBadge}
+                ${switchBadge}
               </div>
-              <div class="flex items-center gap-2 shrink-0 font-mono">
+              <div class="flex items-center gap-2 shrink-0 font-mono flex-wrap sm:flex-nowrap">
+                ${switchDropdownHtml}
                 ${timeDisplayHtml}
                 ${dateBadge}
                 ${badge}
