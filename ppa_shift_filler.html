@@ -2802,6 +2802,11 @@
         stEMP.className = empLoaded ? 'text-[11px] text-emerald-700 font-semibold mt-2' : 'text-[11px] text-rose-700 font-semibold mt-2';
       }
 
+      // 3. WW status (Pure Availability)
+      const bWW = document.getElementById('badgeStatusWW');
+      const stWW = document.getElementById('uploadStatusWW');
+      const wwLoaded = state.employees && state.employees.length > 0 && !state.employees.every(e => e.isFromWinTeamOnly);
+
       // EMP warning banner in main UI
       const empWarn = document.getElementById('empWarningBanner');
       if (empWarn) {
@@ -2811,11 +2816,6 @@
           empWarn.classList.remove('hidden');
         }
       }
-
-      // 3. WW status (Pure Availability)
-      const bWW = document.getElementById('badgeStatusWW');
-      const stWW = document.getElementById('uploadStatusWW');
-      const wwLoaded = state.employees && state.employees.length > 0 && !state.employees.every(e => e.isFromWinTeamOnly);
 
       if (bWW) {
         if (wwLoaded) {
@@ -7517,7 +7517,7 @@
     });
 
     window.addEventListener('DOMContentLoaded', () => {
-      loadOTApprovalsFromStorage();
+      loadCompanyOTFromStorage();
       initData();
     });
   </script>
