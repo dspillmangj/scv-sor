@@ -317,6 +317,16 @@
             class="ml-1 px-1.5 py-0.2 rounded-full bg-amber-950 text-amber-200 text-[10px] font-extrabold">0</span>
         </button>
 
+        <!-- Real-Time Blackouts Manager Button -->
+        <button onclick="openBlackoutsModal()"
+          class="relative inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold border border-slate-600 shadow-sm transition-all"
+          title="Manage real-time employee &amp; shift blackouts (full week, specific days, or specific job codes)">
+          <span class="text-rose-400">🚫</span>
+          <span>Blackouts</span>
+          <span id="badgeBlackoutsCount"
+            class="ml-0.5 px-1.5 py-0.2 rounded-full bg-rose-600 text-white text-[10px] font-extrabold hidden">0</span>
+        </button>
+
         <!-- Quick Load Workspace Files Button -->
         <button onclick="quickLoadWorkspaceFiles()"
           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-700 hover:bg-blue-600 text-white text-xs font-bold shadow-sm transition-all"
@@ -519,20 +529,20 @@
   <!-- MAIN VIEW CONTAINER -->
   <main class="flex-1 max-w-[1920px] w-full mx-auto p-3 flex flex-col gap-3">
 
-    <!-- EMP Warning Banner when EMP.csv is not loaded -->
+    <!-- EMP & Schedule Coverage Warning Banner -->
     <div id="empWarningBanner" class="hidden p-3.5 bg-amber-500/10 border-2 border-amber-500/40 rounded-xl text-amber-900 text-xs flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-xs">
-      <div class="flex items-center gap-2.5">
-        <div class="w-8 h-8 rounded-lg bg-amber-500 text-white flex items-center justify-center shrink-0">
+      <div class="flex items-start gap-2.5">
+        <div id="empWarningIconBox" class="w-8 h-8 rounded-lg bg-amber-500 text-white flex items-center justify-center shrink-0 mt-0.5">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
         </div>
         <div>
-          <div class="font-extrabold text-amber-950 text-sm">EMP.csv Master Schedule Not Loaded</div>
-          <div class="text-[11px] text-amber-800">Specialists working shifts outside of WW or PPA (other job sites or non-PPA contracts) cannot be checked for conflicts until <strong>EMP.csv</strong> is uploaded. Please load EMP.csv to ensure no specialists are double-booked.</div>
+          <div id="empWarningTitle" class="font-extrabold text-amber-950 text-sm">EMP.csv Master Schedule Not Loaded</div>
+          <div id="empWarningBody" class="text-[11px] text-amber-800 space-y-1">Specialists working shifts outside of WW or PPA (other job sites or non-PPA contracts) cannot be checked for conflicts until <strong>EMP.csv</strong> is uploaded. Please load EMP.csv to ensure no specialists are double-booked.</div>
         </div>
       </div>
       <button onclick="openUploadModal()" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs rounded-lg shadow-sm shrink-0 flex items-center gap-1.5 transition-all">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-        <span>Upload EMP.csv</span>
+        <span>Manage / Upload CSVs</span>
       </button>
     </div>
 
@@ -599,6 +609,7 @@
             <option value="bottom75" id="optBreFilter">Bottom 75 in Working Weeks (BRE Ineligible)</option>
             <option value="dedicated">BRE Dedicated Specialists</option>
             <option value="supervisor">Acting Supervisors</option>
+            <option value="blackout">Blacked Out Specialists (Full or Partial)</option>
           </select>
 
           <button onclick="resetGridFilters()"
@@ -719,6 +730,7 @@
               class="text-xs bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 focus:ring-1 focus:ring-blue-500 font-medium">
               <option value="open">Open Shifts to Fill</option>
               <option value="assigned">Assigned in Session</option>
+              <option value="blackout">Blacked Out Shifts</option>
               <option value="all">All Shifts (Open + Assigned)</option>
             </select>
 
@@ -807,7 +819,7 @@
 
   <!-- MODAL: OFFICER PROFILE & SCHEDULE -->
   <div id="modalOfficerDetail"
-    class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+    class="hidden fixed inset-0 z-[60] bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
     <div
       class="bg-white rounded-xl shadow-2xl border border-slate-200 max-w-3xl w-full max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
 
@@ -822,10 +834,12 @@
             </svg>
           </div>
           <div>
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 flex-wrap">
               <h3 id="officerDetailName" class="font-bold text-base text-white">Officer Name</h3>
               <span id="officerDetailPTFTBadge"
                 class="px-2 py-0.2 rounded text-[10px] font-bold bg-slate-800 text-slate-300 border border-slate-700">FT</span>
+              <span id="officerDetailBlackoutBadge"
+                class="hidden px-2 py-0.5 rounded text-[10px] font-black bg-rose-600 text-white border border-rose-400">🚫 BLACKED OUT</span>
             </div>
             <p id="officerDetailSubtitle" class="text-xs text-slate-400 font-mono mt-0.5">EID • Working Weeks Order</p>
           </div>
@@ -843,6 +857,11 @@
         <!-- Officer Meta & Notes Banner -->
         <div id="officerDetailMetaStrip" class="bg-slate-50 border border-slate-200 rounded-lg p-3 flex flex-col gap-2">
           <!-- Populated dynamically: Phone, Email, Tags, Notes -->
+        </div>
+
+        <!-- REAL-TIME BLACKOUT CONTROLS CARD -->
+        <div id="officerDetailBlackoutCard" class="rounded-xl border p-3.5 shadow-2xs">
+          <!-- Populated dynamically in openOfficerDetailModal -->
         </div>
 
         <!-- Hours Stat Cards with Explicit Data Source Attribution -->
@@ -994,6 +1013,45 @@
         </button>
       </div>
 
+    </div>
+  </div>
+
+  <!-- MODAL: REAL-TIME BLACKOUTS MANAGER -->
+  <div id="modalBlackouts"
+    class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div
+      class="bg-white rounded-xl shadow-2xl border border-slate-200 max-w-3xl w-full max-h-[90vh] flex flex-col overflow-hidden">
+      <div class="p-4 border-b border-slate-200 bg-slate-950 text-white flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-lg bg-rose-600 text-white flex items-center justify-center font-bold text-base shadow-xs">
+            🚫
+          </div>
+          <div>
+            <h3 class="font-bold text-base text-white">Real-Time Blackouts Manager</h3>
+            <p class="text-xs text-slate-400 mt-0.5">Override stale report data: blackout employees (full week, specific days, or job codes) or specific open shifts</p>
+          </div>
+        </div>
+        <button onclick="closeBlackoutsModal()" class="text-slate-400 hover:text-white p-1 rounded-md transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="p-4 overflow-y-auto flex-1 flex flex-col gap-4 text-xs" id="modalBlackoutsBody">
+        <!-- Populated dynamically -->
+      </div>
+
+      <div class="p-3 border-t border-slate-200 bg-slate-50 flex items-center justify-between gap-2">
+        <button onclick="clearAllBlackouts()"
+          class="px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-bold text-xs transition-colors">
+          Clear All Blackouts
+        </button>
+        <button onclick="closeBlackoutsModal()"
+          class="px-4 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs transition-colors">
+          Done
+        </button>
+      </div>
     </div>
   </div>
 
@@ -1662,24 +1720,30 @@
             </label>
           </div>
 
-          <!-- 3. WW File Card -->
+          <!-- 3. WW File Card (Supports Multiple Weeks) -->
           <div id="cardStatusWW" class="p-3.5 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between gap-2.5">
             <div>
               <div class="flex items-center justify-between gap-1 mb-1">
                 <span class="font-extrabold text-slate-900 text-xs">3. Working Weeks</span>
-                <span class="px-1.5 py-0.2 rounded text-[9.5px] font-bold bg-indigo-100 text-indigo-800 border border-indigo-200">Pure Availability</span>
+                <span class="px-1.5 py-0.2 rounded text-[9.5px] font-bold bg-indigo-100 text-indigo-800 border border-indigo-200">Multi-Week</span>
               </div>
               <p class="text-[10.5px] text-slate-600 leading-tight">
-                Purely availability: 1st/2nd choice windows, hired availability, seniority ranking &amp; notes.
+                Purely availability: 1st/2nd choice windows, hired availability, seniority &amp; notes. Upload multiple WW files for multiple weeks.
               </p>
               <div id="uploadStatusWW" class="text-[11px] text-amber-700 font-semibold mt-2">
                 Not loaded yet
               </div>
+              <div id="uploadListWW" class="mt-2 space-y-1 max-h-24 overflow-y-auto hidden"></div>
             </div>
-            <label class="cursor-pointer w-full text-center py-1.5 px-2 rounded-lg bg-white border border-slate-300 hover:border-indigo-500 text-slate-700 font-bold text-[11px] shadow-2xs transition-all block">
-              <span>Choose WW CSV</span>
-              <input type="file" accept=".csv" class="hidden" onchange="handleSingleFileUpload(event, 'ww')" />
-            </label>
+            <div class="flex items-center gap-1.5">
+              <label class="cursor-pointer flex-1 text-center py-1.5 px-2 rounded-lg bg-white border border-slate-300 hover:border-indigo-500 text-slate-700 font-bold text-[11px] shadow-2xs transition-all block">
+                <span>+ Add WW CSV(s)</span>
+                <input type="file" accept=".csv" multiple class="hidden" onchange="handleMultiWWUpload(event)" />
+              </label>
+              <button id="btnClearWW" onclick="clearWWFiles()" class="hidden py-1.5 px-2 rounded-lg bg-rose-50 border border-rose-200 hover:bg-rose-100 text-rose-700 font-bold text-[11px] transition-all" title="Clear all loaded WW files">
+                Clear
+              </button>
+            </div>
           </div>
 
           <!-- 4. SEN File Card -->
@@ -1703,6 +1767,9 @@
           </div>
 
         </div>
+
+        <!-- Validation & Coverage Feedback Box -->
+        <div id="modalValidationBox" class="hidden rounded-xl border p-3 text-xs space-y-1.5"></div>
 
       </div>
 
@@ -1730,6 +1797,9 @@
       shifts: [],
       dates: [],
       lastDateOfWeek: '',
+      weekEndings: new Set(),
+      dateToWeekKey: {},
+      wwFiles: [],
       rawPPA: '',
       rawEMP: '',
       rawWW: '',
@@ -1738,11 +1808,14 @@
       wwEmployeeEids: null,
       empReportRecords: [],
       empHoursFromEMP: {},
+      empWeeklyHours: {}, // eid -> weekKey -> hours
       empShiftsFromEMP: {}, // eid -> date -> [shifts]
       empInfoFromEMP: {},
       empActualHours: {},
       empWorkingDates: {},
+      empWeeklyWorkingDates: {}, // eid -> weekKey -> Set(date)
       empDayWorkingShifts: {}, // eid -> date -> [shifts]
+      fileParseErrors: [],
       sessionAssignments: [],
       activeLinkingShiftId: null,
       filterMatchingOnly: false,
@@ -1764,6 +1837,7 @@
       simProposal: null,
       otApprovals: {},
       companyOT: { sixthDay: false, seventhDay: false, dailyCap: 8, weeklyCap: 40.0, notes: '', updatedAt: '' },
+      blackouts: { employees: {}, shifts: {} },
       autoFillAllowApprovedOT: true,
       autoFillPrioritizeNonOT: true,
       autoFillAllowOver45OT: true,
@@ -1843,6 +1917,382 @@
     function getEmployeeOTApprovals(eid) {
       // Overtime approvals are company-wide: a single approval covers every SP in the company
       return getCompanyOTApprovals();
+    }
+
+    // --- REAL-TIME BLACKOUT STORAGE & MANAGEMENT ---
+    const BLACKOUTS_STORAGE_KEY = 'ppa_shift_filler_blackouts_v1';
+
+    function loadBlackoutsFromStorage() {
+      try {
+        const raw = localStorage.getItem(BLACKOUTS_STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && typeof parsed === 'object') {
+            state.blackouts = {
+              employees: (parsed.employees && typeof parsed.employees === 'object') ? parsed.employees : {},
+              shifts: (parsed.shifts && typeof parsed.shifts === 'object') ? parsed.shifts : {}
+            };
+            return;
+          }
+        }
+      } catch (e) {
+        console.warn('Could not load blackouts from storage:', e);
+      }
+      if (!state.blackouts) {
+        state.blackouts = { employees: {}, shifts: {} };
+      }
+    }
+
+    function saveBlackoutsToStorage() {
+      try {
+        localStorage.setItem(BLACKOUTS_STORAGE_KEY, JSON.stringify(state.blackouts || { employees: {}, shifts: {} }));
+      } catch (e) {
+        console.warn('Could not save blackouts to storage:', e);
+      }
+    }
+
+    function getShiftBlackoutKey(shift) {
+      if (!shift) return '';
+      if (shift.scheduleDetailsId) return 'sd_' + String(shift.scheduleDetailsId).trim();
+      return `${shift.workDateNorm || ''}|${shift.inTime || ''}|${shift.outTime || ''}|${shift.jobNumber || ''}|${shift.postDesc || ''}|${shift.shiftId || shift.id || ''}`;
+    }
+
+    function isShiftBlackedOut(shift) {
+      if (!shift || !state.blackouts || !state.blackouts.shifts) return false;
+      const key = getShiftBlackoutKey(shift);
+      return Boolean(state.blackouts.shifts[key]);
+    }
+
+    function getShiftBlackoutInfo(shift) {
+      if (!shift || !state.blackouts || !state.blackouts.shifts) return null;
+      return state.blackouts.shifts[getShiftBlackoutKey(shift)] || null;
+    }
+
+    function getEmployeeBlackout(eid) {
+      if (!eid || !state.blackouts || !state.blackouts.employees) {
+        return { full: false, days: {}, jobs: {}, reason: '' };
+      }
+      const rec = state.blackouts.employees[String(eid)];
+      if (!rec) return { full: false, days: {}, jobs: {}, reason: '' };
+      return {
+        full: Boolean(rec.full),
+        days: (rec.days && typeof rec.days === 'object') ? rec.days : {},
+        jobs: (rec.jobs && typeof rec.jobs === 'object') ? rec.jobs : {},
+        reason: rec.reason || ''
+      };
+    }
+
+    function hasEmployeeAnyBlackout(eid) {
+      const bo = getEmployeeBlackout(eid);
+      return bo.full || Object.keys(bo.days).length > 0 || Object.keys(bo.jobs).length > 0;
+    }
+
+    function isEmployeeBlackedOut(eid, dateStr = null, jobNumber = null) {
+      const bo = getEmployeeBlackout(eid);
+      const reasonSuffix = bo.reason ? ` — ${bo.reason}` : '';
+      if (bo.full) {
+        return { isBlackedOut: true, scope: 'full', reason: `Blacked Out (Full Week)${reasonSuffix}` };
+      }
+      if (dateStr) {
+        const dtNorm = normDate(dateStr);
+        if (bo.days[dtNorm]) {
+          return { isBlackedOut: true, scope: 'day', reason: `Blacked Out on ${dtNorm}${reasonSuffix}` };
+        }
+      }
+      if (jobNumber) {
+        const jn = String(jobNumber).trim();
+        if (bo.jobs[jn]) {
+          return { isBlackedOut: true, scope: 'job', reason: `Blacked Out for Job #${jn}${reasonSuffix}` };
+        }
+      }
+      return { isBlackedOut: false, scope: null, reason: '' };
+    }
+
+    function getEmployeeBlackoutSummaryText(eid) {
+      const bo = getEmployeeBlackout(eid);
+      if (bo.full) return bo.reason ? `FULL BLACKOUT (${bo.reason})` : 'FULL BLACKOUT';
+      const parts = [];
+      const dayKeys = Object.keys(bo.days);
+      const jobKeys = Object.keys(bo.jobs);
+      if (dayKeys.length > 0) parts.push(`${dayKeys.length} day${dayKeys.length > 1 ? 's' : ''}: ${dayKeys.join(', ')}`);
+      if (jobKeys.length > 0) parts.push(`${jobKeys.length} JC: ${jobKeys.join(', ')}`);
+      if (parts.length === 0) return '';
+      return parts.join(' • ') + (bo.reason ? ` (${bo.reason})` : '');
+    }
+
+    function _cleanupEmployeeBlackoutEntry(eid) {
+      const key = String(eid);
+      const rec = state.blackouts.employees[key];
+      if (!rec) return;
+      const hasDays = rec.days && Object.keys(rec.days).length > 0;
+      const hasJobs = rec.jobs && Object.keys(rec.jobs).length > 0;
+      if (!rec.full && !hasDays && !hasJobs) {
+        delete state.blackouts.employees[key];
+      }
+    }
+
+    function refreshAllAfterBlackoutChange() {
+      saveBlackoutsToStorage();
+      populateLinkingShiftDropdown();
+      updateKPISummaries();
+      renderWorkingWeeksGrid();
+      renderShiftFirstView();
+      renderWinTeamTable();
+      const boModal = document.getElementById('modalBlackouts');
+      if (boModal && !boModal.classList.contains('hidden')) {
+        renderBlackoutsModal();
+      }
+      const offModal = document.getElementById('modalOfficerDetail');
+      if (offModal && !offModal.classList.contains('hidden')) {
+        const activeEid = offModal.getAttribute('data-active-eid');
+        if (activeEid) openOfficerDetailModal(activeEid);
+      }
+    }
+
+    function toggleEmployeeFullBlackout(eid, reason = null) {
+      if (!state.blackouts) state.blackouts = { employees: {}, shifts: {} };
+      const key = String(eid);
+      const cur = getEmployeeBlackout(key);
+      const nextFull = !cur.full;
+      state.blackouts.employees[key] = {
+        full: nextFull,
+        days: cur.days || {},
+        jobs: cur.jobs || {},
+        reason: reason !== null ? String(reason).trim() : (cur.reason || '')
+      };
+      _cleanupEmployeeBlackoutEntry(key);
+      refreshAllAfterBlackoutChange();
+      const emp = state.employees.find(e => String(e.eid) === key);
+      const name = emp ? emp.name : `#${key}`;
+      showToast(nextFull ? `🚫 Blacked out ${name} (Full Week).` : `Removed full-week blackout for ${name}.`);
+    }
+
+    function toggleEmployeeDayBlackout(eid, dt) {
+      if (!state.blackouts) state.blackouts = { employees: {}, shifts: {} };
+      const key = String(eid);
+      const dtNorm = normDate(dt);
+      const cur = getEmployeeBlackout(key);
+      const days = { ...(cur.days || {}) };
+      const nextVal = !days[dtNorm];
+      if (nextVal) days[dtNorm] = true;
+      else delete days[dtNorm];
+
+      state.blackouts.employees[key] = {
+        full: cur.full,
+        days,
+        jobs: cur.jobs || {},
+        reason: cur.reason || ''
+      };
+      _cleanupEmployeeBlackoutEntry(key);
+      refreshAllAfterBlackoutChange();
+      const emp = state.employees.find(e => String(e.eid) === key);
+      const name = emp ? emp.name : `#${key}`;
+      showToast(nextVal ? `🚫 Blacked out ${name} on ${dtNorm}.` : `Removed ${dtNorm} blackout for ${name}.`);
+    }
+
+    function toggleEmployeeJobBlackout(eid, jobNumber) {
+      if (!state.blackouts) state.blackouts = { employees: {}, shifts: {} };
+      const key = String(eid);
+      const jn = String(jobNumber).trim();
+      const cur = getEmployeeBlackout(key);
+      const jobs = { ...(cur.jobs || {}) };
+      const nextVal = !jobs[jn];
+      if (nextVal) jobs[jn] = true;
+      else delete jobs[jn];
+
+      state.blackouts.employees[key] = {
+        full: cur.full,
+        days: cur.days || {},
+        jobs,
+        reason: cur.reason || ''
+      };
+      _cleanupEmployeeBlackoutEntry(key);
+      refreshAllAfterBlackoutChange();
+      const emp = state.employees.find(e => String(e.eid) === key);
+      const name = emp ? emp.name : `#${key}`;
+      showToast(nextVal ? `🚫 Blacked out ${name} from Job #${jn}.` : `Removed Job #${jn} blackout for ${name}.`);
+    }
+
+    function setEmployeeBlackoutReason(eid, reason) {
+      if (!state.blackouts) state.blackouts = { employees: {}, shifts: {} };
+      const key = String(eid);
+      if (!state.blackouts.employees[key]) return;
+      state.blackouts.employees[key].reason = String(reason || '').trim();
+      refreshAllAfterBlackoutChange();
+    }
+
+    function clearEmployeeBlackout(eid) {
+      if (!state.blackouts || !state.blackouts.employees) return;
+      const key = String(eid);
+      delete state.blackouts.employees[key];
+      refreshAllAfterBlackoutChange();
+      const emp = state.employees.find(e => String(e.eid) === key);
+      showToast(`Cleared all blackouts for ${emp ? emp.name : '#' + key}.`);
+    }
+
+    function toggleShiftBlackout(shiftId, reason = '') {
+      const shift = state.shifts.find(s => s.id === shiftId || s.shiftId === shiftId);
+      if (!shift) return;
+      if (!state.blackouts) state.blackouts = { employees: {}, shifts: {} };
+      const key = getShiftBlackoutKey(shift);
+      const wasBlackedOut = Boolean(state.blackouts.shifts[key]);
+      if (wasBlackedOut) {
+        delete state.blackouts.shifts[key];
+        showToast(`Removed blackout on ${shift.workDateNorm} (${shift.inTime}-${shift.outTime}) shift.`);
+      } else {
+        state.blackouts.shifts[key] = {
+          reason: String(reason || '').trim(),
+          workDateNorm: shift.workDateNorm,
+          inTime: shift.inTime,
+          outTime: shift.outTime,
+          jobNumber: shift.jobNumber,
+          postDesc: shift.postDesc || shift.jobDesc || '',
+          shiftId: shift.shiftId || ''
+        };
+        showToast(`🚫 Blacked out ${shift.workDateNorm} (${shift.inTime}-${shift.outTime}) shift — Auto-Fill will skip it.`);
+      }
+      refreshAllAfterBlackoutChange();
+    }
+
+    function removeShiftBlackoutByKey(key) {
+      if (!state.blackouts || !state.blackouts.shifts) return;
+      delete state.blackouts.shifts[key];
+      refreshAllAfterBlackoutChange();
+      showToast('Removed shift blackout.');
+    }
+
+    function clearAllBlackouts() {
+      const empCount = Object.keys((state.blackouts && state.blackouts.employees) || {}).length;
+      const shiftCount = Object.keys((state.blackouts && state.blackouts.shifts) || {}).length;
+      if (empCount === 0 && shiftCount === 0) {
+        showToast('No active blackouts to clear.');
+        return;
+      }
+      if (!confirm(`Clear all ${empCount} employee blackout(s) and ${shiftCount} shift blackout(s)?`)) return;
+      state.blackouts = { employees: {}, shifts: {} };
+      refreshAllAfterBlackoutChange();
+      showToast('Cleared all employee and shift blackouts.');
+    }
+
+    function openBlackoutsModal() {
+      const modal = document.getElementById('modalBlackouts');
+      if (!modal) return;
+      renderBlackoutsModal();
+      modal.classList.remove('hidden');
+    }
+
+    function closeBlackoutsModal() {
+      const modal = document.getElementById('modalBlackouts');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function renderBlackoutsModal() {
+      const body = document.getElementById('modalBlackoutsBody');
+      if (!body) return;
+
+      const empEntries = Object.keys((state.blackouts && state.blackouts.employees) || {});
+      const shiftEntries = Object.keys((state.blackouts && state.blackouts.shifts) || {});
+
+      const quickEmpOptions = state.employees
+        .slice()
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .map(e => `<option value="${e.eid}">${escapeHtml(e.name)} (#${e.eid})</option>`)
+        .join('');
+
+      let html = `
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 flex flex-col gap-2">
+          <div class="font-bold text-slate-800 text-xs">Quick Blackout an Employee</div>
+          <div class="flex flex-wrap items-center gap-2">
+            <select id="selectQuickBlackoutEmp" class="flex-1 min-w-[200px] text-xs bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 font-medium">
+              <option value="">-- Select Specialist --</option>
+              ${quickEmpOptions}
+            </select>
+            <input type="text" id="inputQuickBlackoutReason" placeholder="Optional reason (e.g. Called out, Real-time change)" class="flex-1 min-w-[180px] text-xs bg-white border border-slate-300 rounded-lg px-2.5 py-1.5" />
+            <button onclick="const eid = document.getElementById('selectQuickBlackoutEmp').value; const r = document.getElementById('inputQuickBlackoutReason').value; if (!eid) { showToast('Select an employee first.'); return; } const cur = getEmployeeBlackout(eid); if (!cur.full) toggleEmployeeFullBlackout(eid, r); else { setEmployeeBlackoutReason(eid, r); }"
+              class="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs shadow-2xs transition-colors">
+              🚫 Blackout Full Week
+            </button>
+            <button onclick="const eid = document.getElementById('selectQuickBlackoutEmp').value; if (!eid) { showToast('Select an employee first.'); return; } closeBlackoutsModal(); openOfficerDetailModal(eid);"
+              class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs shadow-2xs transition-colors">
+              Days / Job Codes &rarr;
+            </button>
+          </div>
+        </div>
+      `;
+
+      // Blacked Out Employees List
+      html += `
+        <div class="border border-slate-200 rounded-xl overflow-hidden">
+          <div class="px-3.5 py-2 bg-slate-900 text-white font-bold text-xs flex items-center justify-between">
+            <span>🚫 Blacked Out Specialists (${empEntries.length})</span>
+            <span class="text-[10px] text-slate-400 font-normal">Excluded from Auto-Fill &amp; flagged everywhere</span>
+          </div>
+          <div class="divide-y divide-slate-100 bg-white max-h-56 overflow-y-auto">
+      `;
+      if (empEntries.length === 0) {
+        html += `<div class="p-4 text-center text-slate-400 italic">No specialists are currently blacked out.</div>`;
+      } else {
+        empEntries.forEach(eid => {
+          const emp = state.employees.find(e => String(e.eid) === String(eid));
+          const bo = getEmployeeBlackout(eid);
+          const summary = getEmployeeBlackoutSummaryText(eid);
+          html += `
+            <div class="p-3 flex items-center justify-between gap-3 hover:bg-slate-50">
+              <div>
+                <div class="font-bold text-slate-900 flex items-center gap-2">
+                  <span>${escapeHtml(emp ? emp.name : 'Specialist #' + eid)}</span>
+                  <span class="font-mono text-[10.5px] text-slate-500">#${eid}</span>
+                  <span class="px-1.5 py-0.5 rounded text-[9.5px] font-black bg-rose-100 text-rose-800 border border-rose-300">
+                    ${bo.full ? 'FULL BLACKOUT' : 'PARTIAL BLACKOUT'}
+                  </span>
+                </div>
+                <div class="text-[11px] text-slate-600 mt-0.5">${escapeHtml(summary)}</div>
+              </div>
+              <div class="flex items-center gap-1.5 shrink-0">
+                <button onclick="closeBlackoutsModal(); openOfficerDetailModal('${eid}');" class="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-[11px]">Edit</button>
+                <button onclick="clearEmployeeBlackout('${eid}')" class="px-2 py-1 rounded bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-bold text-[11px]">Clear</button>
+              </div>
+            </div>
+          `;
+        });
+      }
+      html += `</div></div>`;
+
+      // Blacked Out Shifts List
+      html += `
+        <div class="border border-slate-200 rounded-xl overflow-hidden">
+          <div class="px-3.5 py-2 bg-slate-900 text-white font-bold text-xs flex items-center justify-between">
+            <span>🚫 Blacked Out Shifts (${shiftEntries.length})</span>
+            <span class="text-[10px] text-slate-400 font-normal">Skipped by Auto-Fill &amp; marked Blacked Out</span>
+          </div>
+          <div class="divide-y divide-slate-100 bg-white max-h-56 overflow-y-auto">
+      `;
+      if (shiftEntries.length === 0) {
+        html += `<div class="p-4 text-center text-slate-400 italic">No shifts are currently blacked out.</div>`;
+      } else {
+        shiftEntries.forEach(key => {
+          const info = state.blackouts.shifts[key] || {};
+          html += `
+            <div class="p-3 flex items-center justify-between gap-3 hover:bg-slate-50">
+              <div>
+                <div class="font-bold text-slate-900 flex items-center gap-2 flex-wrap">
+                  <span class="font-mono text-xs">${escapeHtml(info.workDateNorm || 'Date N/A')}</span>
+                  <span class="font-mono text-xs bg-slate-100 px-1.5 py-0.5 rounded">${escapeHtml(info.inTime || '')} - ${escapeHtml(info.outTime || '')}</span>
+                  <span class="font-mono text-[10.5px] bg-slate-900 text-white px-1.5 py-0.5 rounded">#${escapeHtml(info.jobNumber || '')}</span>
+                  <span>${escapeHtml(info.postDesc || 'Shift')}</span>
+                </div>
+                ${info.reason ? `<div class="text-[11px] text-rose-700 mt-0.5">Reason: ${escapeHtml(info.reason)}</div>` : ''}
+              </div>
+              <button onclick="removeShiftBlackoutByKey('${escapeHtml(key)}')" class="px-2.5 py-1 rounded bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-bold text-[11px] shrink-0">
+                Un-blackout
+              </button>
+            </div>
+          `;
+        });
+      }
+      html += `</div></div>`;
+
+      body.innerHTML = html;
     }
 
     function setCompanyOTPolicy(newPolicy, showToastMsg = true) {
@@ -2518,8 +2968,15 @@
       return null;
     }
 
-    function getEmployeeStatus(emp, dateStr = null) {
+    function getEmployeeStatus(emp, dateStr = null, jobNumber = null) {
       if (!emp) return { isBlocked: false, reason: '' };
+
+      // 0. Check Real-Time Blackouts (Full Week, Specific Day, or Specific Job Code)
+      const boCheck = isEmployeeBlackedOut(emp.eid, dateStr, jobNumber);
+      if (boCheck.isBlackedOut) {
+        return { isBlocked: true, isBlackedOut: true, blackoutScope: boCheck.scope, reason: boCheck.reason };
+      }
+
       const fullNotes = [emp.notes, emp.ppaNotes, emp.cellNotes].filter(Boolean).join(' \n ');
 
       // Check if employee has any full-week disqualifying keywords in notes
@@ -2678,83 +3135,155 @@
       const files = Array.from(fileList);
       let loadedCount = 0;
       const results = [];
+      state.fileParseErrors = [];
 
-      files.forEach(file => {
+      // Read all files first so we can load WW before EMP/PPA (ensuring roster & week endings are ready)
+      const readPromises = files.map(file => new Promise(resolve => {
         const reader = new FileReader();
-        reader.onload = function(e) {
-          const content = e.target.result;
-          let kind = detectCSVType(content);
+        reader.onload = e => resolve({ file, content: e.target.result });
+        reader.onerror = () => resolve({ file, content: '', error: `Failed to read ${file.name}` });
+        reader.readAsText(file);
+      }));
+
+      Promise.all(readPromises).then(items => {
+        const classified = items.map(item => {
+          if (item.error) {
+            state.fileParseErrors.push(item.error);
+            return { ...item, kind: 'error' };
+          }
+          let kind = detectCSVType(item.content);
           if (kind === 'unknown') {
-            const lower = file.name.toLowerCase();
+            const lower = item.file.name.toLowerCase();
             if (lower.includes('ppa')) kind = 'ppa';
             else if (lower.includes('emp')) kind = 'emp';
             else if (lower.includes('sen') || lower.includes('seniority')) kind = 'sen';
             else if (lower.includes('working') || lower.includes('availability') || lower.includes('ww')) kind = 'ww';
           }
+          return { ...item, kind };
+        });
 
-          if (kind === 'ppa') {
-            loadPPA(content, file.name);
-            results.push(`PPA (${file.name})`);
-          } else if (kind === 'emp') {
-            loadEMP(content, file.name);
-            results.push(`EMP (${file.name})`);
+        // Order: WW first, then SEN, then PPA, then EMP (so WW roster & weekEndings exist when PPA/EMP load)
+        const order = { ww: 1, sen: 2, ppa: 3, emp: 4, unknown: 5, error: 6 };
+        classified.sort((a, b) => (order[a.kind] || 9) - (order[b.kind] || 9));
+
+        const ppaItems = classified.filter(x => x.kind === 'ppa');
+        const empItems = classified.filter(x => x.kind === 'emp');
+
+        classified.forEach(({ file, content, kind }) => {
+          if (kind === 'error') return;
+          if (kind === 'ww') {
+            if (loadWorkingWeeks(content, file.name)) results.push(`WW (${file.name})`);
           } else if (kind === 'sen') {
             loadSEN(content, file.name);
             results.push(`SEN (${file.name})`);
-          } else if (kind === 'ww') {
-            loadWorkingWeeks(content, file.name);
-            results.push(`Working Weeks (${file.name})`);
+          } else if (kind === 'ppa') {
+            const append = ppaItems.length > 1 && ppaItems[0].file !== file;
+            if (loadPPA(content, file.name, append)) results.push(`PPA (${file.name})`);
+          } else if (kind === 'emp') {
+            const append = empItems.length > 1 && empItems[0].file !== file;
+            if (loadEMP(content, file.name, append)) results.push(`EMP (${file.name})`);
           } else {
-            // Heuristic check: lines count
-            loadWorkingWeeks(content, file.name);
-            results.push(`Working Weeks (${file.name})`);
+            state.fileParseErrors.push(`Could not recognize CSV format for "${file.name}". Please ensure it is a valid PPA, EMP, Working Weeks, or SEN CSV.`);
           }
-
           loadedCount++;
-          if (loadedCount === files.length) {
-            renderDayHeaders();
-            calculateAllHours();
-            populateLinkingShiftDropdown();
-            updateKPISummaries();
-            updateFileStatusBadges();
-            renderWorkingWeeksGrid();
-            renderShiftFirstView();
-            renderWinTeamTable();
-            showToast(`Loaded: ${results.join(', ')}`);
-          }
-        };
-        reader.readAsText(file);
+        });
+
+        refreshAfterFileLoad();
+        if (results.length > 0) {
+          showToast(`Loaded: ${results.join(', ')}`);
+        } else if (state.fileParseErrors.length > 0) {
+          showToast(`File validation error: ${state.fileParseErrors[0]}`);
+        }
       });
+    }
+
+    function refreshAfterFileLoad() {
+      renderDayHeaders();
+      calculateAllHours();
+      populateLinkingShiftDropdown();
+      updateKPISummaries();
+      updateFileStatusBadges();
+      validateScheduleDataCoverage();
+      renderWorkingWeeksGrid();
+      renderShiftFirstView();
+      renderWinTeamTable();
     }
 
     function handleMultiFileInput(evt) {
       if (evt.target.files && evt.target.files.length > 0) {
         handleFiles(evt.target.files);
       }
+      evt.target.value = '';
+    }
+
+    function handleMultiWWUpload(evt) {
+      const files = evt.target.files ? Array.from(evt.target.files) : [];
+      if (files.length === 0) return;
+      state.fileParseErrors = [];
+      Promise.all(files.map(file => new Promise(resolve => {
+        const reader = new FileReader();
+        reader.onload = e => resolve({ file, content: e.target.result });
+        reader.readAsText(file);
+      }))).then(items => {
+        const loadedNames = [];
+        items.forEach(({ file, content }) => {
+          const detected = detectCSVType(content);
+          if (detected !== 'unknown' && detected !== 'ww') {
+            state.fileParseErrors.push(`"${file.name}" looks like a ${detected.toUpperCase()} file, not a Working Weeks CSV.`);
+            return;
+          }
+          if (loadWorkingWeeks(content, file.name)) {
+            loadedNames.push(file.name);
+          }
+        });
+        refreshAfterFileLoad();
+        if (loadedNames.length > 0) {
+          showToast(`Loaded ${loadedNames.length} WW file(s): ${loadedNames.join(', ')}`);
+        }
+      });
+      evt.target.value = '';
+    }
+
+    function removeWWFile(wwId) {
+      state.wwFiles = (state.wwFiles || []).filter(w => w.id !== wwId);
+      rebuildMergedWorkingWeeks();
+      refreshAfterFileLoad();
+      showToast('Removed Working Weeks file.');
+    }
+
+    function clearWWFiles() {
+      state.wwFiles = [];
+      rebuildMergedWorkingWeeks();
+      refreshAfterFileLoad();
+      showToast('Cleared all Working Weeks files.');
     }
 
     function handleSingleFileUpload(evt, type) {
       const file = evt.target.files[0];
       if (!file) return;
+      state.fileParseErrors = [];
       const reader = new FileReader();
       reader.onload = function(e) {
         const content = e.target.result;
-        if (type === 'ppa') loadPPA(content, file.name);
-        else if (type === 'emp') loadEMP(content, file.name);
-        else if (type === 'ww') loadWorkingWeeks(content, file.name);
+        const detected = detectCSVType(content);
+        if (detected !== 'unknown' && detected !== type) {
+          state.fileParseErrors.push(`"${file.name}" appears to be a ${detected.toUpperCase()} file, not ${type.toUpperCase()}. Please check the file.`);
+          validateScheduleDataCoverage();
+          showToast(`Wrong file type selected for ${type.toUpperCase()}: ${file.name}`);
+          evt.target.value = '';
+          return;
+        }
+        let ok = true;
+        if (type === 'ppa') ok = loadPPA(content, file.name, false);
+        else if (type === 'emp') ok = loadEMP(content, file.name, false);
+        else if (type === 'ww') ok = loadWorkingWeeks(content, file.name);
         else if (type === 'sen') loadSEN(content, file.name);
 
-        renderDayHeaders();
-        calculateAllHours();
-        populateLinkingShiftDropdown();
-        updateKPISummaries();
-        updateFileStatusBadges();
-        renderWorkingWeeksGrid();
-        renderShiftFirstView();
-        renderWinTeamTable();
-        showToast(`Loaded ${file.name} successfully.`);
+        refreshAfterFileLoad();
+        if (ok) showToast(`Loaded ${file.name} successfully.`);
       };
       reader.readAsText(file);
+      evt.target.value = '';
     }
 
     function handleFileUpload(evt, type) {
@@ -2802,33 +3331,54 @@
         stEMP.className = empLoaded ? 'text-[11px] text-emerald-700 font-semibold mt-2' : 'text-[11px] text-rose-700 font-semibold mt-2';
       }
 
-      // 3. WW status (Pure Availability)
+      // 3. WW status (Pure Availability - Multi-Week)
       const bWW = document.getElementById('badgeStatusWW');
       const stWW = document.getElementById('uploadStatusWW');
+      const listWW = document.getElementById('uploadListWW');
+      const btnClearWW = document.getElementById('btnClearWW');
+      const wwFilesCount = state.wwFiles ? state.wwFiles.length : 0;
       const wwLoaded = state.employees && state.employees.length > 0 && !state.employees.every(e => e.isFromWinTeamOnly);
-
-      // EMP warning banner in main UI
-      const empWarn = document.getElementById('empWarningBanner');
-      if (empWarn) {
-        if (empLoaded || (!ppaLoaded && !wwLoaded)) {
-          empWarn.classList.add('hidden');
-        } else {
-          empWarn.classList.remove('hidden');
-        }
-      }
 
       if (bWW) {
         if (wwLoaded) {
           bWW.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1 hover:bg-emerald-500/30 transition-colors';
-          bWW.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> WW: ${state.employees.length} specialists (Pure Availability)`;
+          const wkLabel = wwFilesCount > 1 ? `${wwFilesCount} wks` : '1 wk';
+          bWW.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> WW: ${state.employees.length} specs (${wkLabel})`;
         } else {
           bWW.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1 hover:bg-amber-500/30 transition-colors';
           bWW.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> WW: Missing`;
         }
       }
       if (stWW) {
-        stWW.textContent = wwLoaded ? `Loaded (${state.employees.length} specialists &bull; Preferences & Availability only)` : 'Not loaded yet';
-        stWW.className = wwLoaded ? 'text-[11px] text-emerald-700 font-semibold mt-2' : 'text-[11px] text-amber-700 font-semibold mt-2';
+        if (wwLoaded) {
+          const dRange = state.dates && state.dates.length > 0 ? `${state.dates[0]}–${state.dates[state.dates.length - 1]}` : '';
+          stWW.textContent = `Loaded ${wwFilesCount} week(s) (${state.employees.length} specs${dRange ? ' • ' + dRange : ''})`;
+          stWW.className = 'text-[11px] text-emerald-700 font-semibold mt-2';
+        } else {
+          stWW.textContent = 'Not loaded yet';
+          stWW.className = 'text-[11px] text-amber-700 font-semibold mt-2';
+        }
+      }
+      if (listWW) {
+        if (wwFilesCount > 0) {
+          listWW.classList.remove('hidden');
+          listWW.innerHTML = state.wwFiles.map(wf => `
+            <div class="flex items-center justify-between gap-1.5 px-2 py-1 rounded bg-white border border-indigo-200 text-[10px]">
+              <div class="truncate font-mono text-slate-700" title="${escapeHtml(wf.fileName)} (${wf.dates[0]} - ${wf.weekEnding})">
+                <span class="font-bold text-indigo-700">WE ${escapeHtml(wf.weekEnding)}</span>
+                <span class="text-slate-400">(${wf.dates.length}d, ${wf.employees.length}sp)</span>
+              </div>
+              <button onclick="removeWWFile('${wf.id}')" class="text-slate-400 hover:text-rose-600 font-bold px-1 shrink-0" title="Remove this WW file">&times;</button>
+            </div>
+          `).join('');
+        } else {
+          listWW.classList.add('hidden');
+          listWW.innerHTML = '';
+        }
+      }
+      if (btnClearWW) {
+        if (wwFilesCount > 0) btnClearWW.classList.remove('hidden');
+        else btnClearWW.classList.add('hidden');
       }
 
       // 4. SEN status (Optional Seniority for BRE shifts)
@@ -2859,7 +3409,117 @@
       const summaryText = document.getElementById('modalFilesSummaryText');
       if (summaryText) {
         const loadedCount = (ppaLoaded ? 1 : 0) + (empLoaded ? 1 : 0) + (wwLoaded ? 1 : 0);
-        summaryText.textContent = `${loadedCount} of 3 core files loaded${senLoaded ? ` &bull; SEN Seniority active (${senCount} records)` : ''}`;
+        summaryText.textContent = `${loadedCount} of 3 core files loaded${wwFilesCount > 1 ? ` (${wwFilesCount} WW weeks)` : ''}${senLoaded ? ` • SEN Seniority active (${senCount} records)` : ''}`;
+      }
+    }
+
+    // --- FILE & DATE COVERAGE VALIDATION ENGINE ---
+    function validateScheduleDataCoverage() {
+      const errors = [...(state.fileParseErrors || [])];
+      const warnings = [];
+
+      const ppaLoaded = state.shifts && state.shifts.length > 0;
+      const empLoaded = state.filesStatus.emp && state.filesStatus.emp.loaded;
+      const wwLoaded = state.wwFiles && state.wwFiles.length > 0;
+
+      // Dates present in WW files
+      const wwDatesSet = new Set();
+      (state.wwFiles || []).forEach(wf => (wf.dates || []).forEach(dt => wwDatesSet.add(dt)));
+      const wwDates = sortDatesList(Array.from(wwDatesSet));
+
+      // Dates present in EMP for WW employees (state.empReportRecords is already filtered to WW employees)
+      const empCoveredDates = new Set();
+      (state.empReportRecords || []).forEach(r => {
+        if (r.workDateNorm) empCoveredDates.add(r.workDateNorm);
+      });
+
+      // Dates being scheduled in PPA
+      const ppaDatesSet = new Set();
+      (state.shifts || []).forEach(s => {
+        if (s.workDateNorm && isFillablePostDescription(s.postDesc)) ppaDatesSet.add(s.workDateNorm);
+      });
+      const ppaDates = sortDatesList(Array.from(ppaDatesSet));
+
+      if (empLoaded && state.empRawRowCount > 0 && state.empReportRecords.length === 0 && wwLoaded) {
+        errors.push(`EMP.csv had ${state.empRawRowCount} shift rows, but 0 matched any specialist in Working Weeks. Verify the correct EMP.csv was uploaded.`);
+      }
+
+      if (wwLoaded && empLoaded) {
+        // Core safety check: every day in WW must have at least 1 shift in EMP for a WW employee
+        const wwMissingEmp = wwDates.filter(dt => !empCoveredDates.has(dt));
+        if (wwMissingEmp.length > 0) {
+          warnings.push(`EMP.csv Coverage Gap: No shifts found in EMP.csv for any Working Weeks specialist on ${wwMissingEmp.join(', ')}. Scheduling on these days risks <8h turnarounds or double-bookings.`);
+        }
+      }
+
+      if (ppaLoaded && ppaDates.length > 0) {
+        if (!wwLoaded) {
+          warnings.push(`Working Weeks (WW) CSV not loaded for scheduling days (${ppaDates[0]} – ${ppaDates[ppaDates.length - 1]}). Availability, TOR, LOA, and dedications cannot be checked.`);
+        } else {
+          const ppaMissingWW = ppaDates.filter(dt => !wwDatesSet.has(dt));
+          if (ppaMissingWW.length > 0) {
+            warnings.push(`Missing Working Weeks (WW) file for scheduling day(s): ${ppaMissingWW.join(', ')}. Upload the WW CSV(s) covering those weeks to avoid scheduling outside availability.`);
+          }
+        }
+
+        if (!empLoaded) {
+          warnings.push(`EMP.csv Master Schedule not loaded. Outside-contract shifts and <8h turnarounds cannot be checked.`);
+        } else {
+          const ppaMissingEMP = ppaDates.filter(dt => !empCoveredDates.has(dt));
+          if (ppaMissingEMP.length > 0) {
+            warnings.push(`Missing EMP.csv shifts for scheduling day(s): ${ppaMissingEMP.join(', ')}. Upload EMP.csv covering all scheduling days to prevent double-booking or <8h turnarounds.`);
+          }
+        }
+      } else if (wwLoaded && !empLoaded) {
+        warnings.push(`EMP.csv Master Schedule not loaded. Specialists working outside contracts cannot be checked for conflicts until EMP.csv is uploaded.`);
+      }
+
+      // Render in Upload Modal
+      const modalBox = document.getElementById('modalValidationBox');
+      if (modalBox) {
+        if (errors.length > 0 || warnings.length > 0) {
+          modalBox.classList.remove('hidden');
+          const isError = errors.length > 0;
+          modalBox.className = `rounded-xl border p-3 text-xs space-y-1.5 ${isError ? 'bg-rose-50 border-rose-300 text-rose-900' : 'bg-amber-50 border-amber-300 text-amber-900'}`;
+          let html = `<div class="font-extrabold flex items-center gap-1.5 ${isError ? 'text-rose-900' : 'text-amber-900'}">
+            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            <span>${isError ? 'File Validation Error' : 'Schedule Coverage Warning'}</span>
+          </div><ul class="list-disc pl-5 space-y-1 text-[11px]">`;
+          errors.forEach(msg => { html += `<li class="font-bold text-rose-800">${escapeHtml(msg)}</li>`; });
+          warnings.forEach(msg => { html += `<li>${escapeHtml(msg)}</li>`; });
+          html += `</ul>`;
+          modalBox.innerHTML = html;
+        } else if (ppaLoaded && empLoaded && wwLoaded) {
+          modalBox.classList.remove('hidden');
+          modalBox.className = 'rounded-xl border border-emerald-300 bg-emerald-50 p-3 text-xs text-emerald-900 flex items-center gap-2';
+          modalBox.innerHTML = `
+            <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span class="font-semibold">All files validated: WW (${state.wwFiles.length} week${state.wwFiles.length > 1 ? 's' : ''}) and EMP.csv cover all ${ppaDates.length} scheduling day(s) (${ppaDates[0]} – ${ppaDates[ppaDates.length - 1]}).</span>
+          `;
+        } else {
+          modalBox.classList.add('hidden');
+          modalBox.innerHTML = '';
+        }
+      }
+
+      // Render in Main UI Banner
+      const banner = document.getElementById('empWarningBanner');
+      const bTitle = document.getElementById('empWarningTitle');
+      const bBody = document.getElementById('empWarningBody');
+      const bIcon = document.getElementById('empWarningIconBox');
+      if (banner && bTitle && bBody) {
+        if (errors.length === 0 && warnings.length === 0) {
+          banner.classList.add('hidden');
+        } else {
+          banner.classList.remove('hidden');
+          const hasErrors = errors.length > 0;
+          banner.className = `p-3.5 rounded-xl text-xs flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-xs border-2 ${hasErrors ? 'bg-rose-500/10 border-rose-500/40 text-rose-900' : 'bg-amber-500/10 border-amber-500/40 text-amber-900'}`;
+          if (bIcon) {
+            bIcon.className = `w-8 h-8 rounded-lg ${hasErrors ? 'bg-rose-600' : 'bg-amber-500'} text-white flex items-center justify-center shrink-0 mt-0.5`;
+          }
+          bTitle.textContent = hasErrors ? 'File Validation Error' : 'Schedule Coverage Warning — Action Recommended';
+          bBody.innerHTML = [...errors, ...warnings].map(m => `<div>&bull; ${escapeHtml(m)}</div>`).join('');
+        }
       }
     }
 
@@ -2936,14 +3596,7 @@
           console.warn('Could not auto-fetch SEN.csv:', e);
         }
 
-        renderDayHeaders();
-        calculateAllHours();
-        populateLinkingShiftDropdown();
-        updateKPISummaries();
-        updateFileStatusBadges();
-        renderWorkingWeeksGrid();
-        renderShiftFirstView();
-        renderWinTeamTable();
+        refreshAfterFileLoad();
 
         if (ppaLoaded || empLoaded || wwLoaded || senLoaded) {
           closeUploadModal();
@@ -2960,6 +3613,9 @@
     function initData() {
       state.employees = [];
       state.wwEmployeeEids = null;
+      state.wwFiles = [];
+      state.weekEndings = new Set();
+      state.dateToWeekKey = {};
       state.shifts = [];
       state.dates = [];
       state.lastDateOfWeek = '';
@@ -2970,9 +3626,13 @@
       state.senData = null;
       state.empReportRecords = [];
       state.empHoursFromEMP = {};
+      state.empWeeklyHours = {};
       state.empShiftsFromEMP = {};
       state.empInfoFromEMP = {};
+      state.empWeeklyWorkingDates = {};
       state.sessionAssignments = [];
+      state.fileParseErrors = [];
+      loadBlackoutsFromStorage();
 
       updateKPISummaries();
       renderDayHeaders();
@@ -3058,9 +3718,56 @@
       row.innerHTML = html;
     }
 
+    function getWeekKeyForDate(dtNorm) {
+      if (!dtNorm) return 'default';
+      if (state.dateToWeekKey && state.dateToWeekKey[dtNorm]) {
+        return state.dateToWeekKey[dtNorm];
+      }
+      if (state.dates && state.dates.length > 0) {
+        const baseTime = getDateSortValue(state.dates[0]);
+        const curTime = getDateSortValue(dtNorm);
+        if (baseTime < Number.MAX_SAFE_INTEGER && curTime < Number.MAX_SAFE_INTEGER) {
+          const diffDays = Math.floor((curTime - baseTime) / 86400000);
+          const wkIdx = Math.floor(diffDays / 7);
+          return `wk_${wkIdx}`;
+        }
+      }
+      return 'default';
+    }
+
+    function isWeekEndingDate(dtNorm) {
+      if (!dtNorm) return false;
+      if (state.weekEndings && state.weekEndings.size > 0) {
+        return state.weekEndings.has(dtNorm);
+      }
+      return Boolean(state.lastDateOfWeek && dtNorm === state.lastDateOfWeek);
+    }
+
+    function getEmployeeWeekHours(eid, dtNorm) {
+      const wkKey = getWeekKeyForDate(dtNorm);
+      if (state.empWeeklyHours && state.empWeeklyHours[eid]) {
+        return state.empWeeklyHours[eid][wkKey] || 0.0;
+      }
+      return (state.empActualHours && state.empActualHours[eid]) || 0.0;
+    }
+
+    function getEmployeeWeekWorkingDates(eid, dtNorm) {
+      const wkKey = getWeekKeyForDate(dtNorm);
+      if (state.empWeeklyWorkingDates && state.empWeeklyWorkingDates[eid] && state.empWeeklyWorkingDates[eid][wkKey]) {
+        return state.empWeeklyWorkingDates[eid][wkKey];
+      }
+      if (state.empWeeklyWorkingDates && state.empWeeklyWorkingDates[eid]) {
+        return new Set();
+      }
+      return (state.empWorkingDates && state.empWorkingDates[eid]) || new Set();
+    }
+
     function loadWorkingWeeks(csvText, fileName = 'WorkingWeeks.csv') {
       const lines = parseCSV(csvText);
-      if (!lines || lines.length < 3) return;
+      if (!lines || lines.length < 4) {
+        state.fileParseErrors.push(`Working Weeks file "${fileName}" is empty or has too few rows.`);
+        return false;
+      }
 
       const dateCols = [9, 13, 17, 21, 25, 29, 33];
       const parsedDates = [];
@@ -3075,24 +3782,14 @@
         }
       });
 
-      if (parsedDates.length > 0) {
-        state.dates = parsedDates;
-        state.lastDateOfWeek = parsedDates[parsedDates.length - 1];
-        if (!state.shiftFirstSelectedDay || state.shiftFirstSelectedDay === 'all') {
-          state.shiftFirstSelectedDay = parsedDates[0];
-        }
-        const badgeWE = document.getElementById('badgeWeekEnding');
-        if (badgeWE) {
-          badgeWE.textContent = 'Week Ending: ' + state.lastDateOfWeek;
-          badgeWE.className = 'px-2.5 py-0.5 rounded text-[11px] font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30 font-mono';
-        }
+      if (parsedDates.length === 0) {
+        state.fileParseErrors.push(`Working Weeks file "${fileName}" is missing valid date headers in row 2.`);
+        return false;
       }
 
-      state.rawWW = csvText;
-      const existingMap = {};
-      state.employees.forEach(e => { existingMap[e.eid] = e; });
-
+      const fileWeekEnding = parsedDates[parsedDates.length - 1];
       const wwEmployees = [];
+
       for (let i = 3; i < lines.length; i++) {
         const r = lines[i];
         if (!r || !r[0] || !r[0].trim()) continue;
@@ -3107,7 +3804,7 @@
         const sheetHours = cleanFloat(r[7]);
 
         const daily = {};
-        state.dates.forEach((dt, idx) => {
+        parsedDates.forEach((dt, idx) => {
           const c = 8 + idx * 4;
           const p1 = (c < r.length) ? r[c].trim() : '';
           const p2 = (c + 1 < r.length) ? r[c + 1].trim() : '';
@@ -3135,56 +3832,204 @@
         if (noteLower.includes('transfer')) tags.push({ text: 'Transferred', cls: 'bg-amber-100 text-amber-800 border-amber-300' });
         if (noteLower.includes('cpr')) tags.push({ text: 'CPR Certified', cls: 'bg-rose-100 text-rose-800 border-rose-200' });
 
-        const empObj = {
+        wwEmployees.push({
           wwIndex: i - 2,
           eid,
-          name: name || (existingMap[eid] ? existingMap[eid].name : `Specialist #${eid}`),
+          name: name || `Specialist #${eid}`,
           email,
-          phone: phone || (existingMap[eid] ? existingMap[eid].phone : ''),
+          phone,
           notes,
           tags,
-          ptft: ptft || (existingMap[eid] ? existingMap[eid].ptft : 'FT'),
+          ptft: ptft || 'FT',
           limit,
           sheetHours,
-          daily,
-          actualHours: existingMap[eid] ? existingMap[eid].actualHours : 0.0,
-          isFromWinTeamOnly: false
-        };
-
-        wwEmployees.push(empObj);
-        existingMap[eid] = empObj;
+          daily
+        });
       }
 
+      if (wwEmployees.length === 0) {
+        state.fileParseErrors.push(`Working Weeks file "${fileName}" contains no employee rows.`);
+        return false;
+      }
+
+      if (!state.wwFiles) state.wwFiles = [];
+      const weekKeyId = parsedDates.join(',');
+      const entry = {
+        id: weekKeyId,
+        fileName,
+        dates: parsedDates,
+        weekEnding: fileWeekEnding,
+        employees: wwEmployees,
+        rawText: csvText
+      };
+
+      const existingIdx = state.wwFiles.findIndex(w => w.id === weekKeyId || w.weekEnding === fileWeekEnding);
+      if (existingIdx !== -1) {
+        state.wwFiles[existingIdx] = entry;
+      } else {
+        state.wwFiles.push(entry);
+      }
+
+      rebuildMergedWorkingWeeks();
+      return true;
+    }
+
+    function rebuildMergedWorkingWeeks() {
+      if (!state.wwFiles || state.wwFiles.length === 0) {
+        state.employees = [];
+        state.wwEmployeeEids = null;
+        state.wwEmployeeCount = 0;
+        state.rawWW = '';
+        state.weekEndings = new Set();
+        state.dateToWeekKey = {};
+        state.filesStatus.ww = { loaded: false, filename: '', count: 0 };
+
+        // Fall back to dates discovered in PPA/EMP if any
+        const fallbackDates = new Set();
+        (state.shifts || []).forEach(s => { if (s.workDateNorm) fallbackDates.add(s.workDateNorm); });
+        (state.empReportRecords || []).forEach(s => { if (s.workDateNorm) fallbackDates.add(s.workDateNorm); });
+        state.dates = sortDatesList(Array.from(fallbackDates));
+        state.lastDateOfWeek = state.dates.length > 0 ? state.dates[state.dates.length - 1] : '';
+
+        const badgeWE = document.getElementById('badgeWeekEnding');
+        if (badgeWE) {
+          badgeWE.textContent = 'Week Ending: Pending CSV';
+          badgeWE.className = 'px-2.5 py-0.5 rounded text-[11px] font-bold bg-slate-800 text-slate-300 border border-slate-700 font-mono';
+        }
+        return;
+      }
+
+      // Sort WW files chronologically by their start date
+      state.wwFiles.sort((a, b) => getDateSortValue(a.dates[0]) - getDateSortValue(b.dates[0]));
+
+      const allDatesSet = new Set();
+      state.weekEndings = new Set();
+      state.dateToWeekKey = {};
+
+      state.wwFiles.forEach(wf => {
+        state.weekEndings.add(wf.weekEnding);
+        wf.dates.forEach(dt => {
+          allDatesSet.add(dt);
+          state.dateToWeekKey[dt] = wf.weekEnding;
+        });
+      });
+
+      state.dates = sortDatesList(Array.from(allDatesSet));
+      state.lastDateOfWeek = state.dates.length > 0 ? state.dates[state.dates.length - 1] : '';
+      if (!state.shiftFirstSelectedDay || (state.shiftFirstSelectedDay !== 'all' && !state.dates.includes(state.shiftFirstSelectedDay))) {
+        state.shiftFirstSelectedDay = state.dates[0] || 'all';
+      }
+
+      const badgeWE = document.getElementById('badgeWeekEnding');
+      if (badgeWE) {
+        if (state.wwFiles.length === 1) {
+          badgeWE.textContent = 'Week Ending: ' + state.lastDateOfWeek;
+        } else {
+          badgeWE.textContent = `${state.wwFiles.length} Weeks: ${state.dates[0]} – ${state.lastDateOfWeek}`;
+        }
+        badgeWE.className = 'px-2.5 py-0.5 rounded text-[11px] font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30 font-mono';
+      }
+
+      state.rawWW = state.wwFiles.map(wf => wf.rawText).join('\n');
+
+      const mergedMap = {};
+      const mergedList = [];
+
+      state.wwFiles.forEach(wf => {
+        wf.employees.forEach(emp => {
+          if (!mergedMap[emp.eid]) {
+            const cloned = {
+              wwIndex: emp.wwIndex,
+              eid: emp.eid,
+              name: emp.name,
+              email: emp.email,
+              phone: emp.phone,
+              notes: emp.notes,
+              tags: [...emp.tags],
+              ptft: emp.ptft,
+              limit: emp.limit,
+              sheetHours: emp.sheetHours,
+              weeklySheetHours: { [wf.weekEnding]: emp.sheetHours },
+              daily: { ...emp.daily },
+              actualHours: 0.0,
+              isFromWinTeamOnly: false
+            };
+            mergedMap[emp.eid] = cloned;
+            mergedList.push(cloned);
+          } else {
+            const m = mergedMap[emp.eid];
+            if (emp.name && !emp.name.startsWith('Specialist #')) m.name = emp.name;
+            if (emp.email) m.email = emp.email;
+            if (emp.phone) m.phone = emp.phone;
+            if (emp.notes && emp.notes !== m.notes) {
+              m.notes = m.notes ? `${m.notes} | ${emp.notes}` : emp.notes;
+            }
+            if (emp.ptft) m.ptft = emp.ptft;
+            if (emp.limit) m.limit = emp.limit;
+            Object.assign(m.daily, emp.daily);
+            m.weeklySheetHours[wf.weekEnding] = emp.sheetHours;
+            m.sheetHours = Object.values(m.weeklySheetHours).reduce((acc, v) => acc + v, 0.0);
+            const seenTags = new Set(m.tags.map(t => t.text));
+            emp.tags.forEach(t => {
+              if (!seenTags.has(t.text)) {
+                m.tags.push(t);
+                seenTags.add(t.text);
+              }
+            });
+          }
+        });
+      });
+
       // Identify bottom 75 specialists in Working Weeks seniority order
-      const totalWW = wwEmployees.length;
+      const totalWW = mergedList.length;
       state.wwEmployeeCount = totalWW;
       const bottom75CutoffIndex = Math.max(0, totalWW - 75);
-      wwEmployees.forEach((emp, idx) => {
+      mergedList.forEach((emp, idx) => {
         if (idx >= bottom75CutoffIndex) {
           emp.isBottom75 = true;
-          emp.tags.push({
-            text: 'Bottom 75 (No BRE)',
-            cls: 'bg-rose-100 text-rose-800 border-rose-300 font-bold'
-          });
+          if (!emp.tags.some(t => t.text === 'Bottom 75 (No BRE)')) {
+            emp.tags.push({
+              text: 'Bottom 75 (No BRE)',
+              cls: 'bg-rose-100 text-rose-800 border-rose-300 font-bold'
+            });
+          }
         } else {
           emp.isBottom75 = false;
         }
       });
 
-      state.employees = wwEmployees;
-      state.wwEmployeeEids = new Set(wwEmployees.map(e => e.eid));
+      state.employees = mergedList;
+      state.wwEmployeeEids = new Set(mergedList.map(e => e.eid));
       state.filesStatus.ww = {
         loaded: true,
-        filename: fileName,
-        count: wwEmployees.length
+        filename: state.wwFiles.map(w => w.fileName).join(', '),
+        count: mergedList.length
       };
+
+      // Re-evaluate rollover cutoff on already-loaded PPA shifts now that all week endings are known
+      if (state.shifts && state.shifts.length > 0) {
+        state.shifts.forEach(s => {
+          const isRolloverTime = timeStringToHours(s.outTime) < timeStringToHours(s.inTime);
+          let countedHours = s.hoursRaw;
+          let isRolloverCutoff = false;
+          if (isWeekEndingDate(s.workDateNorm) && (s.nextDay === '1' || isRolloverTime)) {
+            const pastMidnightHours = timeStringToHours(s.outTime);
+            if (pastMidnightHours > 0) {
+              countedHours = Math.max(0, s.hoursRaw - pastMidnightHours);
+              isRolloverCutoff = true;
+            }
+          }
+          s.countedHours = countedHours;
+          s.isRolloverCutoff = isRolloverCutoff;
+        });
+      }
 
       // Evaluate BRE eligibility based on SEN file if loaded, or Bottom 75 WW fallback
       updateAllEmployeesBreEligibility();
 
       // If EMP was loaded before WW, re-filter EMP now that WW roster is known
       if (state.rawEMP) {
-        loadEMP(state.rawEMP, state.filesStatus.emp ? state.filesStatus.emp.filename : 'EMP.csv');
+        loadEMP(state.rawEMP, state.filesStatus.emp ? state.filesStatus.emp.filename : 'EMP.csv', false);
       }
     }
 
@@ -3318,18 +4163,30 @@
       updateAllEmployeesBreEligibility();
     }
 
-    function loadPPA(csvText, fileName = 'PPA.csv') {
+    function loadPPA(csvText, fileName = 'PPA.csv', append = false) {
       const lines = parseCSV(csvText);
-      if (!lines || lines.length < 2) return;
+      if (!lines || lines.length < 2) {
+        state.fileParseErrors.push(`PPA file "${fileName}" is empty or has no data rows.`);
+        return false;
+      }
 
       const header = lines[0].map(h => h.trim());
       const colIdx = {};
       header.forEach((h, idx) => { colIdx[h] = idx; });
 
-      state.rawPPA = csvText;
-      state.shifts = [];
+      if (colIdx['WorkDate'] === undefined || colIdx['InTime'] === undefined || colIdx['OutTime'] === undefined) {
+        state.fileParseErrors.push(`PPA file "${fileName}" is missing required columns (WorkDate, InTime, OutTime).`);
+        return false;
+      }
+
+      if (!append) {
+        state.rawPPA = csvText;
+        state.shifts = [];
+      } else {
+        state.rawPPA = (state.rawPPA ? state.rawPPA + '\n' : '') + csvText;
+      }
       const discoveredDates = new Set();
-      const wtEmployeesMap = {};
+      const baseIndex = state.shifts.length;
 
       for (let i = 1; i < lines.length; i++) {
         const r = lines[i];
@@ -3373,7 +4230,7 @@
         let isRolloverCutoff = false;
         const isRolloverTime = timeStringToHours(outTime) < timeStringToHours(inTime);
 
-        if (state.lastDateOfWeek && workDateNorm === state.lastDateOfWeek && (nextDay === '1' || isRolloverTime)) {
+        if (isWeekEndingDate(workDateNorm) && (nextDay === '1' || isRolloverTime)) {
           const pastMidnightHours = timeStringToHours(outTime);
           if (pastMidnightHours > 0) {
             countedHours = Math.max(0, hoursRaw - pastMidnightHours);
@@ -3382,7 +4239,7 @@
         }
 
         const shiftObj = {
-          id: 'shift_' + i,
+          id: 'shift_' + (baseIndex + i),
           originalRowIndex: i,
           eid: '',
           empName: '',
@@ -3425,25 +4282,36 @@
 
       state.filesStatus.ppa = {
         loaded: true,
-        filename: fileName,
+        filename: append && state.filesStatus.ppa && state.filesStatus.ppa.filename ? `${state.filesStatus.ppa.filename}, ${fileName}` : fileName,
         count: state.shifts.length,
         openCount: state.shifts.filter(s => s.isOpen && isFillablePostDescription(s.postDesc)).length
       };
+      return true;
     }
 
-    function loadEMP(csvText, fileName = 'EMP.csv') {
+    function loadEMP(csvText, fileName = 'EMP.csv', append = false) {
       const lines = parseCSV(csvText);
-      if (!lines || lines.length < 2) return;
+      if (!lines || lines.length < 2) {
+        state.fileParseErrors.push(`EMP file "${fileName}" is empty or has no data rows.`);
+        return false;
+      }
 
       const header = lines[0].map(h => h.trim());
       const colIdx = {};
       header.forEach((h, idx) => { colIdx[h] = idx; });
 
-      const records = [];
-      const empHours = {};
-      const empShifts = {};
-      const empInfo = {};
+      if (colIdx['EmployeeNumber'] === undefined || colIdx['WorkDate'] === undefined || colIdx['InTime'] === undefined || colIdx['OutTime'] === undefined) {
+        state.fileParseErrors.push(`EMP file "${fileName}" is missing required columns (EmployeeNumber, WorkDate, InTime, OutTime).`);
+        return false;
+      }
+
+      const records = append && state.empReportRecords ? [...state.empReportRecords] : [];
+      const empHours = append && state.empHoursFromEMP ? { ...state.empHoursFromEMP } : {};
+      const empShifts = append && state.empShiftsFromEMP ? { ...state.empShiftsFromEMP } : {};
+      const empInfo = append && state.empInfoFromEMP ? { ...state.empInfoFromEMP } : {};
       const discoveredDates = new Set();
+      let rawRowCount = append ? (state.empRawRowCount || 0) : 0;
+      const baseIndex = records.length;
 
       const wwEids = (state.wwEmployeeEids && state.wwEmployeeEids.size > 0)
         ? state.wwEmployeeEids
@@ -3460,6 +4328,7 @@
 
         const eid = getVal('EmployeeNumber');
         if (!eid) continue;
+        rawRowCount++;
 
         // EMP contains every single guard on every contract in the company.
         // If an employee does not appear in the WW file, simply ignore them.
@@ -3490,7 +4359,7 @@
         if (!empShifts[eid][workDateNorm]) empShifts[eid][workDateNorm] = [];
 
         const shiftItem = {
-          id: `emp_${i}`,
+          id: `emp_${baseIndex + i}`,
           source: 'EMP',
           eid,
           empName,
@@ -3525,7 +4394,8 @@
         }
       }
 
-      state.rawEMP = csvText;
+      state.rawEMP = append && state.rawEMP ? `${state.rawEMP}\n${csvText}` : csvText;
+      state.empRawRowCount = rawRowCount;
       state.empReportRecords = records;
       state.empHoursFromEMP = empHours;
       state.empShiftsFromEMP = empShifts;
@@ -3541,10 +4411,11 @@
 
       state.filesStatus.emp = {
         loaded: true,
-        filename: fileName,
+        filename: append && state.filesStatus.emp && state.filesStatus.emp.filename ? `${state.filesStatus.emp.filename}, ${fileName}` : fileName,
         count: records.length,
         specialistCount: Object.keys(empHours).length
       };
+      return true;
     }
 
     function sortDatesList(datesArr) {
@@ -3554,7 +4425,9 @@
     // --- RECALCULATE GUARANTEED ACTUAL HOURS & WORKING SHIFTS (WINTEAM AS LAW) ---
     function calculateAllHours() {
       state.empActualHours = {};
+      state.empWeeklyHours = {};
       state.empWorkingDates = {};
+      state.empWeeklyWorkingDates = {};
       state.empDayWorkingShifts = {};
 
       // Maintain strictly the Working Weeks roster; do not incorporate or mention employees not in WW
@@ -3565,7 +4438,9 @@
       // Initialize structures for every employee
       state.employees.forEach(emp => {
         state.empActualHours[emp.eid] = 0.0;
+        state.empWeeklyHours[emp.eid] = {};
         state.empWorkingDates[emp.eid] = new Set();
+        state.empWeeklyWorkingDates[emp.eid] = {};
         state.empDayWorkingShifts[emp.eid] = {};
         if (state.dates && state.dates.length > 0) {
           state.dates.forEach(dt => {
@@ -3598,8 +4473,14 @@
           jobNumber: s.jobNumber
         });
 
+        const wkKey = getWeekKeyForDate(s.workDateNorm);
         state.empActualHours[s.eid] += s.countedHours;
+        if (state.empWeeklyHours[s.eid][wkKey] === undefined) state.empWeeklyHours[s.eid][wkKey] = 0.0;
+        state.empWeeklyHours[s.eid][wkKey] += s.countedHours;
+
         state.empWorkingDates[s.eid].add(s.workDateNorm);
+        if (!state.empWeeklyWorkingDates[s.eid][wkKey]) state.empWeeklyWorkingDates[s.eid][wkKey] = new Set();
+        state.empWeeklyWorkingDates[s.eid][wkKey].add(s.workDateNorm);
 
         if (!state.empDayWorkingShifts[s.eid][s.workDateNorm]) {
           state.empDayWorkingShifts[s.eid][s.workDateNorm] = [];
@@ -3619,9 +4500,12 @@
         addShiftToEmployee(sa);
       });
 
-      // Update emp.actualHours and attach any notes from EMP
+      // Update emp.actualHours, per-week hours, and attach any notes from EMP
       state.employees.forEach(emp => {
         emp.actualHours = state.empActualHours[emp.eid] || 0.0;
+        emp.weeklyHours = state.empWeeklyHours[emp.eid] || {};
+        const wkVals = Object.values(emp.weeklyHours);
+        emp.maxWeekHours = wkVals.length > 0 ? Math.max(...wkVals) : emp.actualHours;
         emp.otApprovals = getEmployeeOTApprovals(emp.eid);
         if (!emp.cellNotes && state.empInfoFromEMP && state.empInfoFromEMP[emp.eid]) {
           emp.cellNotes = state.empInfoFromEMP[emp.eid].notes || '';
@@ -3651,17 +4535,19 @@
         if (state.wwEmployeeEids && !state.wwEmployeeEids.has(eid)) return;
         if (emp.isFromWinTeamOnly) return;
 
-        const currentH = emp.actualHours;
+        const currentH = getEmployeeWeekHours(eid, dt);
         const dInfo = emp.daily[dt] || {};
         const existingShiftsOnDate = state.empDayWorkingShifts[eid] ? (state.empDayWorkingShifts[eid][dt] || []) : [];
         const effLimit = getEmployeeEffectiveLimit(emp);
 
-        // 1. Check Status Block (LOA, Locked Out, Inactive, Bereavement, Transfer, Date notes)
-        const status = getEmployeeStatus(emp, dt);
+        // 1. Check Status Block (Real-Time Blackout, LOA, Locked Out, Inactive, Bereavement, Transfer, Date notes)
+        const status = getEmployeeStatus(emp, dt, shift.jobNumber);
         if (status.isBlocked) {
           conflicted.push({
             emp,
             reason: status.reason,
+            isBlackedOut: Boolean(status.isBlackedOut),
+            blackoutScope: status.blackoutScope || null,
             currentH,
             projectedH: currentH + shHours,
             willOvertime: (currentH + shHours) > effLimit
@@ -3733,7 +4619,7 @@
         }
 
         // 4. Check Days Worked (5-day standard work week; 6th/7th day requires explicit OT approval)
-        const empDates = state.empWorkingDates[eid] || new Set();
+        const empDates = getEmployeeWeekWorkingDates(eid, dt);
         const isAlreadyWorkingOnDate = empDates.has(dt);
         const projectedDaysWorked = isAlreadyWorkingOnDate ? empDates.size : empDates.size + 1;
         const approvals = getEmployeeOTApprovals(eid);
@@ -3954,7 +4840,7 @@
     // --- POPULATE STICKY SHIFT LINKER DROPDOWN ---
     function populateLinkingShiftDropdown() {
       const select = document.getElementById('selectLinkingShift');
-      const openShifts = state.shifts.filter(s => s.isOpen && !s.assignedEmployee && isFillablePostDescription(s.postDesc));
+      const openShifts = state.shifts.filter(s => s.isOpen && !s.assignedEmployee && !isShiftBlackedOut(s) && isFillablePostDescription(s.postDesc));
 
       let html = `<option value="">-- Pick an Open Shift to highlight best matching specialists on the grid (${openShifts.length} open) --</option>`;
 
@@ -4033,6 +4919,7 @@
         if (filter === 'bottom75' && !isEmployeeBreRestricted(emp)) return false;
         if (filter === 'dedicated' && !emp.notes.toLowerCase().includes('dedicated') && !Object.values(emp.daily).some(d => d.p1 === 'Dedication')) return false;
         if (filter === 'supervisor' && !emp.notes.toLowerCase().includes('acting supervisor')) return false;
+        if (filter === 'blackout' && !hasEmployeeAnyBlackout(emp.eid)) return false;
 
         if (filter === 'ghost') {
           // Reference Sheet marked '1', but WinTeam has no shift (Dictated by WinTeam as Off)
@@ -4113,8 +5000,16 @@
           : `<div class="text-[9.5px] font-mono text-rose-600 font-black mt-0.5">OT: +${Math.abs(remainingUnder45).toFixed(1)}h</div>`;
 
         const linkMatch = linkingMatches ? linkingMatches.allMatchesMap[emp.eid] : null;
+        const empBo = getEmployeeBlackout(emp.eid);
+        const empHasBo = hasEmployeeAnyBlackout(emp.eid);
+        const empBoSummary = empHasBo ? getEmployeeBlackoutSummaryText(emp.eid) : '';
+
         let rowClass = 'hover:bg-slate-50 transition-colors';
-        if (linkMatch) {
+        if (empBo.full) {
+          rowClass = 'bg-rose-50/40 hover:bg-rose-50/70 transition-colors border-l-4 border-l-rose-600';
+        } else if (empHasBo) {
+          rowClass = 'bg-amber-50/20 hover:bg-amber-50/40 transition-colors border-l-4 border-l-rose-400';
+        } else if (linkMatch) {
           rowClass = linkMatch.tierNum === 1 ? 'row-highlight-best border-l-4 border-l-blue-600' : 'row-highlight-good border-l-4 border-l-amber-500';
         }
 
@@ -4130,6 +5025,10 @@
           otApprBadge = `<button onclick="openOfficerDetailModal('${emp.eid}')" class="px-1.5 py-0.2 rounded text-[9px] font-black bg-amber-100 text-amber-900 border border-amber-300 shadow-2xs hover:bg-amber-200" title="Active Overtime Approvals: ${otTags.join(', ')}">⚡ ${otTags.join(' ')}</button>`;
         }
 
+        const blackoutBadgeHtml = empHasBo
+          ? `<button onclick="openOfficerDetailModal('${emp.eid}')" class="px-1.5 py-0.5 rounded text-[9px] font-black ${empBo.full ? 'bg-slate-900 text-rose-300 border border-rose-500/60' : 'bg-rose-100 text-rose-800 border border-rose-300'} shadow-2xs hover:opacity-90" title="${escapeHtml(empBoSummary)}">🚫 ${empBo.full ? 'BLACKED OUT' : 'PARTIAL BLACKOUT'}</button>`
+          : `<button onclick="toggleEmployeeFullBlackout('${emp.eid}')" class="px-1.5 py-0.5 rounded text-[9px] font-semibold bg-slate-100 hover:bg-rose-100 text-slate-500 hover:text-rose-700 border border-slate-200 hover:border-rose-300 transition-colors" title="Blackout this specialist (full week) so Auto-Fill skips them">🚫 Blackout</button>`;
+
         html += `
           <tr class="${rowClass}">
             <td class="py-2.5 px-2 border-r border-slate-200 text-center text-slate-400 text-[11px] font-mono">${emp.wwIndex}</td>
@@ -4138,14 +5037,16 @@
             </td>
             <td class="py-2.5 px-3 border-r border-slate-200 font-sans">
               <div class="flex items-center gap-1.5 flex-wrap">
-                <a href="javascript:void(0)" onclick="openOfficerDetailModal('${emp.eid}')" class="font-bold text-slate-900 hover:text-blue-600 hover:underline text-xs" title="Click to view officer profile, preferences & schedule breakdown">${escapeHtml(emp.name)}</a>
+                <a href="javascript:void(0)" onclick="openOfficerDetailModal('${emp.eid}')" class="font-bold ${empBo.full ? 'line-through text-slate-500' : 'text-slate-900'} hover:text-blue-600 hover:underline text-xs" title="Click to view officer profile, preferences & schedule breakdown">${escapeHtml(emp.name)}</a>
                 <button onclick="openOfficerDetailModal('${emp.eid}')" class="text-slate-400 hover:text-blue-600 p-0.5 rounded transition-colors inline-flex items-center" title="Open Officer Profile">
                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
                 </button>
+                ${blackoutBadgeHtml}
                 ${tagsHtml}
                 ${otApprBadge}
                 ${isOvertime ? '<span class="px-1.5 py-0.5 rounded text-[9px] font-black bg-rose-100 text-rose-700 font-mono border border-rose-200" title="Exceeds 45.0 hours weekly limit">Overtime (>45.0h)</span>' : ''}
               </div>
+              ${empHasBo ? `<div class="text-[9.5px] text-rose-700 font-semibold mt-0.5">${escapeHtml(empBoSummary)}</div>` : ''}
             </td>
             <td class="py-2.5 px-2 border-r border-slate-200 text-center text-slate-600 text-[11px] font-semibold">
               ${emp.ptft ? (emp.ptft === 'FT' ? 'Full-Time' : emp.ptft === 'PT' ? 'Part-Time' : emp.ptft) : 'Full-Time'}
@@ -4169,8 +5070,13 @@
           const workingShifts = (state.empDayWorkingShifts[emp.eid] && state.empDayWorkingShifts[emp.eid][dt]) || [];
           const isScheduledInWinTeam = workingShifts.length > 0;
           const isLinkingDay = linkingShift && linkingShift.workDateNorm === dt;
+          const dayBoCheck = isEmployeeBlackedOut(emp.eid, dt);
+          const dayBlackoutBanner = dayBoCheck.isBlackedOut
+            ? `<div class="px-2 py-1 rounded bg-slate-900 text-rose-300 border border-rose-500/60 text-[9.5px] font-black text-center mb-1" title="${escapeHtml(dayBoCheck.reason)}">🚫 BLACKED OUT${dayBoCheck.scope === 'day' ? ' (DAY)' : ''}</div>`
+            : '';
 
           let cellClass = 'py-2 px-2.5 border-r border-slate-200 align-top text-xs';
+          if (dayBoCheck.isBlackedOut) cellClass += ' bg-rose-50/40';
           let cellContent = '';
 
           // CASE 1: SPECIALIST IS SCHEDULED IN WINTEAM (AUTHORITATIVE LAW)
@@ -4232,6 +5138,7 @@
               const multiMatches = countOpenMatchesForSpecialist(emp, dt);
               cellContent = `
                 <div class="flex flex-col gap-1">
+                  ${dayBlackoutBanner}
                   ${shiftCards}
                   ${multiMatches.total > 0 ? `
                     <button onclick="openCellShiftChooser('${emp.eid}', '${dt}')" class="px-1.5 py-0.5 rounded bg-purple-50 hover:bg-purple-100 border border-purple-200 text-purple-700 font-bold text-[9px] transition-all flex items-center justify-between" title="Can work rollover on same post or <=8h total across different posts">
@@ -4303,6 +5210,7 @@
 
                 cellContent = `
                   <div class="flex flex-col gap-1">
+                    ${dayBlackoutBanner}
                     ${sheetVarianceBadge}
                     <div class="text-[9.5px] leading-tight flex flex-col font-sans text-slate-700">
                       ${p1Text}
@@ -4344,7 +5252,7 @@
       if (status.isBlocked) {
         return { tier1: 0, tier2: 0, tier3: 0, total: 0 };
       }
-      const openShifts = state.shifts.filter(s => s.isOpen && !s.assignedEmployee && s.workDateNorm === dt && isFillablePostDescription(s.postDesc));
+      const openShifts = state.shifts.filter(s => s.isOpen && !s.assignedEmployee && !isShiftBlackedOut(s) && s.workDateNorm === dt && isFillablePostDescription(s.postDesc));
       const dInfo = emp.daily[dt] || {};
       const existingShifts = (state.empDayWorkingShifts && state.empDayWorkingShifts[emp.eid] && state.empDayWorkingShifts[emp.eid][dt]) || [];
 
@@ -4359,6 +5267,8 @@
       const dayExistingHours = existingShifts.reduce((acc, es) => acc + es.countedHours, 0.0);
 
       openShifts.forEach(s => {
+        // Real-time job-code blackout check
+        if (isEmployeeBlackedOut(emp.eid, dt, s.jobNumber).isBlackedOut) return;
         // Seniority restriction for BRE shifts (JC 235144 / 267588): SEN <90d or WW Bottom 75 fallback
         if (isEmployeeBreRestricted(emp, s.workDateNorm) && isBreShift(s)) return;
 
@@ -4408,12 +5318,25 @@
 
       const status = getEmployeeStatus(emp, dt);
       if (status.isBlocked) {
-        listContainer.innerHTML = `
-          <div class="p-6 bg-rose-50 border border-rose-200 rounded-xl text-center">
-            <div class="text-rose-800 font-bold text-sm mb-1">Specialist Disqualified</div>
-            <p class="text-rose-600 text-xs">${escapeHtml(emp.name)} is disqualified from shift assignment: <strong class="underline font-bold">${status.reason}</strong> (found in Working Weeks notes).</p>
-          </div>
-        `;
+        if (status.isBlackedOut) {
+          listContainer.innerHTML = `
+            <div class="p-6 bg-slate-900 border border-rose-500/50 rounded-xl text-center text-white">
+              <div class="text-rose-400 font-black text-sm mb-1">🚫 Specialist Blacked Out</div>
+              <p class="text-slate-300 text-xs mb-3">${escapeHtml(emp.name)} is currently blacked out: <strong class="text-white underline">${escapeHtml(status.reason)}</strong></p>
+              <div class="flex items-center justify-center gap-2">
+                <button onclick="closeCellShiftChooser(); openOfficerDetailModal('${emp.eid}');" class="px-3 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs">Manage Blackout</button>
+                <button onclick="clearEmployeeBlackout('${emp.eid}'); openCellShiftChooser('${emp.eid}', '${dt}');" class="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs">Remove Blackout</button>
+              </div>
+            </div>
+          `;
+        } else {
+          listContainer.innerHTML = `
+            <div class="p-6 bg-rose-50 border border-rose-200 rounded-xl text-center">
+              <div class="text-rose-800 font-bold text-sm mb-1">Specialist Disqualified</div>
+              <p class="text-rose-600 text-xs">${escapeHtml(emp.name)} is disqualified from shift assignment: <strong class="underline font-bold">${status.reason}</strong> (found in Working Weeks notes).</p>
+            </div>
+          `;
+        }
         modal.classList.remove('hidden');
         return;
       }
@@ -4455,7 +5378,7 @@
         return;
       }
 
-      const openShifts = state.shifts.filter(s => s.isOpen && !s.assignedEmployee && s.workDateNorm === dt && isFillablePostDescription(s.postDesc));
+      const openShifts = state.shifts.filter(s => s.isOpen && !s.assignedEmployee && !isShiftBlackedOut(s) && s.workDateNorm === dt && isFillablePostDescription(s.postDesc));
       const dInfo = emp.daily[dt] || {};
       const existingShifts = (state.empDayWorkingShifts && state.empDayWorkingShifts[emp.eid] && state.empDayWorkingShifts[emp.eid][dt]) || [];
       const dayExistingHours = existingShifts.reduce((acc, es) => acc + es.countedHours, 0.0);
@@ -4469,8 +5392,14 @@
       const t3Shifts = [];
       const blockedNonBillable = [];
       const blockedBre = [];
+      const blockedBlackout = [];
 
       openShifts.forEach(s => {
+        const jcBlackout = isEmployeeBlackedOut(emp.eid, dt, s.jobNumber);
+        if (jcBlackout.isBlackedOut) {
+          blockedBlackout.push({ shift: s, reason: jcBlackout.reason });
+          return;
+        }
         // Seniority restriction for BRE shifts (JC 235144 / 267588): SEN <90d or WW Bottom 75 fallback
         if (isBreShift(s) && isEmployeeBreRestricted(emp, s.workDateNorm)) {
           blockedBre.push({
@@ -4604,6 +5533,22 @@
         `;
       }
 
+      if (blockedBlackout.length > 0) {
+        html += `
+          <div class="border border-slate-700 rounded-xl overflow-hidden bg-slate-900 text-white text-[11px] p-3 mt-2">
+            <span class="font-bold text-rose-400 block mb-1">🚫 Blocked by Job Code Blackout (${blockedBlackout.length} shifts on ${dt}):</span>
+            <div class="divide-y divide-slate-800 max-h-36 overflow-y-auto">
+              ${blockedBlackout.map(({ shift: s, reason }) => `
+                <div class="py-1 flex items-center justify-between font-mono">
+                  <span>${s.inTime}-${s.outTime} (${s.countedHours.toFixed(1)}h) &bull; ${escapeHtml(s.postDesc || s.jobDesc)} &bull; Job #${s.jobNumber}</span>
+                  <span class="text-rose-300 font-sans font-semibold">${escapeHtml(reason)}</span>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+
       listContainer.innerHTML = html;
       document.getElementById('modalCellShiftChooser').classList.remove('hidden');
     }
@@ -4664,9 +5609,14 @@
       const employee = state.employees.find(e => e.eid === eid);
       if (!shift || !employee) return;
 
-      const status = getEmployeeStatus(employee, shift.workDateNorm);
+      if (isShiftBlackedOut(shift)) {
+        alert(`Cannot assign shift: This shift (${shift.workDateNorm} ${shift.inTime}-${shift.outTime}) has been blacked out.`);
+        return;
+      }
+
+      const status = getEmployeeStatus(employee, shift.workDateNorm, shift.jobNumber);
       if (status.isBlocked) {
-        alert(`Cannot assign shift: ${employee.name} is disqualified (${status.reason}).`);
+        alert(`Cannot assign shift: ${employee.name} is ${status.isBlackedOut ? 'blacked out' : 'disqualified'} (${status.reason}).`);
         return;
       }
 
@@ -4706,13 +5656,15 @@
       const existingDayHours = (state.empDayWorkingShifts[employee.eid] && state.empDayWorkingShifts[employee.eid][shift.workDateNorm])
         ? state.empDayWorkingShifts[employee.eid][shift.workDateNorm].reduce((acc, s) => acc + s.countedHours, 0)
         : 0;
+      const weekDates = getEmployeeWeekWorkingDates(employee.eid, shift.workDateNorm);
+      const weekHours = getEmployeeWeekHours(employee.eid, shift.workDateNorm);
       const isThroughAndThrough = (existingDayHours === 0);
       const isShiftOT = (shift.countedHours > 8.01);
       const isBillableOT = isThroughAndThrough && isShiftOT;
-      const is6thDay = (state.empWorkingDates[employee.eid] && !state.empWorkingDates[employee.eid].has(shift.workDateNorm) && state.empWorkingDates[employee.eid].size === 5);
-      const is7thDay = (state.empWorkingDates[employee.eid] && !state.empWorkingDates[employee.eid].has(shift.workDateNorm) && state.empWorkingDates[employee.eid].size >= 6);
+      const is6thDay = (!weekDates.has(shift.workDateNorm) && weekDates.size === 5);
+      const is7thDay = (!weekDates.has(shift.workDateNorm) && weekDates.size >= 6);
       const isDailyNonBillableOT = (!isThroughAndThrough && (existingDayHours + shift.countedHours > 8.01));
-      const isWeeklyOT = (employee.actualHours + shift.countedHours > 40.01);
+      const isWeeklyOT = (weekHours + shift.countedHours > 40.01);
       const isOT = is6thDay || is7thDay || isDailyNonBillableOT || isWeeklyOT || (!isBillableOT && isShiftOT);
       const otReasons = [];
       if (isBillableOT) otReasons.push(`Billable OT (${shift.countedHours.toFixed(1)}h Through-and-Through)`);
@@ -4818,7 +5770,7 @@
         return state.shifts.filter(s => {
           const isJob = jobCode === 'all' || String(s.jobNumber).trim() === jobCode;
           const isDay = state.shiftFirstSelectedDay === 'all' || s.workDateNorm === state.shiftFirstSelectedDay;
-          return isJob && isDay && s.isOpen && !s.assignedEmployee && isFillablePostDescription(s.postDesc);
+          return isJob && isDay && s.isOpen && !s.assignedEmployee && !isShiftBlackedOut(s) && isFillablePostDescription(s.postDesc);
         }).length;
       };
 
@@ -4874,7 +5826,7 @@
         return state.shifts.filter(s => {
           const isDay = dayStr === 'all' || s.workDateNorm === dayStr;
           const isJob = state.shiftFirstJobFilter === 'all' || String(s.jobNumber).trim() === state.shiftFirstJobFilter;
-          return isDay && isJob && s.isOpen && !s.assignedEmployee && isFillablePostDescription(s.postDesc);
+          return isDay && isJob && s.isOpen && !s.assignedEmployee && !isShiftBlackedOut(s) && isFillablePostDescription(s.postDesc);
         }).length;
       };
 
@@ -5133,6 +6085,8 @@
           dayShifts = dayShifts.filter(s => s.isOpen && !s.assignedEmployee && isFillablePostDescription(s.postDesc));
         } else if (state.shiftFirstStatusFilter === 'assigned') {
           dayShifts = dayShifts.filter(s => !s.isOpen || s.assignedEmployee);
+        } else if (state.shiftFirstStatusFilter === 'blackout') {
+          dayShifts = dayShifts.filter(s => isShiftBlackedOut(s));
         }
 
         // Filter by Search
@@ -5150,7 +6104,8 @@
         }
 
         totalVisibleShifts += dayShifts.length;
-        const openInDay = dayShifts.filter(s => s.isOpen && !s.assignedEmployee && isFillablePostDescription(s.postDesc)).length;
+        const openInDay = dayShifts.filter(s => s.isOpen && !s.assignedEmployee && !isShiftBlackedOut(s) && isFillablePostDescription(s.postDesc)).length;
+        const blackedOutInDay = dayShifts.filter(s => isShiftBlackedOut(s)).length;
         const totalHoursInDay = dayShifts.reduce((acc, s) => acc + s.countedHours, 0.0);
 
         const curDateIdx = state.dates.indexOf(dt);
@@ -5178,7 +6133,7 @@
                     </span>
                   </div>
                   <div class="text-[11px] text-slate-400 mt-0.5">
-                    <strong class="text-amber-400">${openInDay} open shifts</strong> to fill &bull; ${totalHoursInDay.toFixed(1)} total hours
+                    <strong class="text-amber-400">${openInDay} open shifts</strong> to fill${blackedOutInDay > 0 ? ` &bull; <strong class="text-rose-400">🚫 ${blackedOutInDay} blacked out</strong>` : ''} &bull; ${totalHoursInDay.toFixed(1)} total hours
                   </div>
                 </div>
               </div>
@@ -5221,7 +6176,7 @@
               const jobShifts = sortShifts(dayShifts.filter(s => String(s.jobNumber).trim() === jk), state.shiftFirstSort);
               if (jobShifts.length === 0) return;
 
-              const jobOpen = jobShifts.filter(s => s.isOpen && !s.assignedEmployee && isFillablePostDescription(s.postDesc)).length;
+              const jobOpen = jobShifts.filter(s => s.isOpen && !s.assignedEmployee && !isShiftBlackedOut(s) && isFillablePostDescription(s.postDesc)).length;
               const jobHours = jobShifts.reduce((acc, s) => acc + s.countedHours, 0.0);
 
               let themeBorder = 'border-blue-200 bg-blue-50/20';
@@ -5310,7 +6265,9 @@
     function renderShiftCard(shift) {
       const isAssigned = !shift.isOpen || shift.assignedEmployee !== null;
       const assignedEmp = shift.assignedEmployee;
-      const matches = getCandidateMatchesForShift(shift) || {};
+      const isBlackedOutShift = isShiftBlackedOut(shift);
+      const shiftBoInfo = isBlackedOutShift ? getShiftBlackoutInfo(shift) : null;
+      const matches = isBlackedOutShift ? {} : (getCandidateMatchesForShift(shift) || {});
       const tier1 = matches.tier1 || [];
       const tier2 = matches.tier2 || [];
       const tier3 = matches.tier3 || [];
@@ -5366,14 +6323,27 @@
       const displayCandidates = isExpanded ? candidates : candidates.slice(0, 3);
       const remainingCandidatesCount = candidates.length - 3;
 
-      const borderClass = isAssigned
-        ? 'border-emerald-300 bg-white ring-1 ring-emerald-500/30'
-        : 'border-slate-200 bg-white hover:border-slate-300';
+      const borderClass = isBlackedOutShift
+        ? 'border-slate-400 bg-slate-100/80 ring-1 ring-slate-400/50'
+        : isAssigned
+          ? 'border-emerald-300 bg-white ring-1 ring-emerald-500/30'
+          : 'border-slate-200 bg-white hover:border-slate-300';
 
       const jDef = JOB_CODES[shift.jobNumber] || { code: shift.jobNumber, title: shift.jobDesc, isBre: isBreShift(shift) };
 
       let statusBadgeHtml = '';
-      if (isAssigned) {
+      if (isBlackedOutShift) {
+        statusBadgeHtml = `
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="px-2.5 py-1 rounded-lg text-xs font-black bg-slate-900 text-rose-300 border border-rose-500/60 flex items-center gap-1.5">
+              <span>🚫 SHIFT BLACKED OUT</span>
+            </span>
+            <button onclick="toggleShiftBlackout('${shift.id}')" class="px-2.5 py-1 rounded-lg bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 text-xs font-bold transition-colors">
+              Un-blackout Shift
+            </button>
+          </div>
+        `;
+      } else if (isAssigned) {
         statusBadgeHtml = `
           <div class="flex items-center gap-2 flex-wrap">
             <span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1.5">
@@ -5390,16 +6360,39 @@
         `;
       } else {
         statusBadgeHtml = `
-          <span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1.5">
-            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
-            <span>Open WinTeam Shift &bull; Needs Officer</span>
-          </span>
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+              <span>Open WinTeam Shift &bull; Needs Officer</span>
+            </span>
+            <button onclick="toggleShiftBlackout('${shift.id}')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-rose-100 text-slate-700 hover:text-rose-800 border border-slate-300 hover:border-rose-300 text-xs font-bold transition-colors" title="Blackout this shift so Auto-Fill skips it">
+              🚫 Blackout Shift
+            </button>
+          </div>
         `;
       }
 
       let bodyHtml = '';
 
-      if (isAssigned) {
+      if (isBlackedOutShift) {
+        bodyHtml = `
+          <div class="p-3 bg-slate-900 text-white border border-rose-500/40 rounded-lg flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs">
+            <div class="flex items-center gap-2.5">
+              <span class="text-lg">🚫</span>
+              <div>
+                <div class="font-bold text-rose-300">This shift has been blacked out</div>
+                <div class="text-[11px] text-slate-300 mt-0.5">
+                  Auto-Fill will skip this shift and it is excluded from open shift counts.${shiftBoInfo && shiftBoInfo.reason ? ` Reason: <strong>${escapeHtml(shiftBoInfo.reason)}</strong>` : ''}
+                </div>
+              </div>
+            </div>
+            <button onclick="toggleShiftBlackout('${shift.id}')" class="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs shrink-0 transition-colors">
+              Un-blackout Shift
+            </button>
+          </div>
+        `;
+      } else if (isAssigned) {
+        const assignedBoCheck = isEmployeeBlackedOut(assignedEmp.eid, shift.workDateNorm, shift.jobNumber);
         bodyHtml = `
           <div class="p-3 bg-emerald-50/60 border border-emerald-200 rounded-lg flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs">
             <div class="flex items-center gap-3">
@@ -5410,6 +6403,7 @@
                 <div class="font-bold text-slate-900 text-sm flex items-center gap-2">
                   <span>${escapeHtml(assignedEmp.name)}</span>
                   <span class="text-slate-600 font-mono text-xs">#${assignedEmp.eid}</span>
+                  ${assignedBoCheck.isBlackedOut ? `<span class="px-1.5 py-0.5 rounded text-[9.5px] font-black bg-slate-900 text-rose-300 border border-rose-500/60" title="${escapeHtml(assignedBoCheck.reason)}">🚫 OFFICER BLACKED OUT</span>` : ''}
                   <button onclick="copyEID('${assignedEmp.eid}', event)" class="text-[10px] text-blue-600 hover:underline font-bold font-sans">Copy EID</button>
                 </div>
                 <div class="text-[11px] text-emerald-800 mt-0.5">
@@ -5512,8 +6506,11 @@
                     </button>
                   </div>
                   <div class="font-bold text-slate-900 truncate flex items-center justify-between" title="${escapeHtml(emp.name)}">
-                    <span>${escapeHtml(emp.name)}</span>
-                    <button onclick="openOfficerDetailModal('${emp.eid}')" class="text-slate-400 hover:text-blue-600 text-[10px] font-mono">Profile &rarr;</button>
+                    <span class="flex items-center gap-1 truncate">
+                      <span class="truncate">${escapeHtml(emp.name)}</span>
+                      ${hasEmployeeAnyBlackout(emp.eid) ? `<span class="px-1 py-0.2 rounded text-[8.5px] font-black bg-rose-100 text-rose-800 border border-rose-300 shrink-0" title="${escapeHtml(getEmployeeBlackoutSummaryText(emp.eid))}">🚫 Partial BO</span>` : ''}
+                    </span>
+                    <button onclick="openOfficerDetailModal('${emp.eid}')" class="text-slate-400 hover:text-blue-600 text-[10px] font-mono shrink-0">Profile &rarr;</button>
                   </div>
                   <!-- ALWAYS VISIBLE WW NOTES -->
                   <div class="mt-1 text-[11px] ${emp.notes ? 'bg-amber-100 text-amber-950 font-semibold border border-amber-300 shadow-2xs' : 'bg-slate-50 text-slate-500 font-normal border border-slate-200'} px-2 py-1 rounded flex items-start gap-1 leading-snug break-words" title="${escapeHtml(emp.notes || 'No notes in Working Weeks')}">
@@ -5581,9 +6578,12 @@
           }
 
           conflictedHtml += `
-            <div class="p-1.5 bg-white rounded border border-rose-200 text-[11px]">
-              <div class="font-bold text-slate-800 truncate">${escapeHtml(c.emp.name)} <span class="font-mono text-slate-400 text-[10px]">#${c.emp.eid}</span></div>
-              <div class="text-rose-700 text-[10px] font-semibold mt-0.5">${escapeHtml(c.reason)}</div>
+            <div class="p-1.5 ${c.isBlackedOut ? 'bg-slate-900 text-white border-rose-500/60' : 'bg-white border-rose-200'} rounded border text-[11px]">
+              <div class="font-bold ${c.isBlackedOut ? 'text-white' : 'text-slate-800'} truncate flex items-center justify-between gap-1">
+                <span class="truncate">${escapeHtml(c.emp.name)} <span class="font-mono ${c.isBlackedOut ? 'text-slate-400' : 'text-slate-400'} text-[10px]">#${c.emp.eid}</span></span>
+                ${c.isBlackedOut ? `<button onclick="openOfficerDetailModal('${c.emp.eid}')" class="px-1.5 py-0.2 rounded bg-rose-600 hover:bg-rose-500 text-white text-[9px] font-bold shrink-0">🚫 Blacked Out</button>` : ''}
+              </div>
+              <div class="${c.isBlackedOut ? 'text-rose-300' : 'text-rose-700'} text-[10px] font-semibold mt-0.5">${escapeHtml(c.reason)}</div>
               ${approveBtn}
               ${c.emp.notes ? `
                 <div class="mt-1 text-[10.5px] bg-amber-50 text-amber-950 border border-amber-200 rounded px-1.5 py-0.5 break-words">
@@ -5695,6 +6695,89 @@
         }
       }
       modal.setAttribute('data-active-eid', eid);
+
+      // Update Header Blackout Badge & Render Real-Time Blackout Controls Card
+      const bo = getEmployeeBlackout(eid);
+      const hasBo = hasEmployeeAnyBlackout(eid);
+      const headerBoBadge = document.getElementById('officerDetailBlackoutBadge');
+      if (headerBoBadge) {
+        if (hasBo) {
+          headerBoBadge.classList.remove('hidden');
+          headerBoBadge.textContent = bo.full ? '🚫 BLACKED OUT (FULL)' : '🚫 PARTIAL BLACKOUT';
+        } else {
+          headerBoBadge.classList.add('hidden');
+        }
+      }
+
+      const boCard = document.getElementById('officerDetailBlackoutCard');
+      if (boCard) {
+        boCard.className = hasBo
+          ? 'rounded-xl border border-rose-400 bg-rose-50/70 p-3.5 shadow-2xs'
+          : 'rounded-xl border border-slate-200 bg-slate-50 p-3.5 shadow-2xs';
+
+        const dayPillsHtml = (state.dates || []).map(dt => {
+          const meta = getDayMeta(dt);
+          const isDayBo = Boolean(bo.days && bo.days[normDate(dt)]);
+          return `
+            <button type="button" onclick="toggleEmployeeDayBlackout('${eid}', '${dt}')"
+              class="px-2 py-1 rounded-lg text-[11px] font-bold border transition-all ${isDayBo ? 'bg-slate-900 text-rose-300 border-rose-500 shadow-2xs' : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-100'}">
+              ${isDayBo ? '🚫 ' : ''}${meta.shortDay} ${meta.monthDay}
+            </button>
+          `;
+        }).join('');
+
+        const jobPillsHtml = ['233265', '235144', '266778', '267588'].map(jk => {
+          const jDef = JOB_CODES[jk] || { code: jk, shortTitle: jk };
+          const isJobBo = Boolean(bo.jobs && bo.jobs[jk]);
+          return `
+            <button type="button" onclick="toggleEmployeeJobBlackout('${eid}', '${jk}')"
+              class="px-2.5 py-1 rounded-lg text-[11px] font-bold border transition-all ${isJobBo ? 'bg-slate-900 text-rose-300 border-rose-500 shadow-2xs' : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-100'}">
+              ${isJobBo ? '🚫 ' : ''}<span class="font-mono">${jk}</span> &bull; ${escapeHtml(jDef.shortTitle)}
+            </button>
+          `;
+        }).join('');
+
+        boCard.innerHTML = `
+          <div class="flex items-center justify-between gap-2 pb-2 mb-2.5 border-b ${hasBo ? 'border-rose-200' : 'border-slate-200'} flex-wrap">
+            <div class="flex items-center gap-2">
+              <span class="text-base">🚫</span>
+              <div>
+                <div class="font-bold text-xs ${hasBo ? 'text-rose-950' : 'text-slate-900'}">Real-Time Blackout Controls</div>
+                <div class="text-[10.5px] ${hasBo ? 'text-rose-700' : 'text-slate-500'}">Use when real-time availability changed after reports were pulled. Auto-Fill skips blacked-out scopes.</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <button type="button" onclick="toggleEmployeeFullBlackout('${eid}', document.getElementById('inputOfficerBlackoutReason') ? document.getElementById('inputOfficerBlackoutReason').value : '')"
+                class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-2xs ${bo.full ? 'bg-slate-900 text-rose-300 border border-rose-500 hover:bg-slate-800' : 'bg-rose-600 hover:bg-rose-500 text-white'}">
+                ${bo.full ? '✓ Full Week Blacked Out (Click to Undo)' : '🚫 Blackout Entire Employee'}
+              </button>
+              ${hasBo ? `
+                <button type="button" onclick="clearEmployeeBlackout('${eid}')" class="px-2.5 py-1.5 rounded-lg bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 text-xs font-semibold">
+                  Clear All
+                </button>
+              ` : ''}
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-2.5 text-xs">
+            <div>
+              <div class="text-[10.5px] font-bold text-slate-700 uppercase tracking-wider mb-1">Blackout Specific Days:</div>
+              <div class="flex items-center gap-1.5 flex-wrap">${dayPillsHtml || '<span class="text-slate-400 italic">Load CSVs to see week dates</span>'}</div>
+            </div>
+            <div>
+              <div class="text-[10.5px] font-bold text-slate-700 uppercase tracking-wider mb-1">Blackout Specific Job Codes:</div>
+              <div class="flex items-center gap-1.5 flex-wrap">${jobPillsHtml}</div>
+            </div>
+            <div class="flex items-center gap-2 pt-1">
+              <span class="text-[10.5px] font-bold text-slate-700 shrink-0">Reason / Note:</span>
+              <input type="text" id="inputOfficerBlackoutReason" value="${escapeHtml(bo.reason || '')}"
+                onchange="setEmployeeBlackoutReason('${eid}', this.value)"
+                placeholder="e.g. Called out sick, Moved to another site, Real-time change..."
+                class="flex-1 text-[11px] px-2.5 py-1 bg-white border border-slate-300 rounded-lg text-slate-800" />
+            </div>
+          </div>
+        `;
+      }
 
       // Populate Meta Strip: Phone, Email, Target Limit, Tags, and Working Weeks Notes
       const metaStrip = document.getElementById('officerDetailMetaStrip');
@@ -5955,10 +7038,10 @@
     }
 
     function runAutoFillSimulation() {
-      const openShifts = state.shifts.filter(s => s.isOpen && !s.assignedEmployee && isFillablePostDescription(s.postDesc));
+      const openShifts = state.shifts.filter(s => s.isOpen && !s.assignedEmployee && !isShiftBlackedOut(s) && isFillablePostDescription(s.postDesc));
 
       const simWorkingShifts = {};
-      const simHours = {};
+      const simWeeklyHours = {}; // eid -> wkKey -> hours
       state.employees.forEach(emp => {
         simWorkingShifts[emp.eid] = {};
         state.dates.forEach(dt => {
@@ -5966,13 +7049,14 @@
             ? [...state.empDayWorkingShifts[emp.eid][dt]]
             : [];
         });
-        simHours[emp.eid] = emp.actualHours || 0.0;
+        simWeeklyHours[emp.eid] = { ...(emp.weeklyHours || {}) };
       });
 
       const proposed = [];
 
       openShifts.forEach(shift => {
         const dt = shift.workDateNorm;
+        const wkKey = getWeekKeyForDate(dt);
         const inT = shift.inTimeHours;
         const shHours = shift.countedHours;
         const shiftPost = (shift.postDesc || shift.jobPostDetailId || '').trim();
@@ -5993,8 +7077,8 @@
           if (emp.isFromWinTeamOnly) return;
           const effLimit = getEmployeeEffectiveLimit(emp);
 
-          // 1. Status Block: Disqualify Inactive, LOA, Locked Out, Bereavement, or Date-Specific Conflict
-          const status = getEmployeeStatus(emp, dt);
+          // 1. Status Block: Real-Time Blackout, Inactive, LOA, Locked Out, Bereavement, or Date-Specific Conflict
+          const status = getEmployeeStatus(emp, dt, shift.jobNumber);
           if (status.isBlocked) return;
 
           // 1b. Seniority Restriction for BRE Shifts (JC 235144 or 267588): SEN <90d or WW Bottom 75 fallback
@@ -6011,7 +7095,8 @@
           }
 
           // 3. Weekly Hours Limit Enforcement (PT Limits & <= 45h standard or custom approved weekly cap)
-          if (simHours[eid] + shHours > effLimit + 0.01) return;
+          const curSimWeekH = (simWeeklyHours[eid] && simWeeklyHours[eid][wkKey]) ? simWeeklyHours[eid][wkKey] : 0.0;
+          if (curSimWeekH + shHours > effLimit + 0.01) return;
 
           // 4. Cross-Day Timeline Overlap & Minimum 8.0h Rest Turnaround Check (Always strictly enforced!)
           const allSimShifts = [];
@@ -6037,8 +7122,12 @@
           }
           if (hasOverlap || hasRestViolation) return;
 
-          // 5. Days-Per-Week & 6th/7th Day OT Approvals Check
-          const curWorkingDates = new Set(Object.keys(simWorkingShifts[eid]).filter(d => simWorkingShifts[eid][d] && simWorkingShifts[eid][d].length > 0));
+          // 5. Days-Per-Week & 6th/7th Day OT Approvals Check (scoped to this shift's week)
+          const curWorkingDates = new Set(
+            Object.keys(simWorkingShifts[eid]).filter(d =>
+              getWeekKeyForDate(d) === wkKey && simWorkingShifts[eid][d] && simWorkingShifts[eid][d].length > 0
+            )
+          );
           const isAlreadyWorkingOnDate = curWorkingDates.has(dt);
           const projectedDaysWorked = isAlreadyWorkingOnDate ? curWorkingDates.size : curWorkingDates.size + 1;
           const approvals = getEmployeeOTApprovals(eid);
@@ -6069,7 +7158,7 @@
           // 7. Determine Overtime Status for this Assignment
           // Contracted Billable OT: Through-and-through SOR shifts of any length (e.g. 8.25h, 10h, 12h) are contracted client coverage
           // and ALWAYS OK without requiring management OT approvals or daily cap waivers!
-          const curH = simHours[eid];
+          const curH = curSimWeekH;
           const projH = curH + shHours;
           const is6thDay = (projectedDaysWorked === 6);
           const is7thDay = (projectedDaysWorked >= 7);
@@ -6227,7 +7316,9 @@
         }
 
         if (best) {
-          simHours[best.emp.eid] += shHours;
+          if (!simWeeklyHours[best.emp.eid]) simWeeklyHours[best.emp.eid] = {};
+          simWeeklyHours[best.emp.eid][wkKey] = (simWeeklyHours[best.emp.eid][wkKey] || 0.0) + shHours;
+          if (!simWorkingShifts[best.emp.eid][dt]) simWorkingShifts[best.emp.eid][dt] = [];
           simWorkingShifts[best.emp.eid][dt].push(shift);
           proposed.push({
             shift,
@@ -6235,7 +7326,7 @@
             tier: best.tier,
             priorityRank: best.priorityRank,
             oldHours: best.currentHours,
-            newHours: simHours[best.emp.eid],
+            newHours: simWeeklyHours[best.emp.eid][wkKey],
             effLimit: best.effLimit,
             restBufferLabel: best.restBufferLabel,
             isOvertime: Boolean(best.isOvertime),
@@ -6254,7 +7345,9 @@
     }
 
     function renderSimProposalList() {
-      const openShifts = state.shifts.filter(s => s.isOpen && !s.assignedEmployee && isFillablePostDescription(s.postDesc));
+      const openShifts = state.shifts.filter(s => s.isOpen && !s.assignedEmployee && !isShiftBlackedOut(s) && isFillablePostDescription(s.postDesc));
+      const blackedOutShiftCount = state.shifts.filter(s => s.isOpen && !s.assignedEmployee && isShiftBlackedOut(s) && isFillablePostDescription(s.postDesc)).length;
+      const blackedOutEmpCount = Object.keys((state.blackouts && state.blackouts.employees) || {}).length;
       const proposed = state.simProposal || [];
       const regularCount = proposed.filter(p => !p.isOvertime).length;
       const billableCount = proposed.filter(p => p.isBillableOT && !p.isOvertime).length;
@@ -6285,9 +7378,12 @@
       }
 
       const unassignedCount = openShifts.length - proposed.length;
-      document.getElementById('simUnassignedNotice').textContent = unassignedCount > 0
+      const blackoutNote = (blackedOutShiftCount > 0 || blackedOutEmpCount > 0)
+        ? ` • 🚫 Excluded: ${blackedOutEmpCount} blacked-out SP(s), ${blackedOutShiftCount} blacked-out shift(s)`
+        : '';
+      document.getElementById('simUnassignedNotice').textContent = (unassignedCount > 0
         ? `${unassignedCount} shifts remain unassigned (${state.avoidHiredAV ? 'avoiding Hired AV' : 'all priorities checked'})`
-        : 'All open shifts fillable!';
+        : 'All eligible open shifts fillable!') + blackoutNote;
 
       const listContainer = document.getElementById('simAssignmentsList');
       if (!listContainer) return;
@@ -6435,9 +7531,9 @@
       const totalDayHours = dayShifts.reduce((acc, s) => acc + (s.countedHours || 0), 0.0);
       const numShiftsOnDate = dayShifts.length;
 
-      // 2. Gather weekly hours and working dates
-      const totalWeekHours = state.empActualHours[eid] || 0.0;
-      const workingDates = state.empWorkingDates[eid] ? Array.from(state.empWorkingDates[eid]) : [];
+      // 2. Gather weekly hours and working dates (scoped to this shift's week)
+      const totalWeekHours = getEmployeeWeekHours(eid, workDate);
+      const workingDates = Array.from(getEmployeeWeekWorkingDates(eid, workDate));
       const sortedDates = workingDates.sort((a, b) => getDateSortValue(a) - getDateSortValue(b));
       const dateIdx = sortedDates.indexOf(workDate);
       const dayIndex = dateIdx !== -1 ? dateIdx + 1 : sortedDates.length;
@@ -6835,7 +7931,7 @@
             </td>
             <td class="p-2 font-bold text-slate-800">
               <div class="flex items-center gap-1">
-                <span>${sa.eid}</span>
+                <a href="javascript:void(0)" onclick="openOfficerDetailModal('${sa.eid}')" class="hover:text-blue-600 hover:underline" title="Click to view officer profile">${sa.eid}</a>
                 <button onclick="copyToClipboard('${sa.eid}', 'EID copied!')" title="Copy EID" class="p-1 text-slate-400 hover:text-blue-600 rounded">
                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
                 </button>
@@ -6843,8 +7939,16 @@
             </td>
             <td class="p-2 font-semibold text-slate-900 font-sans">
               <div class="flex items-center justify-between gap-1">
-                <span>${escapeHtml(sa.name)}</span>
-                <button onclick="copySinglePassdown('${sa.shiftId}')" class="p-1 text-slate-300 hover:text-blue-600 rounded transition-colors" title="Copy shift for passdown: ${escapeHtml(formatPassdownLine(sa))}">
+                <div class="flex items-center gap-1 min-w-0 flex-wrap">
+                  <a href="javascript:void(0)" onclick="openOfficerDetailModal('${sa.eid}')" class="hover:text-blue-600 hover:underline truncate" title="Click to view officer profile, preferences & schedule breakdown">${escapeHtml(sa.name)}</a>
+                  <button onclick="openOfficerDetailModal('${sa.eid}')" class="text-slate-400 hover:text-blue-600 p-0.5 rounded transition-colors inline-flex items-center shrink-0" title="Open Officer Profile">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                  </button>
+                  ${isEmployeeBlackedOut(sa.eid, sa.workDateNorm, sa.jobNumber).isBlackedOut
+                    ? `<span class="px-1.5 py-0.5 rounded text-[9px] font-black bg-slate-900 text-rose-300 border border-rose-500/60 shrink-0" title="${escapeHtml(isEmployeeBlackedOut(sa.eid, sa.workDateNorm, sa.jobNumber).reason)}">🚫 BLACKED OUT</span>`
+                    : ''}
+                </div>
+                <button onclick="copySinglePassdown('${sa.shiftId}')" class="p-1 text-slate-300 hover:text-blue-600 rounded transition-colors shrink-0" title="Copy shift for passdown: ${escapeHtml(formatPassdownLine(sa))}">
                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
                 </button>
               </div>
@@ -7279,18 +8383,28 @@
 
     // --- KPI & AUDIT COUNTS UPDATE ---
     function updateKPISummaries() {
-      const openShifts = state.shifts.filter(s => s.isOpen && !s.assignedEmployee);
+      const openShifts = state.shifts.filter(s => s.isOpen && !s.assignedEmployee && !isShiftBlackedOut(s));
       const openHours = openShifts.reduce((acc, s) => acc + s.countedHours, 0.0);
       const filledShifts = state.sessionAssignments;
       const filledHours = filledShifts.reduce((acc, sa) => acc + sa.countedHours, 0.0);
+
+      const badgeBlackouts = document.getElementById('badgeBlackoutsCount');
+      if (badgeBlackouts) {
+        const boEmpCount = Object.keys((state.blackouts && state.blackouts.employees) || {}).length;
+        const boShiftCount = Object.keys((state.blackouts && state.blackouts.shifts) || {}).length;
+        const totalBo = boEmpCount + boShiftCount;
+        badgeBlackouts.textContent = totalBo;
+        if (totalBo > 0) badgeBlackouts.classList.remove('hidden');
+        else badgeBlackouts.classList.add('hidden');
+      }
 
       document.getElementById('kpiOpenShifts').textContent = openShifts.length;
       document.getElementById('kpiOpenHours').textContent = `(${openHours.toFixed(1)} Hours)`;
       document.getElementById('kpiFilledCount').textContent = filledShifts.length;
       document.getElementById('kpiFilledHours').textContent = `(${filledHours.toFixed(1)} Hours)`;
 
-      // Count specialists over 45 hours based on authoritative WinTeam law
-      const otSpecialists = state.employees.filter(e => e.actualHours > 45.0);
+      // Count specialists over 45 hours in any week based on authoritative WinTeam law
+      const otSpecialists = state.employees.filter(e => (e.maxWeekHours !== undefined ? e.maxWeekHours : e.actualHours) > 45.0);
       document.getElementById('kpiOvertimeCount').textContent = otSpecialists.length;
 
       // Update Overtime Approvals Count Badges (Company-Wide)
