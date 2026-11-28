@@ -4280,11 +4280,8 @@
         }
       }
 
-      // Merge shifts that are split at midnight across consecutive days with the same post description.
-      // A shift ending at exactly midnight (outTime hours === 0, e.g. "0:00" / "12:00 AM") and a shift
-      // on the immediately following calendar day starting at exactly midnight with the same postDesc
-      // and jobNumber are treated as one continuous shift — the report split them at the billing boundary.
-      mergeMidnightSplitShifts();
+      // Merge contiguous shifts split across billing boundaries (same postDesc, jobNumber, and staffing).
+      state.shifts = mergeContiguousShifts(state.shifts, { requireOpen: true, label: 'PPA open' });
 
       state.filesStatus.ppa = {
         loaded: true,
@@ -4400,11 +4397,20 @@
         }
       }
 
+      // Merge contiguous shifts split across billing boundaries (same employee, postDesc, and jobNumber).
+      const mergedRecords = mergeContiguousShifts(records, { requireOpen: false, label: 'EMP scheduled' });
+      const mergedEmpShifts = {};
+      mergedRecords.forEach(s => {
+        if (!mergedEmpShifts[s.eid]) mergedEmpShifts[s.eid] = {};
+        if (!mergedEmpShifts[s.eid][s.workDateNorm]) mergedEmpShifts[s.eid][s.workDateNorm] = [];
+        mergedEmpShifts[s.eid][s.workDateNorm].push(s);
+      });
+
       state.rawEMP = append && state.rawEMP ? `${state.rawEMP}\n${csvText}` : csvText;
       state.empRawRowCount = rawRowCount;
-      state.empReportRecords = records;
+      state.empReportRecords = mergedRecords;
       state.empHoursFromEMP = empHours;
-      state.empShiftsFromEMP = empShifts;
+      state.empShiftsFromEMP = mergedEmpShifts;
       state.empInfoFromEMP = empInfo;
 
       if ((!state.dates || state.dates.length === 0) && discoveredDates.size > 0) {
@@ -4418,34 +4424,31 @@
       state.filesStatus.emp = {
         loaded: true,
         filename: append && state.filesStatus.emp && state.filesStatus.emp.filename ? `${state.filesStatus.emp.filename}, ${fileName}` : fileName,
-        count: records.length,
+        count: mergedRecords.length,
         specialistCount: Object.keys(empHours).length
       };
       return true;
     }
 
     // ---------------------------------------------------------------------------
-    // mergeMidnightSplitShifts
+    // mergeContiguousShifts
     // ---------------------------------------------------------------------------
-    // Billing reports sometimes split a single continuous shift at midnight:
-    //   Day N   inTime=06:00  outTime=0:00   postDesc="628462"  jobNumber="1234"
-    //   Day N+1 inTime=0:00   outTime=06:00  postDesc="628462"  jobNumber="1234"
-    // This function detects those pairs and collapses them into a single shift
-    // on Day N (preserving the original start time and extending the out-time),
-    // then removes the Day N+1 fragment from state.shifts.
+    // Billing reports often split a single continuous shift into adjacent rows
+    // (either mid-day, e.g. 08:00-16:45 + 16:45-18:45, or across midnight,
+    // e.g. Day N 18:00-0:00 + Day N+1 0:00-06:00).
     //
-    // Rules for a merge:
-    //   1. Shift A: outTimeHours === 0  (ends exactly at midnight)
-    //   2. Shift B: inTimeHours === 0   (starts exactly at midnight)
-    //   3. Shift B's workDateNorm is exactly one calendar day after Shift A's
-    //   4. Same postDesc (case-insensitive trim)
-    //   5. Same jobNumber
-    //   6. Both shifts are open (no assigned employee)
+    // Two shifts A and B are merged into one continuous shift when:
+    //   1. Both have matching staffing (both open & unassigned, or same eid)
+    //   2. Same postDesc (case-insensitive trim) and same jobNumber (trimmed)
+    //   3. Shift A's exact end date+time equals Shift B's exact start date+time
+    //
+    // Supports arbitrary chaining (3+ fragments) and out-of-order CSV rows.
     // ---------------------------------------------------------------------------
-    function mergeMidnightSplitShifts() {
-      if (!state.shifts || state.shifts.length === 0) return;
+    function mergeContiguousShifts(shiftList, options = {}) {
+      if (!shiftList || shiftList.length === 0) return shiftList || [];
+      const requireOpen = Boolean(options.requireOpen);
+      const label = options.label || 'shift';
 
-      // Returns "M/D/YYYY" for the day after the given normDate string.
       function nextNormDate(normDateStr) {
         if (!normDateStr) return '';
         const parts = normDateStr.split('/');
@@ -4458,52 +4461,101 @@
         return (d.getMonth() + 1) + '/' + d.getDate() + '/' + d.getFullYear();
       }
 
-      // Index shifts-ending-at-midnight by "nextDay|postDesc|jobNumber" for O(n) matching.
-      // Key: nextNormDate(A.workDateNorm) + '|' + postDesc + '|' + jobNumber
-      const midnightEnds = new Map(); // key -> shiftA
-      state.shifts.forEach(s => {
-        if (!s.isOpen || s.assignedEmployee) return;
-        if (s.outTimeHours === 0) {
-          const key = nextNormDate(s.workDateNorm) + '|' + (s.postDesc || '').trim().toLowerCase() + '|' + (s.jobNumber || '').trim();
-          // If multiple shifts share the same key, keep a list (handle edge cases).
-          if (!midnightEnds.has(key)) midnightEnds.set(key, []);
-          midnightEnds.get(key).push(s);
-        }
-      });
-
-      if (midnightEnds.size === 0) return;
-
-      const toRemove = new Set(); // ids of B shifts to splice out
-
-      state.shifts.forEach(sB => {
-        if (!sB.isOpen || sB.assignedEmployee) return;
-        if (sB.inTimeHours !== 0) return;
-        const key = sB.workDateNorm + '|' + (sB.postDesc || '').trim().toLowerCase() + '|' + (sB.jobNumber || '').trim();
-        const candidates = midnightEnds.get(key);
-        if (!candidates || candidates.length === 0) return;
-
-        // Pick the first unmatched candidate.
-        const sA = candidates.shift();
-        if (!sA || toRemove.has(sA.id)) return;
-
-        // Merge B into A: extend A's end time/hours, sum hours, absorb B's IDs for blackout compatibility.
-        sA.outTime = sB.outTime;
-        sA.outTimeHours = sB.outTimeHours;
-        sA.hoursRaw = (sA.hoursRaw || 0) + (sB.hoursRaw || 0);
-        sA.countedHours = (sA.countedHours || 0) + (sB.countedHours || 0);
-        // If the merged shift still ends at or past midnight relative to its start, keep nextDay flag.
-        sA.nextDay = (sA.outTimeHours <= sA.inTimeHours || sA.nextDay === '1') ? '1' : sA.nextDay;
-        // Record that this shift spans two source rows (useful for blackout key coverage).
-        sA._mergedFromShiftIds = (sA._mergedFromShiftIds || []).concat([sB.id]);
-        sA._mergedSpansDate = sB.workDateNorm;
-
-        toRemove.add(sB.id);
-      });
-
-      if (toRemove.size > 0) {
-        state.shifts = state.shifts.filter(s => !toRemove.has(s.id));
-        console.log(`[PPA Shift Filler] Merged ${toRemove.size} midnight-split shift pair(s) into continuous shifts.`);
+      function toMins(hoursVal) {
+        return Math.round((hoursVal || 0) * 60);
       }
+
+      function getShiftEndPoint(s) {
+        const inM = toMins(s.inTimeHours);
+        const outM = toMins(s.outTimeHours);
+        if (s._endDate) {
+          return { date: s._endDate, mins: outM };
+        }
+        const crossesMidnight = (s.nextDay === '1') || (outM <= inM);
+        return {
+          date: crossesMidnight ? nextNormDate(s.workDateNorm) : s.workDateNorm,
+          mins: outM
+        };
+      }
+
+      // Group eligible shifts by staffing + postDesc + jobNumber.
+      const groups = new Map();
+      shiftList.forEach(s => {
+        if (!s || !s.workDateNorm) return;
+        if (requireOpen && (!s.isOpen || s.assignedEmployee)) return;
+        if (!requireOpen && !s.eid) return;
+
+        const staffKey = requireOpen ? 'OPEN' : ('EMP:' + String(s.eid).trim());
+        const postKey = (s.postDesc || '').trim().toLowerCase();
+        const jobKey = (s.jobNumber || '').trim();
+        const groupKey = `${staffKey}|${postKey}|${jobKey}`;
+
+        if (!groups.has(groupKey)) groups.set(groupKey, []);
+        groups.get(groupKey).push(s);
+      });
+
+      const removedIds = new Set();
+
+      groups.forEach(groupShifts => {
+        if (groupShifts.length < 2) return;
+
+        // Sort chronologically by start date and start time so earlier fragments always precede later ones.
+        groupShifts.sort((a, b) => {
+          const dateDiff = getDateSortValue(a.workDateNorm) - getDateSortValue(b.workDateNorm);
+          if (dateDiff !== 0) return dateDiff;
+          return toMins(a.inTimeHours) - toMins(b.inTimeHours);
+        });
+
+        const active = [];
+        groupShifts.forEach(cur => {
+          const curStartDate = cur.workDateNorm;
+          const curStartMins = toMins(cur.inTimeHours);
+
+          // Find an earlier shift in this group whose exact end matches cur's start.
+          let matchIdx = -1;
+          for (let i = 0; i < active.length; i++) {
+            const endPt = getShiftEndPoint(active[i]);
+            if (endPt.date === curStartDate && endPt.mins === curStartMins) {
+              matchIdx = i;
+              break;
+            }
+          }
+
+          if (matchIdx === -1) {
+            active.push(cur);
+            return;
+          }
+
+          const prev = active[matchIdx];
+          const curEndPt = getShiftEndPoint(cur);
+          prev.outTime = cur.outTime;
+          prev.outTimeHours = cur.outTimeHours;
+          prev._endDate = curEndPt.date;
+          prev.hoursRaw = (prev.hoursRaw || 0) + (cur.hoursRaw || 0);
+          prev.countedHours = (prev.countedHours || 0) + (cur.countedHours || 0);
+          prev.nextDay = (
+            cur.nextDay === '1' ||
+            cur.workDateNorm !== prev.workDateNorm ||
+            toMins(prev.outTimeHours) <= toMins(prev.inTimeHours)
+          ) ? '1' : prev.nextDay;
+
+          if (cur.shiftNotes && (!prev.shiftNotes || !prev.shiftNotes.includes(cur.shiftNotes))) {
+            prev.shiftNotes = prev.shiftNotes ? `${prev.shiftNotes} | ${cur.shiftNotes}` : cur.shiftNotes;
+          }
+          prev._mergedFromShiftIds = (prev._mergedFromShiftIds || []).concat([cur.id]);
+          if (cur.workDateNorm !== prev.workDateNorm) {
+            prev._mergedSpansDate = cur.workDateNorm;
+          }
+
+          removedIds.add(cur.id);
+        });
+      });
+
+      if (removedIds.size > 0) {
+        console.log(`[PPA Shift Filler] Merged ${removedIds.size} contiguous ${label} shift fragment(s) into continuous shifts.`);
+        return shiftList.filter(s => !removedIds.has(s.id));
+      }
+      return shiftList;
     }
 
     function sortDatesList(datesArr) {
