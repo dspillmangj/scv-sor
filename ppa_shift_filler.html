@@ -2959,6 +2959,201 @@
       return 0.0; // overlapping
     }
 
+    function addDaysToNormDate(normDateStr, deltaDays) {
+      if (!normDateStr) return '';
+      const parts = String(normDateStr).trim().split('/');
+      if (parts.length !== 3) return '';
+      const d = new Date(
+        parseInt(parts[2], 10),
+        parseInt(parts[0], 10) - 1,
+        parseInt(parts[1], 10) + deltaDays
+      );
+      return (d.getMonth() + 1) + '/' + d.getDate() + '/' + d.getFullYear();
+    }
+
+    function getShiftHoursOnCalendarDate(shift, targetDateNorm) {
+      if (!shift || !targetDateNorm) return 0.0;
+      const hasNoTime = !shift.inTime && !shift.outTime;
+      if (hasNoTime) {
+        return (shift.workDateNorm === targetDateNorm)
+          ? (shift.countedHours !== undefined ? shift.countedHours : (shift.hoursRaw || 0))
+          : 0.0;
+      }
+      if (shift.isRolloverCutoff) {
+        return (shift.workDateNorm === targetDateNorm) ? (shift.countedHours || 0) : 0.0;
+      }
+
+      const shiftStartMs = parseDateToNoonMs(shift.workDateNorm);
+      const targetMs = parseDateToNoonMs(targetDateNorm);
+      if (isNaN(shiftStartMs) || isNaN(targetMs)) {
+        return (shift.workDateNorm === targetDateNorm) ? (shift.countedHours || 0) : 0.0;
+      }
+
+      const dayDiff = Math.round((shiftStartMs - targetMs) / 86400000);
+      if (Math.abs(dayDiff) > 2 && !shift._endDate) return 0.0;
+
+      const startH = (shift.inTimeHours !== undefined) ? shift.inTimeHours : timeStringToHours(shift.inTime);
+      const endH = (shift.outTimeHours !== undefined) ? shift.outTimeHours : timeStringToHours(shift.outTime);
+      const isNextDay = shiftCrossesMidnight(shift, startH, endH);
+
+      const relStart = dayDiff * 24.0 + startH;
+      let relEnd;
+      if (shift._endDate) {
+        const endMs = parseDateToNoonMs(shift._endDate);
+        if (!isNaN(endMs)) {
+          const endDayDiff = Math.round((endMs - targetMs) / 86400000);
+          relEnd = endDayDiff * 24.0 + endH;
+        } else {
+          relEnd = (dayDiff + (isNextDay ? 1 : 0)) * 24.0 + endH;
+        }
+      } else {
+        relEnd = (dayDiff + (isNextDay ? 1 : 0)) * 24.0 + endH;
+      }
+
+      const absDuration = relEnd - relStart;
+      if (absDuration <= 0) return 0.0;
+
+      const overlap = Math.max(0.0, Math.min(relEnd, 24.0) - Math.max(relStart, 0.0));
+      if (overlap <= 0) return 0.0;
+
+      if (shift.countedHours !== undefined && shift.countedHours >= 0 && Math.abs(shift.countedHours - absDuration) >= 0.02) {
+        return overlap * (shift.countedHours / absDuration);
+      }
+      return overlap;
+    }
+
+    function getShiftCalendarDates(shift) {
+      if (!shift || !shift.workDateNorm) return [];
+      const candidates = [shift.workDateNorm];
+      const hasTime = Boolean(shift.inTime || shift.outTime);
+      if (hasTime && !shift.isRolloverCutoff) {
+        const startH = (shift.inTimeHours !== undefined) ? shift.inTimeHours : timeStringToHours(shift.inTime);
+        const endH = (shift.outTimeHours !== undefined) ? shift.outTimeHours : timeStringToHours(shift.outTime);
+        const isNextDay = shiftCrossesMidnight(shift, startH, endH);
+        if (shift._endDate && shift._endDate !== shift.workDateNorm) {
+          let cur = shift.workDateNorm;
+          for (let step = 0; step < 7; step++) {
+            cur = addDaysToNormDate(cur, 1);
+            if (!cur) break;
+            if (!candidates.includes(cur)) candidates.push(cur);
+            if (cur === shift._endDate) break;
+          }
+        } else if (isNextDay) {
+          const nextDt = addDaysToNormDate(shift.workDateNorm, 1);
+          if (nextDt && !candidates.includes(nextDt)) candidates.push(nextDt);
+        }
+      }
+      const activeDates = candidates.filter(d => getShiftHoursOnCalendarDate(shift, d) > 0.001);
+      return activeDates.length > 0 ? activeDates : [shift.workDateNorm];
+    }
+
+    function getEmployeeCalendarDayBreakdown(eid, targetDateNorm, simShiftsMap = null) {
+      const allShifts = getEmployeeAllScheduledShifts(eid, simShiftsMap);
+      let totalHours = 0.0;
+      const entries = [];
+      for (const s of allShifts) {
+        const hrs = getShiftHoursOnCalendarDate(s, targetDateNorm);
+        if (hrs > 0.001) {
+          totalHours += hrs;
+          entries.push({ shift: s, hours: hrs });
+        }
+      }
+      return { totalHours, entries };
+    }
+
+    function evaluateEmployeeDailyImpactForShift(eid, shift, approvals, simShiftsMap = null) {
+      const shiftPost = (shift.postDesc || shift.jobPostDetailId || '').trim();
+      const touchedDates = getShiftCalendarDates(shift);
+      const dayResults = touchedDates.map(d => {
+        const breakdown = getEmployeeCalendarDayBreakdown(eid, d, simShiftsMap);
+        const existingHours = breakdown.totalHours;
+        const newHours = getShiftHoursOnCalendarDate(shift, d);
+        const projectedHours = existingHours + newHours;
+        const hasExisting = breakdown.entries.length > 0;
+        const isSamePost = !hasExisting || breakdown.entries.every(e => (e.shift.postDesc || e.shift.jobPostDetailId || '').trim() === shiftPost);
+        return {
+          date: d,
+          existingHours,
+          newHours,
+          projectedHours,
+          hasExisting,
+          isSamePost,
+          entries: breakdown.entries
+        };
+      });
+
+      const hasExistingOnAnyTouchedDay = dayResults.some(dr => dr.hasExisting);
+      const isThroughAndThrough = !hasExistingOnAnyTouchedDay;
+      const isSamePostAll = hasExistingOnAnyTouchedDay && dayResults.every(dr => dr.isSamePost);
+
+      let worstDay = dayResults[0] || {
+        date: shift.workDateNorm,
+        existingHours: 0.0,
+        newHours: shift.countedHours || 0.0,
+        projectedHours: shift.countedHours || 0.0,
+        hasExisting: false,
+        isSamePost: true,
+        entries: []
+      };
+      for (const dr of dayResults) {
+        if (dr.projectedHours > worstDay.projectedHours) {
+          worstDay = dr;
+        }
+      }
+
+      let maxDailyCap = 8.0;
+      if (approvals.dailyCap === 16) maxDailyCap = 16.0;
+      else if (approvals.dailyCap === 12) maxDailyCap = 12.0;
+      else maxDailyCap = isThroughAndThrough ? Math.max(8.0, worstDay.projectedHours) : 8.0;
+
+      let capExceeded = false;
+      let capReason = '';
+      let neededCap = null;
+      for (const dr of dayResults) {
+        const effectiveCapForDay = (approvals.dailyCap >= 12) ? maxDailyCap : (isThroughAndThrough ? Math.max(8.0, dr.projectedHours) : 8.0);
+        if (dr.projectedHours > effectiveCapForDay + 0.01) {
+          capExceeded = true;
+          neededCap = dr.projectedHours <= 12.01 ? 'dailyCap12' : (dr.projectedHours <= 16.01 ? 'dailyCap16' : null);
+          capReason = `Daily hour cap exceeded: Shifts would total ${dr.projectedHours.toFixed(1)}h on ${dr.date} (0000-2359) (Max ${maxDailyCap}h cap${approvals.dailyCap > 8 ? ' approved' : ''})`;
+          break;
+        }
+      }
+
+      let multiPostBlocked = false;
+      let multiPostReason = '';
+      if (!capExceeded && approvals.dailyCap < 12) {
+        for (const dr of dayResults) {
+          if (dr.hasExisting && !dr.isSamePost && dr.projectedHours > 8.01) {
+            multiPostBlocked = true;
+            multiPostReason = `Non-billable OT: Different posts would total ${dr.projectedHours.toFixed(1)}h on ${dr.date} (0000-2359) (Requires 12h/16h Cap Approval for multi-post >8h)`;
+            break;
+          }
+        }
+      }
+
+      const isBillableShiftOT = isThroughAndThrough && (worstDay.projectedHours > 8.01);
+      const isDailyNonBillableOT = !isThroughAndThrough && (worstDay.projectedHours > 8.01);
+
+      return {
+        touchedDates,
+        dayResults,
+        worstDay,
+        dayExistingHours: worstDay.existingHours,
+        dayProjectedHours: worstDay.projectedHours,
+        maxDailyCap,
+        hasExistingOnAnyTouchedDay,
+        isThroughAndThrough,
+        isSamePostAll,
+        isBillableShiftOT,
+        isDailyNonBillableOT,
+        capExceeded,
+        capReason,
+        neededCap,
+        multiPostBlocked,
+        multiPostReason
+      };
+    }
+
     // --- EMPLOYEE STATUS & GUARDRAIL HELPERS ---
     function hasEmployeeAnyNotes(emp) {
       if (!emp) return false;
@@ -4871,21 +5066,17 @@
           return;
         }
 
-        // 5. Daily Multi-Shift & Calendar Day Hour Cap Enforcement (12h/16h caps)
-        const dayExistingHours = existingShiftsOnDate.reduce((acc, es) => acc + es.countedHours, 0.0);
-        const dayProjectedHours = dayExistingHours + shHours;
-        const isThroughAndThrough = (existingShiftsOnDate.length === 0);
-        let maxDailyCap = 8.0;
-        if (approvals.dailyCap === 16) maxDailyCap = 16.0;
-        else if (approvals.dailyCap === 12) maxDailyCap = 12.0;
-        else maxDailyCap = isThroughAndThrough ? shHours : 8.0;
+        // 5. Daily Multi-Shift & Calendar Day (0000-2359) Hour Cap Enforcement (12h/16h caps)
+        const dailyImpact = evaluateEmployeeDailyImpactForShift(eid, shift, approvals);
+        const dayProjectedHours = dailyImpact.dayProjectedHours;
+        const maxDailyCap = dailyImpact.maxDailyCap;
+        const isThroughAndThrough = dailyImpact.isThroughAndThrough;
 
-        if (dayProjectedHours > maxDailyCap + 0.01) {
-          const neededCap = dayProjectedHours <= 12.01 ? 'dailyCap12' : (dayProjectedHours <= 16.01 ? 'dailyCap16' : null);
+        if (dailyImpact.capExceeded) {
           conflicted.push({
             emp,
-            reason: `Daily hour cap exceeded: Shifts would total ${dayProjectedHours.toFixed(1)}h on ${dt} (Max ${maxDailyCap}h cap${approvals.dailyCap > 8 ? ' approved' : ''})`,
-            canQuickApprove: neededCap,
+            reason: dailyImpact.capReason,
+            canQuickApprove: dailyImpact.neededCap,
             currentH,
             projectedH: currentH + shHours,
             willOvertime: true
@@ -4893,36 +5084,33 @@
           return;
         }
 
-        // Same-Day Multi-Shift & Non-Billable Overtime Rule:
+        // Same-Day Multi-Shift & Non-Billable Overtime Rule (0000-2359):
         // Different posts allowed only up to approved daily cap (or 8h standard)
-        if (existingShiftsOnDate.length > 0) {
-          const isSamePostAll = existingShiftsOnDate.every(es => (es.postDesc || es.jobPostDetailId || '').trim() === shiftPost);
-          if (!isSamePostAll && approvals.dailyCap < 12 && dayProjectedHours > 8.01) {
-            conflicted.push({
-              emp,
-              reason: `Non-billable OT: Different posts would total ${dayProjectedHours.toFixed(1)}h on ${dt} (Requires 12h/16h Cap Approval for multi-post >8h)`,
-              canQuickApprove: 'dailyCap12',
-              currentH,
-              projectedH: currentH + shHours,
-              willOvertime: true
-            });
-            return;
-          }
+        if (dailyImpact.multiPostBlocked) {
+          conflicted.push({
+            emp,
+            reason: dailyImpact.multiPostReason,
+            canQuickApprove: 'dailyCap12',
+            currentH,
+            projectedH: currentH + shHours,
+            willOvertime: true
+          });
+          return;
         }
 
-        const isRolloverSamePost = existingShiftsOnDate.length > 0 && existingShiftsOnDate.every(es => (es.postDesc || es.jobPostDetailId || '').trim() === shiftPost);
-        const rolloverNote = isRolloverSamePost ? ' (Same-Post Rollover)' : (existingShiftsOnDate.length > 0 ? ' (Split Shift)' : '');
+        const isRolloverSamePost = dailyImpact.hasExistingOnAnyTouchedDay && dailyImpact.isSamePostAll;
+        const rolloverNote = isRolloverSamePost ? ' (Same-Post Rollover)' : (dailyImpact.hasExistingOnAnyTouchedDay ? ' (Split Shift)' : '');
 
         const hasNotes = hasEmployeeAnyNotes(emp);
         const officerNotesText = (emp.notes || emp.ppaNotes || emp.cellNotes || '').trim();
 
-        // Categorize Overtime status:
+        // Categorize Overtime status (using 0000-2359 calendar-day hours):
         // Contracted Billable OT: Through-and-through SOR shifts of any length (e.g. 8.25h, 10h, 12h) are contracted client coverage
         // and ALWAYS OK without requiring management OT approvals or daily cap waivers!
         const is6thDay = (projectedDaysWorked === 6);
         const is7thDay = (projectedDaysWorked >= 7);
-        const isBillableShiftOT = isThroughAndThrough && (shHours > 8.01);
-        const isDailyNonBillableOT = !isThroughAndThrough && (dayProjectedHours > 8.01);
+        const isBillableShiftOT = dailyImpact.isBillableShiftOT;
+        const isDailyNonBillableOT = dailyImpact.isDailyNonBillableOT;
         const isWeeklyOT = (currentH + shHours > 40.01);
         const isOver45h = (currentH + shHours > 45.01);
         // Overtime that triggers OT prioritization or requires approval:
@@ -4931,8 +5119,8 @@
         const otReasons = [];
         if (is6thDay) otReasons.push('6th Day');
         if (is7thDay) otReasons.push('7th Day');
-        if (isDailyNonBillableOT) otReasons.push(`${dayProjectedHours.toFixed(1)}h Daily Non-Billable OT (${maxDailyCap}h Cap)`);
-        else if (isBillableShiftOT) otReasons.push(`Billable OT (${shHours.toFixed(1)}h Through-and-Through)`);
+        if (isDailyNonBillableOT) otReasons.push(`${dayProjectedHours.toFixed(1)}h Daily Non-Billable OT on ${dailyImpact.worstDay.date} (${maxDailyCap}h Cap)`);
+        else if (isBillableShiftOT) otReasons.push(`Billable OT (${dayProjectedHours.toFixed(1)}h Through-and-Through)`);
         if (isOver45h) otReasons.push(`>45h Weekly (${(currentH + shHours).toFixed(1)}h)`);
         else if (isWeeklyOT) otReasons.push(`>${40}h Weekly (${(currentH + shHours).toFixed(1)}h)`);
 
@@ -5487,7 +5675,8 @@
       const p1W = parseTimeWindow(dInfo.p1);
       const p2W = parseTimeWindow(dInfo.p2);
       const hWs = parseHiredWindows(dInfo.hired);
-      const dayExistingHours = existingShifts.reduce((acc, es) => acc + es.countedHours, 0.0);
+      const approvals = getEmployeeOTApprovals(emp.eid);
+      const allScheduledShifts = getEmployeeAllScheduledShifts(emp.eid);
 
       openShifts.forEach(s => {
         // Real-time job-code blackout check
@@ -5495,13 +5684,12 @@
         // Seniority restriction for BRE shifts (JC 235144 / 267588): SEN <90d or WW Bottom 75 fallback
         if (isEmployeeBreRestricted(emp, s.workDateNorm) && isBreShift(s)) return;
 
-        // Overlap check
-        if (existingShifts.length > 0) {
-          if (existingShifts.some(es => shiftsOverlap(es, s))) return;
-          const shiftPost = (s.postDesc || s.jobPostDetailId || '').trim();
-          const isSamePostAll = existingShifts.every(es => (es.postDesc || es.jobPostDetailId || '').trim() === shiftPost);
-          if (!isSamePostAll && (dayExistingHours + s.countedHours) > 8.01) return; // Non-billable OT rule
-        }
+        // Overlap check across all scheduled shifts
+        if (allScheduledShifts.some(es => shiftsOverlap(es, s))) return;
+
+        // 0000-2359 Calendar-Day cap & Non-billable OT check
+        const dailyImpact = evaluateEmployeeDailyImpactForShift(emp.eid, s, approvals);
+        if (dailyImpact.capExceeded || dailyImpact.multiPostBlocked) return;
 
         // Weekly hours check (allows >45h if company overtime is approved)
         const effLimit = getEmployeeEffectiveLimit(emp);
@@ -5657,32 +5845,25 @@
           return;
         }
 
-        // Calendar Day Hour Cap Enforcement (12h/16h caps)
-        const dayProjectedH = dayExistingHours + s.countedHours;
-        let maxDailyCap = 8.0;
-        if (approvals.dailyCap === 16) maxDailyCap = 16.0;
-        else if (approvals.dailyCap === 12) maxDailyCap = 12.0;
-        else maxDailyCap = (existingShifts.length === 0 && s.countedHours > 8.0) ? s.countedHours : 8.0;
-
-        if (dayProjectedH > maxDailyCap + 0.01) {
+        // Calendar Day (0000-2359) Hour Cap Enforcement (12h/16h caps)
+        const dailyImpact = evaluateEmployeeDailyImpactForShift(emp.eid, s, approvals);
+        if (dailyImpact.capExceeded) {
           blockedNonBillable.push({
             shift: s,
-            reason: `Exceeds daily cap: Shifts would total ${dayProjectedH.toFixed(1)}h on ${dt} (Max ${maxDailyCap}h cap${approvals.dailyCap > 8 ? ' approved' : ''})`
+            reason: dailyImpact.capReason
           });
           return;
         }
 
-        // Post description & non-billable OT rule:
+        // Post description & non-billable OT rule (0000-2359):
         // Different posts allowed up to approved daily cap (or 8h standard)
-        const shiftPost = (s.postDesc || s.jobPostDetailId || '').trim();
-        const isSamePostAll = existingShifts.length > 0 && existingShifts.every(es => (es.postDesc || es.jobPostDetailId || '').trim() === shiftPost);
-
-        if (existingShifts.length > 0 && !isSamePostAll && approvals.dailyCap < 12 && dayProjectedH > 8.01) {
-          blockedNonBillable.push({ shift: s, reason: `Exceeds 8h daily limit across different posts (${dayProjectedH.toFixed(1)}h). Requires 12h/16h Cap Approval.` });
+        if (dailyImpact.multiPostBlocked) {
+          blockedNonBillable.push({ shift: s, reason: dailyImpact.multiPostReason });
           return;
         }
 
-        const rolloverTag = isSamePostAll ? ' [Same-Post Rollover]' : (existingShifts.length > 0 ? ' [Split Shift &le;8h]' : '');
+        const isSamePostAll = dailyImpact.hasExistingOnAnyTouchedDay && dailyImpact.isSamePostAll;
+        const rolloverTag = isSamePostAll ? ' [Same-Post Rollover]' : (dailyImpact.hasExistingOnAnyTouchedDay ? ' [Split Shift &le;8h]' : '');
         const inT = s.inTimeHours;
 
         if (p1W && p1W.start <= inT && inT < p1W.end) {
@@ -5789,9 +5970,10 @@
       shiftItems.forEach(({ shift: s, label, isRollover }) => {
         const projectedH = emp.actualHours + s.countedHours;
         const isOT = projectedH > 45.0; // Weekly target <45h
-        const existingOnDate = (state.empDayWorkingShifts && state.empDayWorkingShifts[emp.eid] && state.empDayWorkingShifts[emp.eid][s.workDateNorm]) || [];
-        const isThroughAndThrough = (existingOnDate.length === 0);
-        const isBillableOT = isThroughAndThrough && (s.countedHours > 8.01);
+        const approvals = getEmployeeOTApprovals(emp.eid);
+        const dailyImpact = evaluateEmployeeDailyImpactForShift(emp.eid, s, approvals);
+        const isThroughAndThrough = dailyImpact.isThroughAndThrough;
+        const isBillableOT = dailyImpact.isBillableShiftOT;
 
         html += `
           <div class="p-3 hover:bg-slate-50 transition-colors flex items-center justify-between gap-3 text-xs">
@@ -5876,24 +6058,22 @@
       shift.assignedTier = tierLabel;
       shift.isOpen = false;
 
-      const existingDayHours = (state.empDayWorkingShifts[employee.eid] && state.empDayWorkingShifts[employee.eid][shift.workDateNorm])
-        ? state.empDayWorkingShifts[employee.eid][shift.workDateNorm].reduce((acc, s) => acc + s.countedHours, 0)
-        : 0;
+      const approvals = getEmployeeOTApprovals(employee.eid);
+      const dailyImpact = evaluateEmployeeDailyImpactForShift(employee.eid, shift, approvals);
       const weekDates = getEmployeeWeekWorkingDates(employee.eid, shift.workDateNorm);
       const weekHours = getEmployeeWeekHours(employee.eid, shift.workDateNorm);
-      const isThroughAndThrough = (existingDayHours === 0);
-      const isShiftOT = (shift.countedHours > 8.01);
-      const isBillableOT = isThroughAndThrough && isShiftOT;
+      const isThroughAndThrough = dailyImpact.isThroughAndThrough;
+      const isBillableOT = dailyImpact.isBillableShiftOT;
       const is6thDay = (!weekDates.has(shift.workDateNorm) && weekDates.size === 5);
       const is7thDay = (!weekDates.has(shift.workDateNorm) && weekDates.size >= 6);
-      const isDailyNonBillableOT = (!isThroughAndThrough && (existingDayHours + shift.countedHours > 8.01));
+      const isDailyNonBillableOT = dailyImpact.isDailyNonBillableOT;
       const isWeeklyOT = (weekHours + shift.countedHours > 40.01);
-      const isOT = is6thDay || is7thDay || isDailyNonBillableOT || isWeeklyOT || (!isBillableOT && isShiftOT);
+      const isOT = is6thDay || is7thDay || isDailyNonBillableOT || isWeeklyOT;
       const otReasons = [];
-      if (isBillableOT) otReasons.push(`Billable OT (${shift.countedHours.toFixed(1)}h Through-and-Through)`);
+      if (isBillableOT) otReasons.push(`Billable OT (${dailyImpact.dayProjectedHours.toFixed(1)}h Through-and-Through)`);
       if (is6thDay) otReasons.push('6th Day');
       if (is7thDay) otReasons.push('7th Day');
-      if (isDailyNonBillableOT) otReasons.push(`${(existingDayHours + shift.countedHours).toFixed(1)}h Daily Non-Billable OT`);
+      if (isDailyNonBillableOT) otReasons.push(`${dailyImpact.dayProjectedHours.toFixed(1)}h Daily Non-Billable OT on ${dailyImpact.worstDay.date}`);
       if (isWeeklyOT) otReasons.push(`>${40}h Weekly`);
 
       const sessionEntry = {
@@ -7368,35 +7548,26 @@
           if (projectedDaysWorked === 6 && !approvals.sixthDay) return;
           if (projectedDaysWorked >= 7 && !approvals.seventhDay) return;
 
-          // 6. Daily Hours Cap & 12h/16h Approvals Check
-          const existingSameDay = simWorkingShifts[eid][dt] || [];
-          const dayExistingHours = existingSameDay.reduce((acc, es) => acc + es.countedHours, 0.0);
-          const dayProjectedHours = dayExistingHours + shHours;
-          const isThroughAndThrough = (existingSameDay.length === 0);
-          let maxDailyCap = 8.0;
-          if (approvals.dailyCap === 16) maxDailyCap = 16.0;
-          else if (approvals.dailyCap === 12) maxDailyCap = 12.0;
-          else maxDailyCap = isThroughAndThrough ? shHours : 8.0;
+          // 6. Daily Hours Cap (0000-2359) & 12h/16h Approvals Check
+          const dailyImpact = evaluateEmployeeDailyImpactForShift(eid, shift, approvals, simWorkingShifts);
+          if (dailyImpact.capExceeded) return;
 
-          if (dayProjectedHours > maxDailyCap + 0.01) return;
+          // Different posts rule on same calendar day (0000-2359): allowed up to approved daily cap (or 8h standard)
+          if (dailyImpact.multiPostBlocked) return;
 
-          // Different posts rule on same day: allowed up to approved daily cap (or 8h standard)
-          if (existingSameDay.length > 0) {
-            const isSamePostAll = existingSameDay.every(es => (es.postDesc || es.jobPostDetailId || '').trim() === shiftPost);
-            if (!isSamePostAll && approvals.dailyCap < 12 && dayProjectedHours > 8.01) {
-              return; // Non-billable OT rule unless 12h/16h cap approved
-            }
-          }
+          const dayProjectedHours = dailyImpact.dayProjectedHours;
+          const isThroughAndThrough = dailyImpact.isThroughAndThrough;
+          const maxDailyCap = dailyImpact.maxDailyCap;
 
-          // 7. Determine Overtime Status for this Assignment
+          // 7. Determine Overtime Status for this Assignment (0000-2359 calendar-day aware)
           // Contracted Billable OT: Through-and-through SOR shifts of any length (e.g. 8.25h, 10h, 12h) are contracted client coverage
           // and ALWAYS OK without requiring management OT approvals or daily cap waivers!
           const curH = curSimWeekH;
           const projH = curH + shHours;
           const is6thDay = (projectedDaysWorked === 6);
           const is7thDay = (projectedDaysWorked >= 7);
-          const isBillableShiftOT = isThroughAndThrough && (shHours > 8.01);
-          const isDailyNonBillableOT = !isThroughAndThrough && (dayProjectedHours > 8.01);
+          const isBillableShiftOT = dailyImpact.isBillableShiftOT;
+          const isDailyNonBillableOT = dailyImpact.isDailyNonBillableOT;
           const isWeeklyOT = (projH > 40.01);
           const isOver45h = (projH > 45.01);
           const isOvertimeAssignment = is6thDay || is7thDay || isDailyNonBillableOT || isWeeklyOT || isOver45h;
@@ -7404,8 +7575,8 @@
           const otReasons = [];
           if (is6thDay) otReasons.push('6th Day');
           if (is7thDay) otReasons.push('7th Day');
-          if (isDailyNonBillableOT) otReasons.push(`${dayProjectedHours.toFixed(1)}h Daily Non-Billable OT`);
-          else if (isBillableShiftOT) otReasons.push(`Billable OT (${shHours.toFixed(1)}h Through-and-Through)`);
+          if (isDailyNonBillableOT) otReasons.push(`${dayProjectedHours.toFixed(1)}h Daily Non-Billable OT on ${dailyImpact.worstDay.date}`);
+          else if (isBillableShiftOT) otReasons.push(`Billable OT (${dayProjectedHours.toFixed(1)}h Through-and-Through)`);
           if (isOver45h) otReasons.push(`>45h Weekly (${projH.toFixed(1)}h)`);
           else if (isWeeklyOT) otReasons.push(`>${40}h Weekly (${projH.toFixed(1)}h)`);
 
@@ -7757,12 +7928,21 @@
       const shiftHours = sa.countedHours || 0.0;
       const workDate = sa.workDateNorm;
 
-      // 1. Gather all shifts scheduled for this employee on this specific date
-      const dayShifts = (state.empDayWorkingShifts[eid] && state.empDayWorkingShifts[eid][workDate])
-        ? state.empDayWorkingShifts[eid][workDate]
-        : [];
-      const totalDayHours = dayShifts.reduce((acc, s) => acc + (s.countedHours || 0), 0.0);
-      const numShiftsOnDate = dayShifts.length;
+      // 1. Gather all 0000-2359 calendar-day hours across every date this shift touches
+      const touchedDates = getShiftCalendarDates(sa);
+      let worstDate = workDate;
+      let totalDayHours = 0.0;
+      let numShiftsOnDate = 0;
+      let saHoursOnWorstDay = shiftHours;
+      for (const d of touchedDates) {
+        const bd = getEmployeeCalendarDayBreakdown(eid, d);
+        if (bd.totalHours > totalDayHours || (bd.totalHours === totalDayHours && d === workDate)) {
+          totalDayHours = bd.totalHours;
+          numShiftsOnDate = bd.entries.length;
+          worstDate = d;
+          saHoursOnWorstDay = getShiftHoursOnCalendarDate(sa, d);
+        }
+      }
 
       // 2. Gather weekly hours and working dates (scoped to this shift's week)
       const totalWeekHours = getEmployeeWeekHours(eid, workDate);
@@ -7776,43 +7956,43 @@
       const is6thDay = (dayIndex === 6 || (totalDaysWorked === 6 && sortedDates[5] === workDate));
       const is7thDay = (dayIndex >= 7 || (totalDaysWorked >= 7 && sortedDates[6] === workDate));
 
-      // Cause A: Shift Duration > 8.0h
-      const isThroughAndThrough = (numShiftsOnDate === 1);
-      if (shiftHours > 8.01) {
-        const extraH = shiftHours - 8.0;
+      // Cause A: Single Shift Duration > 8.0h within a 0000-2359 calendar day
+      const isThroughAndThrough = (numShiftsOnDate <= 1);
+      if (saHoursOnWorstDay > 8.01) {
+        const extraH = saHoursOnWorstDay - 8.0;
         causes.push({
           id: 'shift_gt_8',
           label: isThroughAndThrough ? 'Billable OT (Through-and-Through SOR)' : 'Shift Length > 8.0h',
-          shortLabel: isThroughAndThrough ? `Billable OT (${shiftHours.toFixed(1)}h)` : `${shiftHours.toFixed(1)}h Shift`,
+          shortLabel: isThroughAndThrough ? `Billable OT (${saHoursOnWorstDay.toFixed(1)}h)` : `${saHoursOnWorstDay.toFixed(1)}h Shift`,
           detail: isThroughAndThrough
-            ? `Through-and-through SOR shift is ${shiftHours.toFixed(1)} hrs (+${extraH.toFixed(1)}h contracted billable OT to Apple — always OK)`
-            : `This shift is ${shiftHours.toFixed(1)} hrs (+${extraH.toFixed(1)}h Daily OT on this single shift alone)`,
+            ? `Through-and-through SOR shift has ${saHoursOnWorstDay.toFixed(1)} hrs on ${worstDate} (0000-2359) (+${extraH.toFixed(1)}h contracted billable OT to Apple — always OK)`
+            : `This shift has ${saHoursOnWorstDay.toFixed(1)} hrs on ${worstDate} (0000-2359) (+${extraH.toFixed(1)}h Daily OT)`,
           otHours: extraH,
           severity: isThroughAndThrough ? 'emerald' : 'amber'
         });
       }
 
-      // Cause B: Daily total > 8.0h (across multiple shifts on this date)
+      // Cause B: Daily total > 8.0h (0000-2359 across multiple shifts/segments)
       if (totalDayHours > 8.01 && numShiftsOnDate > 1) {
         const dailyExtra = totalDayHours - 8.0;
         causes.push({
           id: 'daily_total_gt_8',
-          label: 'Daily Total > 8.0h (Multi-Shift)',
+          label: 'Daily Total > 8.0h (0000-2359)',
           shortLabel: `${totalDayHours.toFixed(1)}h Daily`,
-          detail: `${totalDayHours.toFixed(1)} hrs total across ${numShiftsOnDate} shifts on ${workDate} (+${dailyExtra.toFixed(1)}h Daily OT)`,
+          detail: `${totalDayHours.toFixed(1)} hrs total from 0000-2359 across ${numShiftsOnDate} shift segments on ${worstDate} (+${dailyExtra.toFixed(1)}h Daily OT)`,
           otHours: dailyExtra,
           severity: 'amber'
         });
       }
 
-      // Cause C: Daily Double Time (> 12.0h)
+      // Cause C: Daily Double Time (> 12.0h in 0000-2359)
       if (totalDayHours > 12.01) {
         const dtExtra = totalDayHours - 12.0;
         causes.push({
           id: 'double_time',
           label: 'Daily Double Time (>12.0h)',
           shortLabel: 'Double Time (>12h)',
-          detail: `${totalDayHours.toFixed(1)} hrs in 1 calendar day (+${dtExtra.toFixed(1)}h Double Time at 2.0x in CA)`,
+          detail: `${totalDayHours.toFixed(1)} hrs in 1 calendar day (0000-2359 on ${worstDate}) (+${dtExtra.toFixed(1)}h Double Time at 2.0x in CA)`,
           otHours: dtExtra,
           severity: 'rose'
         });
@@ -7862,8 +8042,8 @@
         expectedOTHours = shiftHours;
       } else if (is6thDay) {
         expectedOTHours = shiftHours;
-      } else if (shiftHours > 8.01) {
-        expectedOTHours = Math.max(shiftHours - 8.0, totalDayHours > 8.01 ? totalDayHours - 8.0 : 0);
+      } else if (saHoursOnWorstDay > 8.01) {
+        expectedOTHours = Math.max(saHoursOnWorstDay - 8.0, totalDayHours > 8.01 ? totalDayHours - 8.0 : 0);
       } else if (totalDayHours > 8.01) {
         expectedOTHours = totalDayHours - 8.0;
       } else if (totalWeekHours > 40.01) {
