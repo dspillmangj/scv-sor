@@ -1508,30 +1508,10 @@
 
           <span class="text-slate-300">|</span>
 
-          <!-- 4 Job Codes Color-Coded Filter Chips -->
-          <div class="flex items-center gap-1 bg-slate-200/80 p-0.5 rounded-lg text-xs">
+          <!-- Job Codes Color-Coded Filter Chips (Rendered Dynamically) -->
+          <div id="wtJobFilterChips" class="flex items-center gap-1 bg-slate-200/80 p-0.5 rounded-lg text-xs flex-wrap">
             <button id="btnWTJobAll" onclick="setWinTeamJobFilter('all')" class="px-2 py-1 rounded-md font-bold text-[11px] bg-white text-slate-900 shadow-2xs">
               All Jobs (<span id="wtJobCountAll">0</span>)
-            </button>
-            <button id="btnWTJob233265" onclick="setWinTeamJobFilter('233265')" class="px-2 py-1 rounded-md font-bold text-[11px] text-blue-900 hover:bg-white/80 transition-colors flex items-center gap-1" title="Job Code 233265: Apple - SCV SOR (Core Posts)">
-              <span class="w-2 h-2 rounded-full bg-blue-500"></span>
-              <span>CUP SOR</span>
-              <span class="font-mono text-[10px] text-blue-700">(<span id="wtJobCount233265">0</span>)</span>
-            </button>
-            <button id="btnWTJob235144" onclick="setWinTeamJobFilter('235144')" class="px-2 py-1 rounded-md font-bold text-[11px] text-indigo-900 hover:bg-white/80 transition-colors flex items-center gap-1" title="Job Code 235144: Apple - SCV SOR Break Relief">
-              <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
-              <span>CUP BRE</span>
-              <span class="font-mono text-[10px] text-indigo-700">(<span id="wtJobCount235144">0</span>)</span>
-            </button>
-            <button id="btnWTJob266778" onclick="setWinTeamJobFilter('266778')" class="px-2 py-1 rounded-md font-bold text-[11px] text-emerald-900 hover:bg-white/80 transition-colors flex items-center gap-1" title="Job Code 266778: Apple - SCV SOR (Sunnyvale)">
-              <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-              <span>SV SOR</span>
-              <span class="font-mono text-[10px] text-emerald-700">(<span id="wtJobCount266778">0</span>)</span>
-            </button>
-            <button id="btnWTJob267588" onclick="setWinTeamJobFilter('267588')" class="px-2 py-1 rounded-md font-bold text-[11px] text-amber-900 hover:bg-white/80 transition-colors flex items-center gap-1" title="Job Code 267588: Apple - SCV SOR Break Relief (Sunnyvale)">
-              <span class="w-2 h-2 rounded-full bg-amber-500"></span>
-              <span>SV BRE</span>
-              <span class="font-mono text-[10px] text-amber-700">(<span id="wtJobCount267588">0</span>)</span>
             </button>
           </div>
 
@@ -2519,7 +2499,9 @@
       if (eid) openOfficerDetailModal(eid);
     }
 
-    // --- FOUR JOB CODES SPECIFICATION ---
+    // --- CORE JOB CODES SPECIFICATION & DYNAMIC ADDITIONAL JOB CODES ---
+    const CORE_JOB_CODES = ['233265', '235144', '266778', '267588'];
+
     const JOB_CODES = {
       '233265': {
         code: '233265',
@@ -2554,6 +2536,43 @@
         badgeCls: 'bg-amber-100 text-amber-800 border-amber-200'
       }
     };
+
+    function isCoreJobCode(jobNumber) {
+      const jn = String(jobNumber || '').trim();
+      return CORE_JOB_CODES.includes(jn);
+    }
+
+    function getActiveJobCodes(includeSessionAssignments = false) {
+      const extras = new Set();
+      (state.shifts || []).forEach(s => {
+        const jn = String(s.jobNumber || '').trim();
+        if (jn && !CORE_JOB_CODES.includes(jn)) extras.add(jn);
+      });
+      if (includeSessionAssignments) {
+        (state.sessionAssignments || []).forEach(sa => {
+          const jn = String(sa.jobNumber || '').trim();
+          if (jn && !CORE_JOB_CODES.includes(jn)) extras.add(jn);
+        });
+      }
+      return [...CORE_JOB_CODES, ...Array.from(extras).sort()];
+    }
+
+    function getJobCodeDef(jobNumber) {
+      const jn = String(jobNumber || '').trim();
+      if (JOB_CODES[jn]) return JOB_CODES[jn];
+      const matchShift = (state.shifts || []).find(s => String(s.jobNumber || '').trim() === jn && s.jobDesc)
+        || (state.sessionAssignments || []).find(sa => String(sa.jobNumber || '').trim() === jn && sa.jobDesc);
+      const desc = matchShift ? String(matchShift.jobDesc).trim() : '';
+      return {
+        code: jn,
+        title: desc || `Job #${jn}`,
+        shortTitle: desc || `Job #${jn}`,
+        isBre: false,
+        isCustom: true,
+        theme: 'teal',
+        badgeCls: 'bg-teal-100 text-teal-800 border-teal-200'
+      };
+    }
 
     // --- TIME BLOCK DEFINITIONS ---
     const BLOCK_DEFS = {
@@ -2667,11 +2686,16 @@
     }
 
     // --- POST DESCRIPTION FILTER FOR PPA SHIFT FILLER ---
-    // Only two categories of post descriptions are fillable:
+    // For the 4 core Apple SOR/BRE job codes, only two categories of post descriptions are fillable:
     // 1. "Break Relief Extra" (case-insensitive)
     // 2. Any post description with 6 digits that is not immediately followed by -S
     //    (e.g., fill 628462, 274927-Sb01, 726492-Ap01, but ignore 264284-S)
-    function isFillablePostDescription(postDesc) {
+    // For any additional job codes included in the WinTeam PPA file (e.g., 234377),
+    // all open shifts are automatically included as staffable shifts.
+    function isFillablePostDescription(postDesc, jobNumber = null) {
+      if (jobNumber !== null && jobNumber !== undefined && String(jobNumber).trim() !== '' && !isCoreJobCode(jobNumber)) {
+        return true;
+      }
       if (!postDesc) return false;
       const trimmed = String(postDesc).trim();
       if (trimmed.toLowerCase() === 'break relief extra') {
@@ -2833,10 +2857,41 @@
     }
 
     // --- ABSOLUTE INTERVAL & SHIFT OVERLAP / REST LOGIC ---
+    function parseDateToNoonMs(dStr) {
+      if (!dStr) return NaN;
+      const clean = String(dStr).trim();
+      const parts = clean.split(/[-/]/);
+      if (parts.length === 3) {
+        if (parts[2].length === 4) {
+          const dt = new Date(parseInt(parts[2], 10), parseInt(parts[0], 10) - 1, parseInt(parts[1], 10), 12, 0, 0);
+          return dt.getTime();
+        } else if (parts[0].length === 4) {
+          const dt = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10), 12, 0, 0);
+          return dt.getTime();
+        }
+      }
+      return Date.parse(clean);
+    }
+
+    function shiftCrossesMidnight(shift, startH, endH) {
+      if (!shift.inTime && !shift.outTime) return false;
+      // In WinTeam EMP.csv, WorkDate is already the calendar date of InTime, and NextDay='1'
+      // flags post-midnight segments (e.g. 00:00-07:00 on the next day), not OutTime crossing midnight.
+      if (shift.source === 'EMP') {
+        return endH <= startH;
+      }
+      return shift.nextDay === '1' || endH <= startH;
+    }
+
     function getShiftInterval(shift) {
+      const hasNoTime = !shift.inTime && !shift.outTime;
       const start = (shift.inTimeHours !== undefined) ? shift.inTimeHours : timeStringToHours(shift.inTime);
       let end = (shift.outTimeHours !== undefined) ? shift.outTimeHours : timeStringToHours(shift.outTime);
-      if (shift.nextDay === '1' || end <= start) {
+      if (hasNoTime) {
+        const hrs = shift.countedHours !== undefined ? shift.countedHours : (shift.hoursRaw || 0);
+        return { start: 0, end: hrs > 0 ? Math.min(24.0, hrs) : 0 };
+      }
+      if (shiftCrossesMidnight(shift, start, end)) {
         end += 24.0;
       }
       return { start, end };
@@ -2846,39 +2901,56 @@
       const dtNorm = shift.workDateNorm || normDate(shift.workDate);
       let dayIdx = null;
       if (state.dates && state.dates.length > 0) {
-        const idx = state.dates.indexOf(dtNorm);
-        if (idx !== -1) {
-          dayIdx = idx;
-        } else if (dtNorm) {
-          const baseDate = new Date(state.dates[0] + 'T00:00:00');
-          const curDate = new Date(dtNorm + 'T00:00:00');
-          if (!isNaN(baseDate.getTime()) && !isNaN(curDate.getTime())) {
-            dayIdx = Math.round((curDate - baseDate) / 86400000);
-          }
+        const baseMs = parseDateToNoonMs(state.dates[0]);
+        const curMs = parseDateToNoonMs(dtNorm);
+        if (!isNaN(baseMs) && !isNaN(curMs)) {
+          dayIdx = Math.round((curMs - baseMs) / 86400000);
+        } else {
+          const idx = state.dates.indexOf(dtNorm);
+          if (idx !== -1) dayIdx = idx;
         }
       }
 
+      const hasNoTime = !shift.inTime && !shift.outTime;
+      if (hasNoTime) {
+        const hrs = shift.countedHours !== undefined ? shift.countedHours : (shift.hoursRaw || 0);
+        const dur = hrs > 0 ? Math.min(24.0, hrs) : 0;
+        const base = (dayIdx !== null && !isNaN(dayIdx)) ? dayIdx * 24.0 : 0.0;
+        return { start: base, end: base + dur, duration: dur };
+      }
+
       const startH = (shift.inTimeHours !== undefined) ? shift.inTimeHours : timeStringToHours(shift.inTime);
-      let endH = (shift.outTimeHours !== undefined) ? shift.outTimeHours : timeStringToHours(shift.outTime);
-      const isNextDay = shift.nextDay === '1' || endH <= startH;
+      const endH = (shift.outTimeHours !== undefined) ? shift.outTimeHours : timeStringToHours(shift.outTime);
+      const isNextDay = shiftCrossesMidnight(shift, startH, endH);
 
       if (dayIdx !== null && !isNaN(dayIdx)) {
         const absStart = dayIdx * 24.0 + startH;
-        const absEnd = isNextDay ? (dayIdx + 1) * 24.0 + endH : dayIdx * 24.0 + endH;
+        let endDayIdx = isNextDay ? dayIdx + 1 : dayIdx;
+        if (shift._endDate && state.dates && state.dates.length > 0) {
+          const baseMs = parseDateToNoonMs(state.dates[0]);
+          const endMs = parseDateToNoonMs(shift._endDate);
+          if (!isNaN(baseMs) && !isNaN(endMs)) {
+            endDayIdx = Math.round((endMs - baseMs) / 86400000);
+          }
+        }
+        const absEnd = endDayIdx * 24.0 + endH;
         return { start: absStart, end: absEnd, duration: absEnd - absStart };
       }
-      return { start: startH, end: isNextDay ? endH + 24.0 : endH, duration: isNextDay ? (endH + 24.0 - startH) : (endH - startH) };
+      const absEnd = isNextDay ? endH + 24.0 : endH;
+      return { start: startH, end: absEnd, duration: absEnd - startH };
     }
 
     function shiftsOverlap(s1, s2) {
       const i1 = getShiftAbsoluteInterval(s1);
       const i2 = getShiftAbsoluteInterval(s2);
+      if (i1.duration <= 0 || i2.duration <= 0) return false;
       return (i1.start < i2.end) && (i2.start < i1.end);
     }
 
     function getShiftsRestGap(s1, s2) {
       const i1 = getShiftAbsoluteInterval(s1);
       const i2 = getShiftAbsoluteInterval(s2);
+      if (i1.duration <= 0 || i2.duration <= 0) return Infinity;
       if (i1.end <= i2.start) {
         return i2.start - i1.end; // rest from s1 to s2
       } else if (i2.end <= i1.start) {
@@ -3295,7 +3367,7 @@
       const bPPA = document.getElementById('badgeStatusPPA');
       const stPPA = document.getElementById('uploadStatusPPA');
       const ppaLoaded = state.shifts && state.shifts.length > 0;
-      const openCount = ppaLoaded ? state.shifts.filter(s => s.isOpen && !s.assignedEmployee && isFillablePostDescription(s.postDesc)).length : 0;
+      const openCount = ppaLoaded ? state.shifts.filter(s => s.isOpen && !s.assignedEmployee && isFillablePostDescription(s.postDesc, s.jobNumber)).length : 0;
       
       if (bPPA) {
         if (ppaLoaded) {
@@ -3307,7 +3379,8 @@
         }
       }
       if (stPPA) {
-        stPPA.textContent = ppaLoaded ? `Loaded (${state.shifts.length} open shifts across 4 jobs &bull; Never calculates schedules)` : 'Not loaded yet';
+        const activeJobCount = getActiveJobCodes().filter(jk => state.shifts.some(s => String(s.jobNumber).trim() === jk)).length || 4;
+        stPPA.textContent = ppaLoaded ? `Loaded (${state.shifts.length} open shifts across ${activeJobCount} job${activeJobCount === 1 ? '' : 's'} • Never calculates schedules)` : 'Not loaded yet';
         stPPA.className = ppaLoaded ? 'text-[11px] text-emerald-700 font-semibold mt-2' : 'text-[11px] text-amber-700 font-semibold mt-2';
       }
 
@@ -3436,7 +3509,7 @@
       // Dates being scheduled in PPA
       const ppaDatesSet = new Set();
       (state.shifts || []).forEach(s => {
-        if (s.workDateNorm && isFillablePostDescription(s.postDesc)) ppaDatesSet.add(s.workDateNorm);
+        if (s.workDateNorm && isFillablePostDescription(s.postDesc, s.jobNumber)) ppaDatesSet.add(s.workDateNorm);
       });
       const ppaDates = sortDatesList(Array.from(ppaDatesSet));
 
@@ -3674,8 +3747,8 @@
             <div>Hours Variance</div>
             <div class="text-[9px] text-slate-400 font-normal">[WT Law &minus; WW Ref]</div>
           </th>
-          <th class="py-2.5 px-2 border-r border-slate-800 text-center w-24">Actions</th>
-          <th class="py-2.5 px-3 border-r border-slate-800 min-w-[200px]">Notes &amp; Guardrails</th>
+          <th class="py-2.5 px-3 border-r border-slate-800 min-w-[170px]">Daily Schedules</th>
+          <th class="py-2.5 px-3 min-w-[200px]">Notes &amp; Guardrails</th>
         `;
         return;
       }
@@ -3700,8 +3773,6 @@
           <div>Hours Variance</div>
           <div class="text-[9px] text-slate-400 font-normal">[EMP &minus; WW Target]</div>
         </th>
-        <th class="py-2.5 px-2 border-r border-slate-800 text-center w-24">Actions</th>
-        <th class="py-2.5 px-3 border-r border-slate-800 min-w-[200px]">Notes &amp; Guardrails</th>
       `;
 
       state.dates.forEach(dt => {
@@ -3714,6 +3785,10 @@
           </th>
         `;
       });
+
+      html += `
+        <th class="py-2.5 px-3 min-w-[200px]">Notes &amp; Guardrails</th>
+      `;
 
       row.innerHTML = html;
     }
@@ -4287,7 +4362,7 @@
         loaded: true,
         filename: append && state.filesStatus.ppa && state.filesStatus.ppa.filename ? `${state.filesStatus.ppa.filename}, ${fileName}` : fileName,
         count: state.shifts.length,
-        openCount: state.shifts.filter(s => s.isOpen && isFillablePostDescription(s.postDesc)).length
+        openCount: state.shifts.filter(s => s.isOpen && isFillablePostDescription(s.postDesc, s.jobNumber)).length
       };
       return true;
     }
@@ -4471,7 +4546,9 @@
         if (s._endDate) {
           return { date: s._endDate, mins: outM };
         }
-        const crossesMidnight = (s.nextDay === '1') || (outM <= inM);
+        const crossesMidnight = (s.source === 'EMP')
+          ? (outM <= inM && Boolean(s.inTime || s.outTime))
+          : ((s.nextDay === '1') || (outM <= inM));
         return {
           date: crossesMidnight ? nextNormDate(s.workDateNorm) : s.workDateNorm,
           mins: outM
@@ -4482,6 +4559,7 @@
       const groups = new Map();
       shiftList.forEach(s => {
         if (!s || !s.workDateNorm) return;
+        if (!s.inTime && !s.outTime) return;
         if (requireOpen && (!s.isOpen || s.assignedEmployee)) return;
         if (!requireOpen && !s.eid) return;
 
@@ -4533,8 +4611,11 @@
           prev._endDate = curEndPt.date;
           prev.hoursRaw = (prev.hoursRaw || 0) + (cur.hoursRaw || 0);
           prev.countedHours = (prev.countedHours || 0) + (cur.countedHours || 0);
+          const curCrossesMidnight = (cur.source === 'EMP')
+            ? (toMins(cur.outTimeHours) <= toMins(cur.inTimeHours) && Boolean(cur.inTime || cur.outTime))
+            : (cur.nextDay === '1');
           prev.nextDay = (
-            cur.nextDay === '1' ||
+            curCrossesMidnight ||
             cur.workDateNorm !== prev.workDateNorm ||
             toMins(prev.outTimeHours) <= toMins(prev.inTimeHours)
           ) ? '1' : prev.nextDay;
@@ -4618,9 +4699,11 @@
         if (state.empWeeklyHours[s.eid][wkKey] === undefined) state.empWeeklyHours[s.eid][wkKey] = 0.0;
         state.empWeeklyHours[s.eid][wkKey] += s.countedHours;
 
-        state.empWorkingDates[s.eid].add(s.workDateNorm);
-        if (!state.empWeeklyWorkingDates[s.eid][wkKey]) state.empWeeklyWorkingDates[s.eid][wkKey] = new Set();
-        state.empWeeklyWorkingDates[s.eid][wkKey].add(s.workDateNorm);
+        if (s.countedHours > 0 || s.inTime || s.outTime) {
+          state.empWorkingDates[s.eid].add(s.workDateNorm);
+          if (!state.empWeeklyWorkingDates[s.eid][wkKey]) state.empWeeklyWorkingDates[s.eid][wkKey] = new Set();
+          state.empWeeklyWorkingDates[s.eid][wkKey].add(s.workDateNorm);
+        }
 
         if (!state.empDayWorkingShifts[s.eid][s.workDateNorm]) {
           state.empDayWorkingShifts[s.eid][s.workDateNorm] = [];
@@ -4980,7 +5063,7 @@
     // --- POPULATE STICKY SHIFT LINKER DROPDOWN ---
     function populateLinkingShiftDropdown() {
       const select = document.getElementById('selectLinkingShift');
-      const openShifts = state.shifts.filter(s => s.isOpen && !s.assignedEmployee && !isShiftBlackedOut(s) && isFillablePostDescription(s.postDesc));
+      const openShifts = state.shifts.filter(s => s.isOpen && !s.assignedEmployee && !isShiftBlackedOut(s) && isFillablePostDescription(s.postDesc, s.jobNumber));
 
       let html = `<option value="">-- Pick an Open Shift to highlight best matching specialists on the grid (${openShifts.length} open) --</option>`;
 
@@ -5392,7 +5475,7 @@
       if (status.isBlocked) {
         return { tier1: 0, tier2: 0, tier3: 0, total: 0 };
       }
-      const openShifts = state.shifts.filter(s => s.isOpen && !s.assignedEmployee && !isShiftBlackedOut(s) && s.workDateNorm === dt && isFillablePostDescription(s.postDesc));
+      const openShifts = state.shifts.filter(s => s.isOpen && !s.assignedEmployee && !isShiftBlackedOut(s) && s.workDateNorm === dt && isFillablePostDescription(s.postDesc, s.jobNumber));
       const dInfo = emp.daily[dt] || {};
       const existingShifts = (state.empDayWorkingShifts && state.empDayWorkingShifts[emp.eid] && state.empDayWorkingShifts[emp.eid][dt]) || [];
 
@@ -5518,7 +5601,7 @@
         return;
       }
 
-      const openShifts = state.shifts.filter(s => s.isOpen && !s.assignedEmployee && !isShiftBlackedOut(s) && s.workDateNorm === dt && isFillablePostDescription(s.postDesc));
+      const openShifts = state.shifts.filter(s => s.isOpen && !s.assignedEmployee && !isShiftBlackedOut(s) && s.workDateNorm === dt && isFillablePostDescription(s.postDesc, s.jobNumber));
       const dInfo = emp.daily[dt] || {};
       const existingShifts = (state.empDayWorkingShifts && state.empDayWorkingShifts[emp.eid] && state.empDayWorkingShifts[emp.eid][dt]) || [];
       const dayExistingHours = existingShifts.reduce((acc, es) => acc + es.countedHours, 0.0);
@@ -5910,10 +5993,11 @@
         return state.shifts.filter(s => {
           const isJob = jobCode === 'all' || String(s.jobNumber).trim() === jobCode;
           const isDay = state.shiftFirstSelectedDay === 'all' || s.workDateNorm === state.shiftFirstSelectedDay;
-          return isJob && isDay && s.isOpen && !s.assignedEmployee && !isShiftBlackedOut(s) && isFillablePostDescription(s.postDesc);
+          return isJob && isDay && s.isOpen && !s.assignedEmployee && !isShiftBlackedOut(s) && isFillablePostDescription(s.postDesc, s.jobNumber);
         }).length;
       };
 
+      const jobKeys = getActiveJobCodes();
       const totalOpen = getJobOpenCount('all');
       const isAllSelected = state.shiftFirstJobFilter === 'all';
       const allBtnCls = isAllSelected
@@ -5922,14 +6006,13 @@
 
       let html = `
         <button onclick="setShiftFirstJob('all')" class="px-2.5 py-1 rounded-lg text-xs flex items-center gap-1.5 transition-all ${allBtnCls}">
-          <span>All 4 Job Codes</span>
+          <span>All ${jobKeys.length} Job Codes</span>
           <span class="px-1.5 py-0.2 rounded-full font-mono text-[10px] ${isAllSelected ? 'bg-indigo-800 text-white' : 'bg-slate-200 text-slate-800'} font-bold">${totalOpen}</span>
         </button>
       `;
 
-      const jobKeys = ['233265', '235144', '266778', '267588'];
       jobKeys.forEach(jk => {
-        const jDef = JOB_CODES[jk] || { code: jk, shortTitle: jk, isBre: false };
+        const jDef = getJobCodeDef(jk);
         const count = getJobOpenCount(jk);
         const isSelected = state.shiftFirstJobFilter === jk;
         const btnCls = isSelected
@@ -5938,8 +6021,8 @@
 
         html += `
           <button onclick="setShiftFirstJob('${jk}')" class="px-2.5 py-1 rounded-lg text-xs flex items-center gap-1.5 transition-all ${btnCls}">
-            <span class="font-mono text-[11px] font-bold">${jk}</span>
-            <span>${jDef.shortTitle}</span>
+            <span class="font-mono text-[11px] font-bold">${escapeHtml(jk)}</span>
+            <span>${escapeHtml(jDef.shortTitle)}</span>
             <span class="px-1.5 py-0.2 rounded-full font-mono text-[10px] ${isSelected ? 'bg-indigo-800 text-white' : 'bg-slate-200 text-slate-800'} font-bold">${count}</span>
           </button>
         `;
@@ -5966,7 +6049,7 @@
         return state.shifts.filter(s => {
           const isDay = dayStr === 'all' || s.workDateNorm === dayStr;
           const isJob = state.shiftFirstJobFilter === 'all' || String(s.jobNumber).trim() === state.shiftFirstJobFilter;
-          return isDay && isJob && s.isOpen && !s.assignedEmployee && !isShiftBlackedOut(s) && isFillablePostDescription(s.postDesc);
+          return isDay && isJob && s.isOpen && !s.assignedEmployee && !isShiftBlackedOut(s) && isFillablePostDescription(s.postDesc, s.jobNumber);
         }).length;
       };
 
@@ -6212,7 +6295,7 @@
         ? state.dates
         : [state.shiftFirstSelectedDay];
 
-      const jobKeys = ['233265', '235144', '266778', '267588'];
+      const jobKeys = getActiveJobCodes();
       let totalVisibleShifts = 0;
       let html = '';
 
@@ -6222,7 +6305,7 @@
 
         // Filter by Status
         if (state.shiftFirstStatusFilter === 'open') {
-          dayShifts = dayShifts.filter(s => s.isOpen && !s.assignedEmployee && isFillablePostDescription(s.postDesc));
+          dayShifts = dayShifts.filter(s => s.isOpen && !s.assignedEmployee && isFillablePostDescription(s.postDesc, s.jobNumber));
         } else if (state.shiftFirstStatusFilter === 'assigned') {
           dayShifts = dayShifts.filter(s => !s.isOpen || s.assignedEmployee);
         } else if (state.shiftFirstStatusFilter === 'blackout') {
@@ -6244,17 +6327,17 @@
         }
 
         totalVisibleShifts += dayShifts.length;
-        const openInDay = dayShifts.filter(s => s.isOpen && !s.assignedEmployee && !isShiftBlackedOut(s) && isFillablePostDescription(s.postDesc)).length;
+        const openInDay = dayShifts.filter(s => s.isOpen && !s.assignedEmployee && !isShiftBlackedOut(s) && isFillablePostDescription(s.postDesc, s.jobNumber)).length;
         const blackedOutInDay = dayShifts.filter(s => isShiftBlackedOut(s)).length;
         const totalHoursInDay = dayShifts.reduce((acc, s) => acc + s.countedHours, 0.0);
 
         const curDateIdx = state.dates.indexOf(dt);
         const hasNextDay = curDateIdx >= 0 && curDateIdx < state.dates.length - 1;
         const hasPrevDay = curDateIdx > 0;
-        const activeJobDef = state.shiftFirstJobFilter !== 'all' ? JOB_CODES[state.shiftFirstJobFilter] : null;
+        const activeJobDef = state.shiftFirstJobFilter !== 'all' ? getJobCodeDef(state.shiftFirstJobFilter) : null;
         const jobTitleLabel = activeJobDef
-          ? `<span class="font-mono text-amber-300 font-bold">${activeJobDef.code}</span> &bull; ${escapeHtml(activeJobDef.shortTitle)}`
-          : 'All 4 Job Codes';
+          ? `<span class="font-mono text-amber-300 font-bold">${escapeHtml(activeJobDef.code)}</span> &bull; ${escapeHtml(activeJobDef.shortTitle)}`
+          : `All ${jobKeys.length} Job Codes`;
 
         // Day Section Container
         html += `
@@ -6309,14 +6392,14 @@
             </div>
           `;
         } else {
-          // If viewing All 4 Jobs, display separated sections for each Job Code!
+          // If viewing All Jobs, display separated sections for each Job Code!
           if (state.shiftFirstJobFilter === 'all') {
             jobKeys.forEach(jk => {
-              const jDef = JOB_CODES[jk] || { code: jk, title: jk, shortTitle: jk, isBre: false, theme: 'slate' };
+              const jDef = getJobCodeDef(jk);
               const jobShifts = sortShifts(dayShifts.filter(s => String(s.jobNumber).trim() === jk), state.shiftFirstSort);
               if (jobShifts.length === 0) return;
 
-              const jobOpen = jobShifts.filter(s => s.isOpen && !s.assignedEmployee && !isShiftBlackedOut(s) && isFillablePostDescription(s.postDesc)).length;
+              const jobOpen = jobShifts.filter(s => s.isOpen && !s.assignedEmployee && !isShiftBlackedOut(s) && isFillablePostDescription(s.postDesc, s.jobNumber)).length;
               const jobHours = jobShifts.reduce((acc, s) => acc + s.countedHours, 0.0);
 
               let themeBorder = 'border-blue-200 bg-blue-50/20';
@@ -6330,17 +6413,27 @@
               } else if (jDef.theme === 'amber') {
                 themeBorder = 'border-amber-200 bg-amber-50/20';
                 headerBg = 'bg-amber-950 text-white';
+              } else if (jDef.theme === 'teal') {
+                themeBorder = 'border-teal-200 bg-teal-50/20';
+                headerBg = 'bg-teal-900 text-white';
               }
+
+              const roleBadgeCls = jDef.isBre
+                ? 'bg-amber-400 text-slate-950'
+                : (jDef.isCustom ? 'bg-teal-300 text-slate-950' : 'bg-blue-400 text-slate-950');
+              const roleBadgeText = jDef.isBre
+                ? 'Break Relief Extra (BRE)'
+                : (jDef.isCustom ? 'Additional PPA Job' : 'Core Posts');
 
               html += `
                 <div class="rounded-xl border ${themeBorder} overflow-hidden shadow-2xs">
                   <!-- Job Code Subheader -->
                   <div class="${headerBg} px-3.5 py-2 flex items-center justify-between flex-wrap gap-2">
                     <div class="flex items-center gap-2">
-                      <span class="font-mono text-xs font-black tracking-wide px-2 py-0.5 rounded bg-black/30">${jk}</span>
+                      <span class="font-mono text-xs font-black tracking-wide px-2 py-0.5 rounded bg-black/30">${escapeHtml(jk)}</span>
                       <span class="font-bold text-xs">${escapeHtml(jDef.title)}</span>
-                      <span class="px-1.5 py-0.2 rounded text-[10px] font-bold ${jDef.isBre ? 'bg-amber-400 text-slate-950' : 'bg-blue-400 text-slate-950'}">
-                        ${jDef.isBre ? 'Break Relief Extra (BRE)' : 'Core Posts'}
+                      <span class="px-1.5 py-0.2 rounded text-[10px] font-bold ${roleBadgeCls}">
+                        ${roleBadgeText}
                       </span>
                     </div>
                     <div class="flex items-center gap-2 text-[11px]">
@@ -6469,7 +6562,7 @@
           ? 'border-emerald-300 bg-white ring-1 ring-emerald-500/30'
           : 'border-slate-200 bg-white hover:border-slate-300';
 
-      const jDef = JOB_CODES[shift.jobNumber] || { code: shift.jobNumber, title: shift.jobDesc, isBre: isBreShift(shift) };
+      const jDef = getJobCodeDef(shift.jobNumber);
 
       let statusBadgeHtml = '';
       if (isBlackedOutShift) {
@@ -6866,13 +6959,13 @@
           `;
         }).join('');
 
-        const jobPillsHtml = ['233265', '235144', '266778', '267588'].map(jk => {
-          const jDef = JOB_CODES[jk] || { code: jk, shortTitle: jk };
+        const jobPillsHtml = getActiveJobCodes().map(jk => {
+          const jDef = getJobCodeDef(jk);
           const isJobBo = Boolean(bo.jobs && bo.jobs[jk]);
           return `
             <button type="button" onclick="toggleEmployeeJobBlackout('${eid}', '${jk}')"
               class="px-2.5 py-1 rounded-lg text-[11px] font-bold border transition-all ${isJobBo ? 'bg-slate-900 text-rose-300 border-rose-500 shadow-2xs' : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-100'}">
-              ${isJobBo ? '🚫 ' : ''}<span class="font-mono">${jk}</span> &bull; ${escapeHtml(jDef.shortTitle)}
+              ${isJobBo ? '🚫 ' : ''}<span class="font-mono">${escapeHtml(jk)}</span> &bull; ${escapeHtml(jDef.shortTitle)}
             </button>
           `;
         }).join('');
@@ -7178,7 +7271,7 @@
     }
 
     function runAutoFillSimulation() {
-      const openShifts = state.shifts.filter(s => s.isOpen && !s.assignedEmployee && !isShiftBlackedOut(s) && isFillablePostDescription(s.postDesc));
+      const openShifts = state.shifts.filter(s => s.isOpen && !s.assignedEmployee && !isShiftBlackedOut(s) && isFillablePostDescription(s.postDesc, s.jobNumber));
 
       const simWorkingShifts = {};
       const simWeeklyHours = {}; // eid -> wkKey -> hours
@@ -7485,8 +7578,8 @@
     }
 
     function renderSimProposalList() {
-      const openShifts = state.shifts.filter(s => s.isOpen && !s.assignedEmployee && !isShiftBlackedOut(s) && isFillablePostDescription(s.postDesc));
-      const blackedOutShiftCount = state.shifts.filter(s => s.isOpen && !s.assignedEmployee && isShiftBlackedOut(s) && isFillablePostDescription(s.postDesc)).length;
+      const openShifts = state.shifts.filter(s => s.isOpen && !s.assignedEmployee && !isShiftBlackedOut(s) && isFillablePostDescription(s.postDesc, s.jobNumber));
+      const blackedOutShiftCount = state.shifts.filter(s => s.isOpen && !s.assignedEmployee && isShiftBlackedOut(s) && isFillablePostDescription(s.postDesc, s.jobNumber)).length;
       const blackedOutEmpCount = Object.keys((state.blackouts && state.blackouts.employees) || {}).length;
       const proposed = state.simProposal || [];
       const regularCount = proposed.filter(p => !p.isOvertime).length;
@@ -7871,10 +7964,7 @@
       const totalCount = state.sessionAssignments.length;
       let otCount = 0;
       let regCount = 0;
-      let countJob233265 = 0;
-      let countJob235144 = 0;
-      let countJob266778 = 0;
-      let countJob267588 = 0;
+      const jobCounts = {};
 
       const auditedList = state.sessionAssignments.map((sa, idx) => {
         const audit = getWinTeamOTAudit(sa);
@@ -7882,10 +7972,9 @@
         else regCount++;
 
         const jn = String(sa.jobNumber || '').trim();
-        if (jn === '233265' || jn.includes('233265')) countJob233265++;
-        else if (jn === '235144' || jn.includes('235144')) countJob235144++;
-        else if (jn === '266778' || jn.includes('266778')) countJob266778++;
-        else if (jn === '267588' || jn.includes('267588')) countJob267588++;
+        if (jn) {
+          jobCounts[jn] = (jobCounts[jn] || 0) + 1;
+        }
 
         return { sa, audit, originalIdx: idx };
       });
@@ -7897,18 +7986,6 @@
       if (badgeAll) badgeAll.textContent = totalCount;
       if (badgeOT) badgeOT.textContent = otCount;
       if (badgeReg) badgeReg.textContent = regCount;
-
-      // Update 4 Job Code count badges
-      const elJobAll = document.getElementById('wtJobCountAll');
-      const elJob233265 = document.getElementById('wtJobCount233265');
-      const elJob235144 = document.getElementById('wtJobCount235144');
-      const elJob266778 = document.getElementById('wtJobCount266778');
-      const elJob267588 = document.getElementById('wtJobCount267588');
-      if (elJobAll) elJobAll.textContent = totalCount;
-      if (elJob233265) elJob233265.textContent = countJob233265;
-      if (elJob235144) elJob235144.textContent = countJob235144;
-      if (elJob266778) elJob266778.textContent = countJob266778;
-      if (elJob267588) elJob267588.textContent = countJob267588;
 
       // Update active filter button styling
       const btnAll = document.getElementById('btnWTFilterAll');
@@ -7926,29 +8003,37 @@
           : 'px-2.5 py-1 rounded-md font-bold text-xs text-emerald-800 hover:bg-white/80 transition-colors';
       }
 
-      // Update active Job Code button styling
-      const btnJobAll = document.getElementById('btnWTJobAll');
-      const btnJob233265 = document.getElementById('btnWTJob233265');
-      const btnJob235144 = document.getElementById('btnWTJob235144');
-      const btnJob266778 = document.getElementById('btnWTJob266778');
-      const btnJob267588 = document.getElementById('btnWTJob267588');
-      const activeJob = state.winteamJobFilter || 'all';
-
-      if (btnJobAll) btnJobAll.className = (activeJob === 'all')
-        ? 'px-2 py-1 rounded-md font-bold text-[11px] bg-white text-slate-900 shadow-2xs'
-        : 'px-2 py-1 rounded-md font-bold text-[11px] text-slate-700 hover:bg-white/80 transition-colors';
-      if (btnJob233265) btnJob233265.className = (activeJob === '233265')
-        ? 'px-2 py-1 rounded-md font-bold text-[11px] bg-blue-600 text-white shadow-2xs flex items-center gap-1'
-        : 'px-2 py-1 rounded-md font-bold text-[11px] text-blue-900 hover:bg-white/80 transition-colors flex items-center gap-1';
-      if (btnJob235144) btnJob235144.className = (activeJob === '235144')
-        ? 'px-2 py-1 rounded-md font-bold text-[11px] bg-indigo-600 text-white shadow-2xs flex items-center gap-1'
-        : 'px-2 py-1 rounded-md font-bold text-[11px] text-indigo-900 hover:bg-white/80 transition-colors flex items-center gap-1';
-      if (btnJob266778) btnJob266778.className = (activeJob === '266778')
-        ? 'px-2 py-1 rounded-md font-bold text-[11px] bg-emerald-600 text-white shadow-2xs flex items-center gap-1'
-        : 'px-2 py-1 rounded-md font-bold text-[11px] text-emerald-900 hover:bg-white/80 transition-colors flex items-center gap-1';
-      if (btnJob267588) btnJob267588.className = (activeJob === '267588')
-        ? 'px-2 py-1 rounded-md font-bold text-[11px] bg-amber-600 text-white shadow-2xs flex items-center gap-1'
-        : 'px-2 py-1 rounded-md font-bold text-[11px] text-amber-900 hover:bg-white/80 transition-colors flex items-center gap-1';
+      // Render dynamic Job Code filter chips
+      const wtJobChipsContainer = document.getElementById('wtJobFilterChips');
+      if (wtJobChipsContainer) {
+        const activeJob = state.winteamJobFilter || 'all';
+        const jobChipTheme = {
+          blue: { dot: 'bg-blue-500', active: 'bg-blue-600 text-white shadow-2xs', idle: 'text-blue-900 hover:bg-white/80', cnt: 'text-blue-700' },
+          indigo: { dot: 'bg-indigo-500', active: 'bg-indigo-600 text-white shadow-2xs', idle: 'text-indigo-900 hover:bg-white/80', cnt: 'text-indigo-700' },
+          emerald: { dot: 'bg-emerald-500', active: 'bg-emerald-600 text-white shadow-2xs', idle: 'text-emerald-900 hover:bg-white/80', cnt: 'text-emerald-700' },
+          amber: { dot: 'bg-amber-500', active: 'bg-amber-600 text-white shadow-2xs', idle: 'text-amber-900 hover:bg-white/80', cnt: 'text-amber-700' },
+          teal: { dot: 'bg-teal-500', active: 'bg-teal-600 text-white shadow-2xs', idle: 'text-teal-900 hover:bg-white/80', cnt: 'text-teal-700' }
+        };
+        let chipsHtml = `
+          <button id="btnWTJobAll" onclick="setWinTeamJobFilter('all')" class="${activeJob === 'all' ? 'px-2 py-1 rounded-md font-bold text-[11px] bg-white text-slate-900 shadow-2xs' : 'px-2 py-1 rounded-md font-bold text-[11px] text-slate-700 hover:bg-white/80 transition-colors'}">
+            All Jobs (<span>${totalCount}</span>)
+          </button>
+        `;
+        getActiveJobCodes(true).forEach(jk => {
+          const jMeta = getWinTeamJobMeta(jk);
+          const cnt = jobCounts[jk] || 0;
+          const th = jobChipTheme[jMeta.theme] || jobChipTheme.teal;
+          const isSel = activeJob === jk;
+          chipsHtml += `
+            <button onclick="setWinTeamJobFilter('${jk}')" class="px-2 py-1 rounded-md font-bold text-[11px] transition-colors flex items-center gap-1 ${isSel ? th.active : th.idle}" title="Job Code ${escapeHtml(jk)}: ${escapeHtml(jMeta.label)}">
+              <span class="w-2 h-2 rounded-full ${isSel ? 'bg-white' : th.dot}"></span>
+              <span>${escapeHtml(jMeta.shortCode)}</span>
+              <span class="font-mono text-[10px] ${isSel ? 'text-white/90' : th.cnt}">(${cnt})</span>
+            </button>
+          `;
+        });
+        wtJobChipsContainer.innerHTML = chipsHtml;
+      }
 
       if (state.sessionAssignments.length === 0) {
         state.winteamFilteredAssignments = [];
@@ -8304,16 +8389,17 @@
       for (const k of Object.keys(WT_JOB_META)) {
         if (jn.includes(k)) return WT_JOB_META[k];
       }
+      const def = getJobCodeDef(jn);
       return {
         code: jn || 'Other',
         tag: jn || 'OTHER',
         shortCode: jn || 'OTHER',
-        label: jn || 'Other',
-        theme: 'slate',
-        dotCls: 'bg-slate-500',
-        badgeCls: 'bg-slate-100 text-slate-800 border border-slate-300',
-        rowBorderCls: 'border-l-4 border-l-slate-400',
-        hoverBg: 'hover:bg-slate-50'
+        label: def.title || jn || 'Other',
+        theme: 'teal',
+        dotCls: 'bg-teal-500',
+        badgeCls: 'bg-teal-100 text-teal-900 border border-teal-300',
+        rowBorderCls: 'border-l-4 border-l-teal-500',
+        hoverBg: 'hover:bg-teal-50/40'
       };
     }
 
